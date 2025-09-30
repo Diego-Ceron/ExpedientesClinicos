@@ -11,4 +11,4 @@
 |RF-08|El sistema de expedientes clínicos deberá restringir el acceso a la información de los pacientes a personas no autorizadas.|<ul><li>El sistema deberá permitir definir roles de usuario (administrador, terapeuta, asistente) con distintos niveles de acceso.</li><li>El sistema deberá impedir que un usuario sin permisos pueda visualizar o editar información de pacientes no asignados.
 
 ---
-[Vover al inicio](../README.md)
+[Volver al inicio](../README.md)
