@@ -12,7 +12,7 @@
     - [Requisitos No Funcionales (RNF)](docs/requisitos_no_funcionales.md)
 4. **Artefactos**
     - Diagramas de caso de uso
-    - Historias de usuario
+    - [Historias de usuario](docs/historias_usuario.md)
     - Diagrama de clases
 6. **[Priorización](docs/priorizacion.md)**
 7. **Procesos de abstracción**
