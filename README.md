@@ -1,11 +1,15 @@
-# Módulo - Expedientes clínicos
+# Módulo - Sistema de Expedientes Digitales
 
-## Objetivo:
-Desarrollar un sistema para la gestión de **expedientes clínicos digitales**, enfocado especialmente en el control de **sesiones psicológicas**. Este sistema debe permitir registrar, consultar y actualizar información de los pacientes, así como la de sus respectivas sesiones.
-
----
 ## Documentación
-- [Requisitos Funcionales](docs/requisitos_funcionales.md)
-- [Requisitos No Funcionales](docs/requisitos_no_funcionales.md)
-- [Estructura de clases](docs/estructura_clases.md)
----
+
+1. **Introducción**
+    - [Objetivo](docs/objetivo.md)
+    - [Alcances](docs/alcances.md)
+    - [Limitaciones](docs/limitaciones.md)
+2. **[Propuesta de valor](docs/propuesta_valor.md)**
+3. **Requisitos**
+    - [Requisitos Funcionales (RF)](docs/requisitos_funcionales.md)
+    - [Requisitos No Funcionales (RNF)](docs/requisitos_no_funcionales.md)
+4. **[Priorización](docs/priorizacion.md)**
+5. **Procesos de abstracción**
+    - [Estructura de clases](docs/estructura_clases.md)
