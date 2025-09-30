@@ -10,6 +10,13 @@
 3. **Requisitos**
     - [Requisitos Funcionales (RF)](docs/requisitos_funcionales.md)
     - [Requisitos No Funcionales (RNF)](docs/requisitos_no_funcionales.md)
-4. **[Priorización](docs/priorizacion.md)**
-5. **Procesos de abstracción**
+4. **Priorización**
+    - [Método de prioridad](docs/metodos_prioridad.md)
+    - [Requisitos/Historias de Usuario](docs/requisitos.md)
+    - [Análisis de factibilidad](docs/analisis_factibilidad.md)
+5. **Artefactos**
+    - [Vista previa Casos de uso](docs/diagramas/diagrama_casos.png)
+    - [Historias de usuario](docs/historias_usuario.md)
+6. **Procesos de abstracción**
     - [Estructura de clases](docs/estructura_clases.md)
+    - [Vista previa UML](docs/diagramas/diagrama_uml_preview.png)
