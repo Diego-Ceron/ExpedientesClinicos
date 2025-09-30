@@ -17,4 +17,4 @@
 	- Registro y login de usuarios.
 
 ---
-[Vover al inicio](../README.md)
+[Volver al inicio](../README.md)
