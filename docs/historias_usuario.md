@@ -1,4 +1,5 @@
 # Historias de usuario
+
 ## Terapeuta 1
 Como terapeuta, quiero exportar el historial de un paciente en PDF, para compartirlo de manera formal o incluirlo en un reporte institucional.
 ## Terapeuta 2
@@ -11,3 +12,6 @@ Como administrador, quiero asignar pacientes a terapeutas, para asegurar que cad
 Como administrador, quiero consultar todos los expedientes de pacientes, para tener control general sobre el sistema.
 ## Administrativo 3
 Como administrador, quiero exportar los reportes en PDF o Excel, para su fácil manejo y archivado.
+
+---
+[Volver al inicio](../README.md)

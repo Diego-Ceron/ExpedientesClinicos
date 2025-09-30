@@ -1,28 +1,30 @@
 # Estructura de clases
 
-## Clase _Paciente_
-Representa a un paciente dentro del sistema. Contiene información personal.
+## Clase _Usuario_
+Atributos comunes a cualquier persona que usa el sistema.
 ```java
-public class Paciente {
-    private Long id;
-    private String nombre;
-    private String apellidoPaterno;
-    private String apellidoMaterno;
-    private String correo;
-    private LocalDate fechaNacimiento;
+public abstract class Usuario {
+    protected Long id;
+    protected String nombre;
+    protected String correo;
+    protected String password;
+    protected String rol;
+}
+```
+## Clase _Terapeuta_
+Representa a un terapeuta que atiende a los pacientes.
+```java
+public class Terapeuta extends Usuario {
+    private String especialidad;
+    private String cedulaProfesional;
     private String telefono;
 }
 ```
-## Clase _Sesión_
-Representa una sesión psicológica realizada a un paciente. Incluye detalles como fecha, terapeuta, tipo de sesión y notas.
+## Clase _Administrativo_
 ```java
-public class Sesion {
-    private Long id;
-    private LocalDate fecha;
-    private String terapeuta;
-    private String notas;
-    private String TiposSesion tipoSesion;
-    private int duracionMinutos;
+public class Administrativo extends Usuario {
+    private String departamento;
+    private String puesto;
 }
 ```
 ## Enum _TipoSesion_
