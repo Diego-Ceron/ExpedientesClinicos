@@ -20,5 +20,8 @@
 6. **Procesos de abstracción**
     - [Estructura de clases](docs/estructura_clases.md)
     - [Vista previa UML](docs/diagramas/diagrama_uml_preview.png)
-7. **Contribución y procesos**
+7. **Procesos del proyecto**
+    - [Descripción](docs/descripcion_proceso.md)
+    - [Gestión](docs/gestion_proceso.md)
     - [Contribuciones individuales](docs/contribucion_individual.md)
+
