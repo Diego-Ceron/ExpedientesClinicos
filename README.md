@@ -23,3 +23,5 @@
 7. **Procesos del proyecto**
     - [Descripción](docs/descripcion_proceso.md)
     - [Gestión](docs/gestion_proceso.md)
+    - [Contribuciones individuales](docs/contribucion_individual.md)
+
