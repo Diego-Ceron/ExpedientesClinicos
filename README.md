@@ -24,4 +24,7 @@
     - [Descripción](docs/descripcion_proceso.md)
     - [Gestión](docs/gestion_proceso.md)
     - [Contribuciones individuales](docs/contribucion_individual.md)
+8. **Presentación**
 
+    [![Video](https://img.youtube.com/vi/GppRmBpD5Mc/0.jpg)](https://www.youtube.com/watch?v=GppRmBpD5Mc "Expedientes clínicos")
+   - [Powerpoint](docs/ExpedientesClinicos.pdf)
