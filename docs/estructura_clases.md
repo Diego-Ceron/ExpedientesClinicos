@@ -35,7 +35,7 @@ public enum TipoSesion {
     FAMILIAR("Sesión con familia"),
     GRUPAL("Sesión grupal"),
     EVALUACION_INICIAL("Evaluación inicial del paciente"),
-    SEGUIMIENT("Sesión de seguimiento"),
+    SEGUIMIENTO("Sesión de seguimiento"),
     CRISIS("Intervención en situación crítica"),
     PSICOEDUCATIVA("Sesión educativa sobre salud mental")
 }

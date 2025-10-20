@@ -1,8 +1,8 @@
 # Limitaciones
-* El sistema solo será accesible 
-* El sistema serä de uso gratutio, integrado en la página web de la clínica. 
-* La subida y actualizacion de la información será de manera manual.
-* El sistema se desarollará con enfonque en la clínica y sus necesidades.
+* El sistema solo será accesible desde la intranet de la clínica o por personal autorizado.
+* El sistema será de uso gratuito, integrado en la página web de la clínica.
+* La subida y actualización de la información será de manera manual.
+* El sistema se desarrollará con enfoque en la clínica y sus necesidades.
 
 ---
 [Volver al inicio](../README.md)
