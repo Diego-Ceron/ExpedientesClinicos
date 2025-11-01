@@ -28,3 +28,7 @@
 
     [![Video](https://img.youtube.com/vi/GppRmBpD5Mc/0.jpg)](https://www.youtube.com/watch?v=GppRmBpD5Mc "Expedientes clínicos")
    - [Powerpoint](docs/ExpedientesClinicos.pdf)
+
+    **Entregas**
+   - [Primer entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Primer-entrega)
+   - [Segunda entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Segunda-entrega)
