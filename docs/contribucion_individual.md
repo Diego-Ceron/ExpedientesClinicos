@@ -1,22 +1,14 @@
+
 # Tabla de contribución
 
-| Apartado                         | Diego | Mauricio | Christian | Katherine | Perla |
-|----------------------------------|:-----:|:--------:|:---------:|:---------:|:-----:|
-| Objetivo                         |       |     x     |           |           |       |
-| Alcances                         |       |      x    |           |           |       |
-| Limitaciones                     |       |        |           |      x     |       |
-| Propuesta de valor               |  x     |          |           |           |       |
-| Requisitos Funcionales (RF)      |       |       x   |           |           |       |
-| Requisitos No Funcionales (RNF)  |       |          |           |x           |       |
-| Método de prioridad              |       |          |           |           |x       |
-| Requisitos/Historias de Usuario  |       |     x     |    x       |           |       |
-| Análisis de factibilidad         |       |          |           |           | x      |
-| Vista previa Casos de uso        |       |          | x          |           |       |
-| Historias de usuario             |    x   |          |           |           |       |
-| Estructura de clases             |       |          |  x         |           |       |
-| Vista previa UML                 |       |          |   x        |           |       |
-| **PowerPoint**                   |       |          |           | x          | x      |
-| **Video**                        |   x    |          |           |           |       |
+| Apartado                                                    | Diego | Mauricio | Christian | Katherine | Perla |
+|-------------------------------------------------------------|:-----:|:--------:|:---------:|:---------:|:-----:|
+| Implementación de requerimientos funcionales                |   x   |    x     |     x     |           |       |
+| Desarrollo de base de datos con **Spring Boot**              |       |    x     |     x     |           |       |
+| Diseño y conexión del módulo de **expediente clínico**       |       |    x     |     x     |           |       |
+| Elaboración del documento de actualización de avance         |     |    x     |           |           |       |
+| Revisión y corrección de funcionalidades                     |   x   |          |     x     |           |       |
+
 
 ---
 
@@ -24,8 +16,8 @@
 
 | Persona    | % Contribución |
 |------------|----------------|
-| Diego      |20%                |
-| Mauricio   |   20%             |
-| Christian  |      20%          |
-| Katherine  |         20%       |
-| Perla      |            20%    |
+| Diego      |33%                |
+| Mauricio   |   33%             |
+| Christian  |      33%          |
+| Katherine  |    0%           |
+| Perla      |      0%          |
