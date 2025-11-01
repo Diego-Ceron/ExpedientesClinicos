@@ -3,19 +3,23 @@
 El proceso de desarrollo del proyecto se organizó en fases que permitieron avanzar de manera ordenada en la construcción del sistema.  
 
 ## Fase 1 – Definición del proyecto  
-En esta etapa inicial se trabajó en la identificación de la problemática y la propuesta de solución.  
-Se establecieron los objetivos generales, los alcances y limitaciones, así como los primeros requisitos del sistema.  
-El propósito fue contar con una base clara que guiara el desarrollo posterior.  
+En esta etapa se identificó la problemática a resolver y se propuso una solución basada en un sistema digital de expedientes clínicos.
+Se establecieron los objetivos, alcances y limitaciones del proyecto, así como los primeros requerimientos funcionales y no funcionales.
+El propósito fue definir una base sólida que guiara las siguientes etapas de desarrollo.
 
 ## Fase 2 – Organización y planificación  
-Posteriormente, el equipo estructuró la documentación y definió la forma de trabajo.  
-Se asignaron responsabilidades, se adoptó un esquema de control de versiones y se priorizaron los requisitos a implementar.  
-Durante esta fase se fomentó el trabajo colaborativo y la comunicación constante para coordinar tareas.  
+Durante esta fase se estructuró la documentación del proyecto, se definieron los roles del equipo y se implementó el uso de control de versiones.
+También se priorizaron los requisitos más relevantes y se planificó la implementación inicial, promoviendo la comunicación constante entre los integrantes.
 
 ## Fase 3 – Elaboración de artefactos  
-Con los requisitos definidos y organizados, se pasó a la elaboración de artefactos que representan al sistema en diferentes niveles de abstracción.  
-Entre ellos se encuentran diagramas de casos de uso y clases, así como las historias de usuario.  
-Estos materiales permitieron visualizar la funcionalidad del sistema y sentar las bases para su futura implementación.  
+Con los requerimientos establecidos, el equipo desarrolló los artefactos necesarios para representar el sistema: diagramas de casos de uso, diagramas de clases e historias de usuario.
+Estos elementos sirvieron como guía para comprender la arquitectura y la interacción del sistema antes de su desarrollo técnico.
+
+## Fase 4 – Implementación del sistema
+
+En esta fase se llevó a cabo la codificación e integración del sistema de expedientes clínicos.
+Se implementaron los requerimientos funcionales principales y se desarrolló la base de datos utilizando Spring Boot para gestionar la persistencia y la conexión entre los módulos.
+Actualmente, se trabaja en la elaboración del diagrama de conectividad, con el fin de representar la interacción entre el módulo de expediente clínico y las interfaces en Java.
 
 ---
 [Volver al inicio](../README.md)
