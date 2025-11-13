@@ -1,7 +1,7 @@
 # ===============================
 # BUILD STAGE
 # ===============================
-FROM maven:3.9.9-eclipse-temurin-17 AS build
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
 # Set working directory inside container
 WORKDIR /app
@@ -17,7 +17,7 @@ RUN mvn clean package -DskipTests
 # ===============================
 # RUNTIME STAGE
 # ===============================
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
