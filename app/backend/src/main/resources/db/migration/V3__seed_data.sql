@@ -26,4 +26,8 @@ INSERT INTO sesiones_clinicas (paciente_id, terapeuta_id, numero_sesion, tipo_se
 INSERT INTO sesiones_clinicas_history (sesion_id, paciente_id, snapshot, modificado_por, comentario) VALUES
   (1, 1, '{"descripcion":"Primera sesión de evaluación","duracion_minutos":60}', 1, 'Creación inicial');
 
-
+/*
+endpoint pdf : http://localhost:8080/api/pacientes/1/sesiones/1/pdf?usuarioId=1&perfil=TERAPEUTA
+endpoint pacientes: http://localhost:8080/api/pacientes/terapeutas/1?usuarioId=1&perfil=TERAPEUTA
+endpoint sesiones: http://localhost:8080/api/pacientes/1/sesiones?usuarioId=1&perfil=TERAPEUTA
+*/
