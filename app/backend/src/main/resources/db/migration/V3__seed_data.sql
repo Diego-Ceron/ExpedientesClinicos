@@ -26,3 +26,4 @@ INSERT INTO sesiones_clinicas (paciente_id, terapeuta_id, numero_sesion, tipo_se
 INSERT INTO sesiones_clinicas_history (sesion_id, paciente_id, snapshot, modificado_por, comentario) VALUES
   (1, 1, '{"descripcion":"Primera sesión de evaluación","duracion_minutos":60}', 1, 'Creación inicial');
 
+
