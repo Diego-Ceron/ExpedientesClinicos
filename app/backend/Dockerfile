@@ -1,24 +1,31 @@
-# Use official Java 17 base image for building
-FROM eclipse-temurin:17-jdk AS build
+# ===============================
+# BUILD STAGE
+# ===============================
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 
+# Set working directory inside container
 WORKDIR /app
 
-# Copy Maven files
+# Copy pom.xml and source code
 COPY pom.xml .
 COPY src ./src
 
-# Run Maven build (if mvnw not found, fallback to mvn)
-RUN ./mvnw clean package -DskipTests || mvn clean package -DskipTests
+# Build the application (skip tests to speed up builds)
+RUN mvn clean package -DskipTests
+
 
 # ===============================
-# Run stage
+# RUNTIME STAGE
 # ===============================
 FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-# Copy built jar from previous stage
+# Copy the built JAR from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
+# Expose Spring Boot’s default port
 EXPOSE 8080
+
+# Command to run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
