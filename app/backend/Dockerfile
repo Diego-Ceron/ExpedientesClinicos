@@ -1,22 +1,24 @@
-# Use an official Java 17 image (Render supports Temurin)
-FROM eclipse-temurin:17-jdk
+# Use official Java 17 base image for building
+FROM eclipse-temurin:17-jdk AS build
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the Maven project files
+# Copy Maven files
 COPY pom.xml .
 COPY src ./src
 
-# Build the project (Render will cache this)
+# Run Maven build (if mvnw not found, fallback to mvn)
 RUN ./mvnw clean package -DskipTests || mvn clean package -DskipTests
 
-# Copy only the generated JAR to the final image
-# (Optional optimization)
-RUN mkdir -p target && cp target/*.jar app.jar
+# ===============================
+# Run stage
+# ===============================
+FROM eclipse-temurin:17-jre
 
-# Expose port 8080 (Render expects this)
+WORKDIR /app
+
+# Copy built jar from previous stage
+COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8080
-
-# Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
