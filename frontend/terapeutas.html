@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Terapeutas - Expedientes Clinicos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        main { max-width: 900px; }
+        header { margin-bottom: 24px; }
+        nav a { margin-right: 12px; }
+        form { border: 1px solid #ccc; padding: 16px; margin-bottom: 24px; border-radius: 6px; }
+        label { display: block; margin-bottom: 8px; }
+        input, textarea { width: 100%; max-width: 420px; padding: 6px; margin-top: 4px; }
+        .response { background-color: #111; color: #f5f5f5; padding: 12px; margin-top: 12px; border-radius: 4px; white-space: pre-wrap; min-height: 48px; overflow-x: auto; }
+        .actions { margin-top: 12px; }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>Gestion de terapeutas</h1>
+            <p>Pantallas sencillas para crear y consultar terapeutas registrados.</p>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="pacientes.html">Pacientes</a>
+                <a href="sesiones.html">Sesiones clinicas</a>
+            </nav>
+        </header>
+
+        <section>
+            <label for="apiBase">URL base del backend:</label>
+            <input type="url" id="apiBase" value="http://localhost:8080" size="42">
+        </section>
+
+        <section>
+            <h2>Registrar terapeuta</h2>
+            <form data-endpoint="/api/terapeutas" data-method="POST">
+                <label>Nombre completo
+                    <input type="text" name="nombre" required>
+                </label>
+                <label>Correo electronico
+                    <input type="email" name="correo" required>
+                </label>
+                <label>Contrasena temporal
+                    <input type="text" name="password" required>
+                </label>
+                <label>Especialidad
+                    <input type="text" name="especialidad" required>
+                </label>
+                <label>Cedula profesional
+                    <input type="text" name="cedulaProfesional" required>
+                </label>
+                <label>Telefono de contacto
+                    <input type="tel" name="telefono">
+                </label>
+                <div class="actions">
+                    <button type="submit">Registrar</button>
+                    <button type="reset">Limpiar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+
+        <section>
+            <h2>Listar terapeutas</h2>
+            <form data-endpoint="/api/terapeutas" data-method="GET">
+                <div class="actions">
+                    <button type="submit">Listar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+
+        <section>
+            <h2>Consultar terapeuta por ID</h2>
+            <form data-endpoint="/api/terapeutas/{id}" data-method="GET">
+                <label>ID del terapeuta
+                    <input type="number" data-path="id" required>
+                </label>
+                <div class="actions">
+                    <button type="submit">Consultar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            const STORAGE_KEY = 'expedientesclinicos.apiBaseUrl';
+            const apiBaseInput = document.getElementById('apiBase');
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                apiBaseInput.value = saved;
+            }
+            apiBaseInput.addEventListener('change', function () {
+                sessionStorage.setItem(STORAGE_KEY, apiBaseInput.value.trim());
+            });
+
+            const forms = document.querySelectorAll('form[data-endpoint]');
+            forms.forEach(function (form) {
+                form.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    const output = form.querySelector('.response');
+                    if (output) {
+                        output.textContent = 'Enviando...';
+                    }
+
+                    const method = form.dataset.method || 'GET';
+                    let endpoint = form.dataset.endpoint;
+                    form.querySelectorAll('[data-path]').forEach(function (input) {
+                        const value = (input.value || '').trim();
+                        endpoint = endpoint.replace('{' + input.dataset.path + '}', encodeURIComponent(value));
+                    });
+                    if (/\{.+\}/.test(endpoint)) {
+                        if (output) {
+                            output.textContent = 'Faltan valores para completar la URL.';
+                        }
+                        return;
+                    }
+
+                    let url = apiBaseInput.value.trim().replace(/\/$/, '') + endpoint;
+                    const init = {
+                        method: method,
+                        headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
+                        body: null
+                    };
+
+                    if (method !== 'GET') {
+                        const body = buildBody(form);
+                        init.body = JSON.stringify(body || {});
+                    }
+
+                    try {
+                        const response = await fetch(url, init);
+                        const text = await response.text();
+                        if (!response.ok) {
+                            if (output) {
+                                output.textContent = 'Error ' + response.status + ': ' + text;
+                            }
+                            return;
+                        }
+                        try {
+                            const parsed = text ? JSON.parse(text) : null;
+                            if (output) {
+                                output.textContent = parsed ? JSON.stringify(parsed, null, 2) : 'Sin contenido';
+                            }
+                        } catch (parseError) {
+                            if (output) {
+                                output.textContent = text || 'Sin contenido';
+                            }
+                        }
+                    } catch (error) {
+                        if (output) {
+                            output.textContent = 'Fallo de red: ' + error.message;
+                        }
+                    }
+                });
+            });
+
+            function buildBody(form) {
+                const data = {};
+                const inputs = form.querySelectorAll('input[name], select[name], textarea[name]');
+                inputs.forEach(function (input) {
+                    if (input.dataset.path) {
+                        return;
+                    }
+                    if (input.type === 'checkbox' && !input.checked) {
+                        return;
+                    }
+                    const value = (input.value || '').trim();
+                    if (value === '') {
+                        return;
+                    }
+                    setNestedValue(data, input.name, value);
+                });
+                return data;
+            }
+
+            function setNestedValue(target, path, value) {
+                const parts = path.split('.');
+                let current = target;
+                parts.forEach(function (part, index) {
+                    if (index === parts.length - 1) {
+                        current[part] = value;
+                    } else {
+                        if (!current[part]) {
+                            current[part] = {};
+                        }
+                        current = current[part];
+                    }
+                });
+            }
+        }());
+    </script>
+</body>
+</html>

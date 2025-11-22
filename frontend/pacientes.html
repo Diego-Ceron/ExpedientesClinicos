@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pacientes - Expedientes Clinicos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        main { max-width: 1100px; }
+        header { margin-bottom: 24px; }
+        nav a { margin-right: 12px; }
+        form { border: 1px solid #ccc; padding: 16px; margin-bottom: 24px; border-radius: 6px; }
+        fieldset { margin-bottom: 16px; }
+        legend { font-weight: bold; }
+        label { display: block; margin-bottom: 8px; }
+        input, select, textarea { width: 100%; max-width: 420px; padding: 6px; margin-top: 4px; }
+        .response { background-color: #111; color: #f5f5f5; padding: 12px; margin-top: 12px; border-radius: 4px; white-space: pre-wrap; overflow-x: auto; min-height: 48px; }
+        .actions { margin-top: 12px; }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>Gestion de pacientes</h1>
+            <p>Formularios basicos para interactuar con los endpoints de pacientes.</p>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="sesiones.html">Sesiones clinicas</a>
+                <a href="terapeutas.html">Terapeutas</a>
+            </nav>
+        </header>
+
+        <section>
+            <label for="apiBase">URL base del backend:</label>
+            <input type="url" id="apiBase" value="http://localhost:8080" size="42">
+        </section>
+
+        <section>
+            <h2>Crear paciente</h2>
+            <form data-endpoint="/api/pacientes" data-method="POST">
+                <fieldset>
+                    <legend>Solicitante</legend>
+                    <label>Usuario ID
+                        <input type="number" name="solicitante.usuarioId" data-type="number" required>
+                    </label>
+                    <label>Perfil
+                        <select name="solicitante.perfil" required>
+                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                            <option value="TERAPEUTA">TERAPEUTA</option>
+                        </select>
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Datos del paciente</legend>
+                    <label>Nombre completo
+                        <input type="text" name="nombreCompleto" required>
+                    </label>
+                    <label>Celular
+                        <input type="tel" name="celular" required>
+                    </label>
+                    <label>Email
+                        <input type="email" name="email">
+                    </label>
+                    <label>Tipo de servicio
+                        <select name="tipoServicio" required>
+                            <option value="TERAPIA_INDIVIDUAL">TERAPIA_INDIVIDUAL</option>
+                            <option value="TERAPIA_FAMILIAR">TERAPIA_FAMILIAR</option>
+                            <option value="TERAPIA_PAREJA">TERAPIA_PAREJA</option>
+                            <option value="TERAPIA_GRUPAL">TERAPIA_GRUPAL</option>
+                            <option value="EVALUACION_PSICOLOGICA">EVALUACION_PSICOLOGICA</option>
+                            <option value="INTERVENCION_CRISIS">INTERVENCION_CRISIS</option>
+                        </select>
+                    </label>
+                    <label>Estado del expediente
+                        <select name="estado" required>
+                            <option value="ACTIVO">ACTIVO</option>
+                            <option value="EN_ESPERA">EN_ESPERA</option>
+                            <option value="ARCHIVADO">ARCHIVADO</option>
+                        </select>
+                    </label>
+                    <label>Sexo
+                        <select name="sexo" required>
+                            <option value="FEMENINO">FEMENINO</option>
+                            <option value="MASCULINO">MASCULINO</option>
+                            <option value="NO_BINARIO">NO_BINARIO</option>
+                            <option value="PREFIERE_NO_DECIR">PREFIERE_NO_DECIR</option>
+                        </select>
+                    </label>
+                    <label>Edad
+                        <input type="number" name="edad" data-type="number" min="0">
+                    </label>
+                    <label>Fecha de registro
+                        <input type="date" name="fechaRegistro" required>
+                    </label>
+                    <label>Fecha proxima sesion
+                        <input type="date" name="fechaProximaSesion">
+                    </label>
+                    <label>Terapeuta asignado (ID)
+                        <input type="number" name="terapeutaId" data-type="number" required>
+                    </label>
+                </fieldset>
+
+                <div class="actions">
+                    <button type="submit">Enviar</button>
+                    <button type="reset">Limpiar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+
+        <section>
+            <h2>Actualizar paciente</h2>
+            <form data-endpoint="/api/pacientes/{pacienteId}" data-method="PUT">
+                <label>ID del paciente
+                    <input type="number" data-path="pacienteId" required>
+                </label>
+                <fieldset>
+                    <legend>Solicitante</legend>
+                    <label>Usuario ID
+                        <input type="number" name="solicitante.usuarioId" data-type="number" required>
+                    </label>
+                    <label>Perfil
+                        <select name="solicitante.perfil" required>
+                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                            <option value="TERAPEUTA">TERAPEUTA</option>
+                        </select>
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <legend>Datos actualizados</legend>
+                    <label>Nombre completo
+                        <input type="text" name="nombreCompleto" required>
+                    </label>
+                    <label>Celular
+                        <input type="tel" name="celular" required>
+                    </label>
+                    <label>Email
+                        <input type="email" name="email">
+                    </label>
+                    <label>Tipo de servicio
+                        <select name="tipoServicio" required>
+                            <option value="TERAPIA_INDIVIDUAL">TERAPIA_INDIVIDUAL</option>
+                            <option value="TERAPIA_FAMILIAR">TERAPIA_FAMILIAR</option>
+                            <option value="TERAPIA_PAREJA">TERAPIA_PAREJA</option>
+                            <option value="TERAPIA_GRUPAL">TERAPIA_GRUPAL</option>
+                            <option value="EVALUACION_PSICOLOGICA">EVALUACION_PSICOLOGICA</option>
+                            <option value="INTERVENCION_CRISIS">INTERVENCION_CRISIS</option>
+                        </select>
+                    </label>
+                    <label>Estado del expediente
+                        <select name="estado" required>
+                            <option value="ACTIVO">ACTIVO</option>
+                            <option value="EN_ESPERA">EN_ESPERA</option>
+                            <option value="ARCHIVADO">ARCHIVADO</option>
+                        </select>
+                    </label>
+                    <label>Sexo
+                        <select name="sexo" required>
+                            <option value="FEMENINO">FEMENINO</option>
+                            <option value="MASCULINO">MASCULINO</option>
+                            <option value="NO_BINARIO">NO_BINARIO</option>
+                            <option value="PREFIERE_NO_DECIR">PREFIERE_NO_DECIR</option>
+                        </select>
+                    </label>
+                    <label>Edad
+                        <input type="number" name="edad" data-type="number" min="0">
+                    </label>
+                    <label>Fecha de registro
+                        <input type="date" name="fechaRegistro" required>
+                    </label>
+                    <label>Fecha proxima sesion
+                        <input type="date" name="fechaProximaSesion">
+                    </label>
+                    <label>Terapeuta asignado (ID)
+                        <input type="number" name="terapeutaId" data-type="number" required>
+                    </label>
+                </fieldset>
+                <div class="actions">
+                    <button type="submit">Actualizar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+
+        <section>
+            <h2>Eliminar paciente</h2>
+            <form data-endpoint="/api/pacientes/{pacienteId}" data-method="DELETE">
+                <label>ID del paciente
+                    <input type="number" data-path="pacienteId" required>
+                </label>
+                <fieldset>
+                    <legend>Solicitante</legend>
+                    <label>Usuario ID
+                        <input type="number" name="solicitante.usuarioId" data-type="number" required>
+                    </label>
+                    <label>Perfil
+                        <select name="solicitante.perfil" required>
+                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                            <option value="TERAPEUTA">TERAPEUTA</option>
+                        </select>
+                    </label>
+                </fieldset>
+                <div class="actions">
+                    <button type="submit">Eliminar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+
+        <section>
+            <h2>Consultar paciente por ID</h2>
+            <form data-endpoint="/api/pacientes/{pacienteId}" data-method="GET">
+                <label>ID del paciente
+                    <input type="number" data-path="pacienteId" required>
+                </label>
+                <label>Usuario solicitante ID
+                    <input type="number" data-query="usuarioId" required>
+                </label>
+                <label>Perfil solicitante
+                    <select data-query="perfil" required>
+                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                        <option value="TERAPEUTA">TERAPEUTA</option>
+                    </select>
+                </label>
+                <div class="actions">
+                    <button type="submit">Consultar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+
+        <section>
+            <h2>Listar pacientes por terapeuta</h2>
+            <form data-endpoint="/api/pacientes/terapeutas/{terapeutaId}" data-method="GET">
+                <label>ID del terapeuta
+                    <input type="number" data-path="terapeutaId" required>
+                </label>
+                <label>Usuario solicitante ID
+                    <input type="number" data-query="usuarioId" required>
+                </label>
+                <label>Perfil solicitante
+                    <select data-query="perfil" required>
+                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                        <option value="TERAPEUTA">TERAPEUTA</option>
+                    </select>
+                </label>
+                <div class="actions">
+                    <button type="submit">Listar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            const STORAGE_KEY = 'expedientesclinicos.apiBaseUrl';
+            const apiBaseInput = document.getElementById('apiBase');
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                apiBaseInput.value = saved;
+            }
+            apiBaseInput.addEventListener('change', function () {
+                sessionStorage.setItem(STORAGE_KEY, apiBaseInput.value.trim());
+            });
+
+            const forms = document.querySelectorAll('form[data-endpoint]');
+            forms.forEach(function (form) {
+                form.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    const output = form.querySelector('.response');
+                    if (output) {
+                        output.textContent = 'Enviando...';
+                    }
+
+                    const method = form.dataset.method || 'GET';
+                    let endpoint = form.dataset.endpoint;
+                    const pathInputs = form.querySelectorAll('[data-path]');
+                    pathInputs.forEach(function (input) {
+                        const value = (input.value || '').trim();
+                        endpoint = endpoint.replace('{' + input.dataset.path + '}', encodeURIComponent(value));
+                    });
+                    if (/\{.+\}/.test(endpoint)) {
+                        if (output) {
+                            output.textContent = 'Faltan valores para completar la URL.';
+                        }
+                        return;
+                    }
+
+                    const query = new URLSearchParams();
+                    form.querySelectorAll('[data-query]').forEach(function (input) {
+                        const value = (input.value || '').trim();
+                        if (value !== '') {
+                            query.append(input.dataset.query, value);
+                        }
+                    });
+
+                    let url = apiBaseInput.value.trim().replace(/\/$/, '') + endpoint;
+                    const queryString = query.toString();
+                    if (queryString) {
+                        url += (url.includes('?') ? '&' : '?') + queryString;
+                    }
+
+                    let body = null;
+                    if (method !== 'GET') {
+                        body = buildBody(form);
+                    }
+
+                    const requestInit = {
+                        method: method,
+                        headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
+                        body: method === 'GET' ? null : JSON.stringify(body || {})
+                    };
+
+                    try {
+                        const response = await fetch(url, requestInit);
+                        const rawText = await response.text();
+                        if (!response.ok) {
+                            if (output) {
+                                output.textContent = 'Error ' + response.status + ': ' + rawText;
+                            }
+                            return;
+                        }
+
+                        try {
+                            const parsed = rawText ? JSON.parse(rawText) : null;
+                            if (output) {
+                                output.textContent = parsed ? JSON.stringify(parsed, null, 2) : 'Sin contenido';
+                            }
+                        } catch (parseError) {
+                            if (output) {
+                                output.textContent = rawText || 'Sin contenido';
+                            }
+                        }
+                    } catch (error) {
+                        if (output) {
+                            output.textContent = 'Fallo de red: ' + error.message;
+                        }
+                    }
+                });
+            });
+
+            function buildBody(form) {
+                const data = {};
+                const inputs = form.querySelectorAll('input[name], select[name], textarea[name]');
+                inputs.forEach(function (input) {
+                    if (input.dataset.path || input.dataset.query) {
+                        return;
+                    }
+                    if (input.type === 'checkbox' && !input.checked) {
+                        return;
+                    }
+                    let value = (input.value || '').trim();
+                    if (value === '') {
+                        return;
+                    }
+                    const dataType = input.dataset.type || input.type;
+                    if (dataType === 'number') {
+                        value = Number(value);
+                    }
+                    setNestedValue(data, input.name, value);
+                });
+                return data;
+            }
+
+            function setNestedValue(target, path, value) {
+                const segments = path.split('.');
+                let cursor = target;
+                segments.forEach(function (segment, index) {
+                    if (index === segments.length - 1) {
+                        cursor[segment] = value;
+                    } else {
+                        if (!cursor[segment]) {
+                            cursor[segment] = {};
+                        }
+                        cursor = cursor[segment];
+                    }
+                });
+            }
+        }());
+    </script>
+</body>
+</html>
