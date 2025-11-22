@@ -30,10 +30,7 @@
             </nav>
         </header>
 
-        <section>
-            <label for="apiBase">URL base del backend:</label>
-            <input type="url" id="apiBase" value="http://localhost:8080" size="42">
-        </section>
+        
 
         <section>
             <h2>Crear paciente</h2>
@@ -254,53 +251,42 @@
     </main>
 
     <script>
-        (function () {
-            const STORAGE_KEY = 'expedientesclinicos.apiBaseUrl';
-            const apiBaseInput = document.getElementById('apiBase');
-            const saved = sessionStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                apiBaseInput.value = saved;
-            }
-            apiBaseInput.addEventListener('change', function () {
-                sessionStorage.setItem(STORAGE_KEY, apiBaseInput.value.trim());
-            });
+         (function () {
+            const API_BASE = "https://expedientesclinicos.onrender.com";
 
             const forms = document.querySelectorAll('form[data-endpoint]');
             forms.forEach(function (form) {
                 form.addEventListener('submit', async function (event) {
                     event.preventDefault();
                     const output = form.querySelector('.response');
-                    if (output) {
-                        output.textContent = 'Enviando...';
-                    }
+                    if (output) output.textContent = 'Enviando...';
 
                     const method = form.dataset.method || 'GET';
                     let endpoint = form.dataset.endpoint;
-                    const pathInputs = form.querySelectorAll('[data-path]');
-                    pathInputs.forEach(function (input) {
-                        const value = (input.value || '').trim();
-                        endpoint = endpoint.replace('{' + input.dataset.path + '}', encodeURIComponent(value));
+
+                    form.querySelectorAll('[data-path]').forEach(input => {
+                        endpoint = endpoint.replace(
+                            `{${input.dataset.path}}`,
+                            encodeURIComponent(input.value.trim())
+                        );
                     });
+
                     if (/\{.+\}/.test(endpoint)) {
-                        if (output) {
-                            output.textContent = 'Faltan valores para completar la URL.';
-                        }
+                        if (output) output.textContent = 'Faltan valores para completar la URL.';
                         return;
                     }
 
+
                     const query = new URLSearchParams();
-                    form.querySelectorAll('[data-query]').forEach(function (input) {
-                        const value = (input.value || '').trim();
-                        if (value !== '') {
-                            query.append(input.dataset.query, value);
+                    form.querySelectorAll('[data-query]').forEach(input => {
+                        if (input.value.trim() !== '') {
+                            query.append(input.dataset.query, input.value.trim());
                         }
                     });
 
-                    let url = apiBaseInput.value.trim().replace(/\/$/, '') + endpoint;
+                    let url = API_BASE + endpoint;
                     const queryString = query.toString();
-                    if (queryString) {
-                        url += (url.includes('?') ? '&' : '?') + queryString;
-                    }
+                    if (queryString) url += (url.includes('?') ? '&' : '?') + queryString;
 
                     let body = null;
                     if (method !== 'GET') {
@@ -308,7 +294,7 @@
                     }
 
                     const requestInit = {
-                        method: method,
+                        method,
                         headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
                         body: method === 'GET' ? null : JSON.stringify(body || {})
                     };
@@ -316,49 +302,33 @@
                     try {
                         const response = await fetch(url, requestInit);
                         const rawText = await response.text();
+
                         if (!response.ok) {
-                            if (output) {
-                                output.textContent = 'Error ' + response.status + ': ' + rawText;
-                            }
+                            output.textContent = `Error ${response.status}: ${rawText}`;
                             return;
                         }
 
                         try {
-                            const parsed = rawText ? JSON.parse(rawText) : null;
-                            if (output) {
-                                output.textContent = parsed ? JSON.stringify(parsed, null, 2) : 'Sin contenido';
-                            }
-                        } catch (parseError) {
-                            if (output) {
-                                output.textContent = rawText || 'Sin contenido';
-                            }
+                            output.textContent = rawText ? JSON.stringify(JSON.parse(rawText), null, 2) : 'Sin contenido';
+                        } catch {
+                            output.textContent = rawText || 'Sin contenido';
                         }
                     } catch (error) {
-                        if (output) {
-                            output.textContent = 'Fallo de red: ' + error.message;
-                        }
+                        output.textContent = 'Fallo de red: ' + error.message;
                     }
                 });
             });
 
             function buildBody(form) {
                 const data = {};
-                const inputs = form.querySelectorAll('input[name], select[name], textarea[name]');
-                inputs.forEach(function (input) {
-                    if (input.dataset.path || input.dataset.query) {
-                        return;
-                    }
-                    if (input.type === 'checkbox' && !input.checked) {
-                        return;
-                    }
-                    let value = (input.value || '').trim();
-                    if (value === '') {
-                        return;
-                    }
-                    const dataType = input.dataset.type || input.type;
-                    if (dataType === 'number') {
-                        value = Number(value);
-                    }
+                form.querySelectorAll('input[name], select[name], textarea[name]').forEach(input => {
+                    if (input.dataset.path || input.dataset.query) return;
+                    if (input.type === 'checkbox' && !input.checked) return;
+
+                    let value = input.value.trim();
+                    if (value === '') return;
+
+                    if (input.dataset.type === 'number') value = Number(value);
                     setNestedValue(data, input.name, value);
                 });
                 return data;
@@ -367,18 +337,18 @@
             function setNestedValue(target, path, value) {
                 const segments = path.split('.');
                 let cursor = target;
-                segments.forEach(function (segment, index) {
+
+                segments.forEach((segment, index) => {
                     if (index === segments.length - 1) {
                         cursor[segment] = value;
                     } else {
-                        if (!cursor[segment]) {
-                            cursor[segment] = {};
-                        }
+                        cursor[segment] = cursor[segment] || {};
                         cursor = cursor[segment];
                     }
                 });
             }
-        }());
+
+        })();
     </script>
 </body>
 </html>

@@ -19,11 +19,6 @@
         </header>
 
         <section>
-            <label for="apiBase">URL:</label>
-            <input type="url" id="apiBase" value="http://localhost:8080" size="40">
-        </section>
-
-        <section>
             <h2>Páginas disponibles</h2>
             <nav>
                 <a href="pacientes.html">Pacientes</a>
@@ -36,14 +31,10 @@
     <script>
         (function () {
             const STORAGE_KEY = 'expedientesclinicos.apiBaseUrl';
-            const input = document.getElementById('apiBase');
-            const saved = sessionStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                input.value = saved;
+            const DEFAULT_URL = "https://expedientesclinicos.onrender.com";
+            if (!sessionStorage.getItem(STORAGE_KEY)) {
+                sessionStorage.setItem(STORAGE_KEY, DEFAULT_URL);
             }
-            input.addEventListener('change', function () {
-                sessionStorage.setItem(STORAGE_KEY, input.value.trim());
-            });
         }());
     </script>
 </body>

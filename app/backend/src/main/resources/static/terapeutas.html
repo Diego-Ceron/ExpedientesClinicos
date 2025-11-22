@@ -29,11 +29,6 @@
         </header>
 
         <section>
-            <label for="apiBase">URL base del backend:</label>
-            <input type="url" id="apiBase" value="http://localhost:8080" size="42">
-        </section>
-
-        <section>
             <h2>Registrar terapeuta</h2>
             <form data-endpoint="/api/terapeutas" data-method="POST">
                 <label>Nombre completo
@@ -88,41 +83,38 @@
 
     <script>
         (function () {
-            const STORAGE_KEY = 'expedientesclinicos.apiBaseUrl';
-            const apiBaseInput = document.getElementById('apiBase');
-            const saved = sessionStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                apiBaseInput.value = saved;
-            }
-            apiBaseInput.addEventListener('change', function () {
-                sessionStorage.setItem(STORAGE_KEY, apiBaseInput.value.trim());
-            });
+
+           
+            const API_BASE = "https://expedientesclinicos.onrender.com";
 
             const forms = document.querySelectorAll('form[data-endpoint]');
+
             forms.forEach(function (form) {
                 form.addEventListener('submit', async function (event) {
                     event.preventDefault();
+
                     const output = form.querySelector('.response');
-                    if (output) {
-                        output.textContent = 'Enviando...';
-                    }
+                    if (output) output.textContent = 'Enviando...';
 
                     const method = form.dataset.method || 'GET';
                     let endpoint = form.dataset.endpoint;
+
                     form.querySelectorAll('[data-path]').forEach(function (input) {
-                        const value = (input.value || '').trim();
-                        endpoint = endpoint.replace('{' + input.dataset.path + '}', encodeURIComponent(value));
+                        endpoint = endpoint.replace(
+                            `{${input.dataset.path}}`,
+                            encodeURIComponent(input.value.trim())
+                        );
                     });
+
                     if (/\{.+\}/.test(endpoint)) {
-                        if (output) {
-                            output.textContent = 'Faltan valores para completar la URL.';
-                        }
+                        output.textContent = 'Faltan valores para completar la URL.';
                         return;
                     }
 
-                    let url = apiBaseInput.value.trim().replace(/\/$/, '') + endpoint;
+                    const url = API_BASE + endpoint;
+
                     const init = {
-                        method: method,
+                        method,
                         headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
                         body: null
                     };
@@ -135,44 +127,33 @@
                     try {
                         const response = await fetch(url, init);
                         const text = await response.text();
+
                         if (!response.ok) {
-                            if (output) {
-                                output.textContent = 'Error ' + response.status + ': ' + text;
-                            }
+                            output.textContent = `Error ${response.status}: ${text}`;
                             return;
                         }
+
                         try {
-                            const parsed = text ? JSON.parse(text) : null;
-                            if (output) {
-                                output.textContent = parsed ? JSON.stringify(parsed, null, 2) : 'Sin contenido';
-                            }
-                        } catch (parseError) {
-                            if (output) {
-                                output.textContent = text || 'Sin contenido';
-                            }
+                            output.textContent = text ? JSON.stringify(JSON.parse(text), null, 2) : 'Sin contenido';
+                        } catch {
+                            output.textContent = text || 'Sin contenido';
                         }
+
                     } catch (error) {
-                        if (output) {
-                            output.textContent = 'Fallo de red: ' + error.message;
-                        }
+                        output.textContent = 'Fallo de red: ' + error.message;
                     }
                 });
             });
 
             function buildBody(form) {
                 const data = {};
-                const inputs = form.querySelectorAll('input[name], select[name], textarea[name]');
+                const inputs = form.querySelectorAll('input[name], textarea[name]');
                 inputs.forEach(function (input) {
-                    if (input.dataset.path) {
-                        return;
-                    }
-                    if (input.type === 'checkbox' && !input.checked) {
-                        return;
-                    }
-                    const value = (input.value || '').trim();
-                    if (value === '') {
-                        return;
-                    }
+                    if (input.dataset.path) return;
+
+                    let value = input.value.trim();
+                    if (!value) return;
+
                     setNestedValue(data, input.name, value);
                 });
                 return data;
@@ -181,18 +162,17 @@
             function setNestedValue(target, path, value) {
                 const parts = path.split('.');
                 let current = target;
-                parts.forEach(function (part, index) {
+
+                parts.forEach((part, index) => {
                     if (index === parts.length - 1) {
                         current[part] = value;
                     } else {
-                        if (!current[part]) {
-                            current[part] = {};
-                        }
+                        if (!current[part]) current[part] = {};
                         current = current[part];
                     }
                 });
             }
-        }());
+        })();
     </script>
 </body>
 </html>

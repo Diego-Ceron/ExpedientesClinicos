@@ -32,11 +32,6 @@
         </header>
 
         <section>
-            <label for="apiBase">URL base del backend:</label>
-            <input type="url" id="apiBase" value="http://localhost:8080" size="42">
-        </section>
-
-        <section>
             <h2>Registrar sesion</h2>
             <form data-endpoint="/api/pacientes/{pacienteId}/sesiones" data-method="POST">
                 <label>ID del paciente
@@ -280,120 +275,92 @@
 
     <script>
         (function () {
-            const STORAGE_KEY = 'expedientesclinicos.apiBaseUrl';
-            const apiBaseInput = document.getElementById('apiBase');
-            const saved = sessionStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                apiBaseInput.value = saved;
-            }
-            apiBaseInput.addEventListener('change', function () {
-                sessionStorage.setItem(STORAGE_KEY, apiBaseInput.value.trim());
-            });
+            
+            const API_BASE = "https://expedientesclinicos.onrender.com";
 
             const forms = document.querySelectorAll('form[data-endpoint]');
             forms.forEach(function (form) {
                 form.addEventListener('submit', async function (event) {
                     event.preventDefault();
+
                     const output = form.querySelector('.response');
-                    if (output) {
-                        output.textContent = 'Enviando...';
-                    }
+                    if (output) output.textContent = 'Enviando...';
 
                     const method = form.dataset.method || 'GET';
                     let endpoint = form.dataset.endpoint;
-                    form.querySelectorAll('[data-path]').forEach(function (input) {
-                        const value = (input.value || '').trim();
-                        endpoint = endpoint.replace('{' + input.dataset.path + '}', encodeURIComponent(value));
+
+                    form.querySelectorAll('[data-path]').forEach(input => {
+                        endpoint = endpoint.replace(
+                            `{${input.dataset.path}}`,
+                            encodeURIComponent(input.value.trim())
+                        );
                     });
+
                     if (/\{.+\}/.test(endpoint)) {
-                        if (output) {
-                            output.textContent = 'Faltan valores para completar la URL.';
-                        }
+                        if (output) output.textContent = 'Faltan valores para completar la URL.';
                         return;
                     }
 
+        
                     const queryParams = new URLSearchParams();
-                    form.querySelectorAll('[data-query]').forEach(function (input) {
-                        const value = (input.value || '').trim();
-                        if (value !== '') {
-                            queryParams.append(input.dataset.query, value);
-                        }
+                    form.querySelectorAll('[data-query]').forEach(input => {
+                        const v = input.value.trim();
+                        if (v !== '') queryParams.append(input.dataset.query, v);
                     });
 
-                    let url = apiBaseInput.value.trim().replace(/\/$/, '') + endpoint;
-                    const queryString = queryParams.toString();
-                    if (queryString) {
-                        url += (url.includes('?') ? '&' : '?') + queryString;
-                    }
+                    let url = API_BASE + endpoint;
+                    const qs = queryParams.toString();
+                    if (qs) url += (url.includes('?') ? '&' : '?') + qs;
 
                     let body = null;
-                    if (method !== 'GET') {
-                        body = buildBody(form);
-                    }
+                    if (method !== 'GET') body = buildBody(form);
 
                     const init = {
-                        method: method,
+                        method,
                         headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
                         body: method === 'GET' ? null : JSON.stringify(body || {})
                     };
 
                     try {
                         const response = await fetch(url, init);
+
                         if (!response.ok) {
                             const errorText = await response.text();
-                            if (output) {
-                                output.textContent = 'Error ' + response.status + ': ' + errorText;
-                            }
+                            output.textContent = `Error ${response.status}: ${errorText}`;
                             return;
                         }
 
+                        
                         if (form.dataset.expect === 'pdf') {
                             const blob = await response.blob();
                             const pdfUrl = URL.createObjectURL(blob);
                             window.open(pdfUrl, '_blank');
-                            if (output) {
-                                output.textContent = 'PDF abierto en una nueva pestana.';
-                            }
+                            output.textContent = 'PDF generado y abierto.';
                             return;
                         }
 
+                       
                         const text = await response.text();
                         try {
-                            const parsed = text ? JSON.parse(text) : null;
-                            if (output) {
-                                output.textContent = parsed ? JSON.stringify(parsed, null, 2) : 'Sin contenido';
-                            }
-                        } catch (parseError) {
-                            if (output) {
-                                output.textContent = text || 'Sin contenido';
-                            }
+                            output.textContent = text ? JSON.stringify(JSON.parse(text), null, 2) : 'Sin contenido';
+                        } catch {
+                            output.textContent = text || 'Sin contenido';
                         }
-                    } catch (error) {
-                        if (output) {
-                            output.textContent = 'Fallo de red: ' + error.message;
-                        }
+
+                    } catch (e) {
+                        output.textContent = 'Fallo de red: ' + e.message;
                     }
                 });
             });
 
             function buildBody(form) {
                 const data = {};
-                const inputs = form.querySelectorAll('input[name], select[name], textarea[name]');
-                inputs.forEach(function (input) {
-                    if (input.dataset.path || input.dataset.query) {
-                        return;
-                    }
-                    if (input.type === 'checkbox' && !input.checked) {
-                        return;
-                    }
-                    let value = (input.value || '').trim();
-                    if (value === '') {
-                        return;
-                    }
-                    const dataType = input.dataset.type || input.type;
-                    if (dataType === 'number') {
-                        value = Number(value);
-                    }
+                form.querySelectorAll('input[name], select[name], textarea[name]').forEach(input => {
+                    if (input.dataset.path || input.dataset.query) return;
+                    let value = input.value.trim();
+                    if (!value) return;
+
+                    if (input.dataset.type === 'number') value = Number(value);
                     setNestedValue(data, input.name, value);
                 });
                 return data;
@@ -401,19 +368,16 @@
 
             function setNestedValue(target, path, value) {
                 const keys = path.split('.');
-                let current = target;
-                keys.forEach(function (key, index) {
-                    if (index === keys.length - 1) {
-                        current[key] = value;
-                    } else {
-                        if (!current[key]) {
-                            current[key] = {};
-                        }
-                        current = current[key];
+                let curr = target;
+                keys.forEach((k, i) => {
+                    if (i === keys.length - 1) curr[k] = value;
+                    else {
+                        if (!curr[k]) curr[k] = {};
+                        curr = curr[k];
                     }
                 });
             }
-        }());
+        })();
     </script>
 </body>
 </html>
