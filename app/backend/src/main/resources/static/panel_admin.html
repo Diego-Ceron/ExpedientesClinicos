@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel administrador - Expedientes Clínicos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            color-scheme: light;
+            --color-navy: #555879;
+            --color-navy-light: #98A1BC;
+            --color-beige: #DED3C4;
+            --color-cream: #F4EBD3;
+            --color-text: #2f2f3a;
+            --shadow-strong: rgba(85, 88, 121, 0.18);
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background-color: var(--color-cream); color: var(--color-text); }
+        header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; }
+        header h1 { margin: 0; font-size: 1.5rem; }
+        main { max-width: 960px; margin: 32px auto; padding: 0 16px 48px; }
+        .card { background-color: #fff; border-radius: 16px; box-shadow: 0 12px 28px var(--shadow-strong); overflow: hidden; border: 1px solid rgba(152, 161, 188, 0.25); }
+        .card-header { padding: 24px 28px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
+        .card-header h2 { margin: 0; font-size: 1.4rem; }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .actions button { border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: background-color 0.2s ease, transform 0.2s ease; }
+        #new-therapist-button,
+        #refresh-button { background-color: var(--color-navy); color: #fff; }
+        #new-therapist-button:hover,
+        #refresh-button:hover { background-color: #404561; }
+        #logout-button { background-color: var(--color-beige); color: var(--color-navy); }
+        #logout-button:hover { background-color: #cfc2b1; }
+        .actions button:active { transform: scale(0.98); }
+        #admin-info { margin: 0 28px 4px; font-size: 0.95rem; color: var(--color-navy-light); }
+        #status-message { margin: 0 28px 16px; color: var(--color-navy); font-weight: 600; min-height: 24px; }
+        #status-message.error { color: #c62828; }
+        #therapist-list { list-style: none; margin: 0; padding: 0; }
+        .therapist-row { display: flex; justify-content: space-between; gap: 16px; padding: 18px 28px; border-top: 1px solid rgba(152, 161, 188, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .therapist-row:hover { background-color: rgba(152, 161, 188, 0.16); }
+        .therapist-row:focus { background-color: rgba(152, 161, 188, 0.24); outline: 2px solid var(--color-navy); outline-offset: 2px; }
+        .therapist-row:active { transform: scale(0.99); }
+        .therapist-row:first-of-type { border-top: none; }
+        .therapist-info { display: flex; flex-direction: column; gap: 4px; }
+        .therapist-name { font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
+        .therapist-detail { font-size: 0.95rem; color: var(--color-navy-light); }
+        .empty-state { margin: 0 28px 28px; padding: 20px; border-radius: 12px; background-color: rgba(244, 235, 211, 0.85); color: var(--color-navy); }
+        .modal-backdrop { position: fixed; inset: 0; background-color: rgba(85, 88, 121, 0.56); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
+        .modal-backdrop[hidden] { display: none; }
+        .modal { background-color: #fff; border-radius: 12px; box-shadow: 0 18px 38px rgba(85, 88, 121, 0.24); max-width: 420px; width: 100%; padding: 24px 26px; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(152, 161, 188, 0.3); }
+        .modal h3 { margin: 0 0 16px; font-size: 1.2rem; }
+        .modal form { display: grid; gap: 12px; }
+        label.form-field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--color-text); font-size: 0.95rem; }
+        .modal input[type="text"],
+        .modal input[type="email"] { border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+        .modal-actions button { border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 0.95rem; }
+        .button-secondary { background-color: var(--color-beige); color: var(--color-navy); }
+        .button-secondary:hover { background-color: #cfc2b1; }
+        .modal button[type="submit"] { background-color: var(--color-navy); color: #fff; border: none; }
+        .modal button[type="submit"]:hover { background-color: #404561; }
+        .modal-status { margin: 0; font-size: 0.9rem; color: #c62828; min-height: 20px; }
+        @media (max-width: 600px) {
+            .card-header { flex-direction: column; align-items: flex-start; }
+            .actions { width: 100%; justify-content: flex-start; }
+            .therapist-row { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Expedientes Clínicos</h1>
+    </header>
+    <main>
+        <section class="card" aria-live="polite">
+            <div class="card-header">
+                <h2>Terapeutas</h2>
+                <div class="actions">
+                    <button id="new-therapist-button" type="button">Nuevo</button>
+                    <button id="refresh-button" type="button">Actualizar</button>
+                    <button id="logout-button" type="button">Cerrar sesión</button>
+                </div>
+            </div>
+            <p id="admin-info"></p>
+            <p id="status-message"></p>
+            <ul id="therapist-list"></ul>
+            <p id="empty-state" class="empty-state" hidden>No hay terapeutas registrados todavía.</p>
+        </section>
+    </main>
+
+    <div id="create-modal-backdrop" class="modal-backdrop" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
+            <h3 id="create-modal-title">Agregar terapeuta</h3>
+            <form id="create-form">
+                <label class="form-field" for="create-nombre">
+                    Nombre completo
+                    <input id="create-nombre" name="nombre" type="text" required>
+                </label>
+                <label class="form-field" for="create-correo">
+                    Correo electronico
+                    <input id="create-correo" name="correo" type="email" required>
+                </label>
+                <label class="form-field" for="create-especialidad">
+                    Especialidad
+                    <input id="create-especialidad" name="especialidad" type="text" required>
+                </label>
+                <label class="form-field" for="create-cedula">
+                    Cedula profesional
+                    <input id="create-cedula" name="cedulaProfesional" type="text" required>
+                </label>
+                <label class="form-field" for="create-telefono">
+                    Telefono (opcional)
+                    <input id="create-telefono" name="telefono" type="text" placeholder="Ej. 555-123-4567">
+                </label>
+                <p id="create-modal-status" class="modal-status"></p>
+                <div class="modal-actions">
+                    <button id="create-cancel-button" type="button" class="button-secondary">Cancelar</button>
+                    <button id="create-submit-button" type="submit">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const DEFAULT_API_URL = "https://expedientesclinicos.onrender.com";
+            const API_BASE_KEY = 'expedientesclinicos.apiBaseUrl';
+            const USER_ID_KEY = 'expedientesclinicos.usuarioId';
+            const ROLE_KEY = 'expedientesclinicos.role';
+            const LEGACY_THERAPIST_KEY = 'expedientesclinicos.therapistId';
+
+            const adminInfo = document.getElementById('admin-info');
+            const statusMessage = document.getElementById('status-message');
+            const therapistList = document.getElementById('therapist-list');
+            const emptyState = document.getElementById('empty-state');
+            const refreshButton = document.getElementById('refresh-button');
+            const logoutButton = document.getElementById('logout-button');
+            const newTherapistButton = document.getElementById('new-therapist-button');
+
+            const createModalBackdrop = document.getElementById('create-modal-backdrop');
+            const createForm = document.getElementById('create-form');
+            const createCancelButton = document.getElementById('create-cancel-button');
+            const createSubmitButton = document.getElementById('create-submit-button');
+            const createModalStatus = document.getElementById('create-modal-status');
+
+            const role = sessionStorage.getItem(ROLE_KEY);
+            if (role !== 'ADMINISTRADOR') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const adminIdRaw = sessionStorage.getItem(USER_ID_KEY);
+            if (!adminIdRaw) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const adminId = Number(adminIdRaw);
+            if (Number.isNaN(adminId)) {
+                sessionStorage.removeItem(USER_ID_KEY);
+                sessionStorage.removeItem(ROLE_KEY);
+                sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
+                window.location.href = 'index.html';
+                return;
+            }
+
+            adminInfo.textContent = 'Sesión de administrador';
+
+            const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
+
+            const renderTherapists = function (therapists) {
+                therapistList.innerHTML = '';
+                if (!therapists.length) {
+                    emptyState.hidden = false;
+                    return;
+                }
+                emptyState.hidden = true;
+                const fragment = document.createDocumentFragment();
+                therapists.forEach(function (therapist) {
+                    const li = document.createElement('li');
+                    li.className = 'therapist-row';
+                    li.setAttribute('role', 'button');
+                    li.setAttribute('tabindex', '0');
+                    const info = document.createElement('div');
+                    info.className = 'therapist-info';
+                    const name = document.createElement('span');
+                    name.className = 'therapist-name';
+                    name.textContent = therapist.nombre || 'Terapeuta sin nombre';
+                    const detail = document.createElement('span');
+                    detail.className = 'therapist-detail';
+                    const especialidad = therapist.especialidad ? therapist.especialidad : 'Sin especialidad';
+                    detail.textContent = especialidad;
+                    info.appendChild(name);
+                    info.appendChild(detail);
+                    li.appendChild(info);
+
+                    const goToDetail = function () {
+                        window.location.href = 'terapeuta.html?terapeutaId=' + encodeURIComponent(therapist.id);
+                    };
+
+                    li.addEventListener('click', goToDetail);
+                    li.addEventListener('keydown', function (event) {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            goToDetail();
+                        }
+                    });
+                    fragment.appendChild(li);
+                });
+                therapistList.appendChild(fragment);
+            };
+
+            const loadTherapists = async function () {
+                statusMessage.textContent = 'Cargando terapeutas...';
+                statusMessage.classList.remove('error');
+                try {
+                    const response = await fetch(apiBaseUrl + '/api/terapeutas');
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al obtener los terapeutas.');
+                    }
+                    const payload = await response.json();
+                    const data = Array.isArray(payload) ? payload : [];
+                    renderTherapists(data);
+                    const timeStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    statusMessage.textContent = 'Lista actualizada (' + timeStamp + ').';
+                } catch (error) {
+                    statusMessage.textContent = error.message || 'No fue posible cargar los terapeutas.';
+                    statusMessage.classList.add('error');
+                    renderTherapists([]);
+                }
+            };
+
+            const openCreateModal = function () {
+                createForm.reset();
+                createModalStatus.textContent = '';
+                createModalBackdrop.hidden = false;
+                setTimeout(function () {
+                    document.getElementById('create-nombre').focus();
+                }, 0);
+            };
+
+            const closeCreateModal = function () {
+                createModalBackdrop.hidden = true;
+                createModalStatus.textContent = '';
+            };
+
+            const buildCreatePayload = function () {
+                const nombre = createForm.nombre.value.trim();
+                const correo = createForm.correo.value.trim();
+                const especialidad = createForm.especialidad.value.trim();
+                const cedula = createForm.cedulaProfesional.value.trim();
+                const telefonoRaw = createForm.telefono.value.trim();
+
+                if (!nombre || !correo || !especialidad || !cedula) {
+                    throw new Error('Todos los campos obligatorios deben completarse.');
+                }
+
+                return {
+                    nombre: nombre,
+                    correo: correo,
+                    especialidad: especialidad,
+                    cedulaProfesional: cedula,
+                    telefono: telefonoRaw.length ? telefonoRaw : null
+                };
+            };
+
+            const submitCreateForm = async function (event) {
+                event.preventDefault();
+                try {
+                    const payload = buildCreatePayload();
+                    createSubmitButton.disabled = true;
+                    createModalStatus.textContent = 'Guardando terapeuta...';
+                    const response = await fetch(apiBaseUrl + '/api/terapeutas', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al crear el terapeuta.');
+                    }
+                    closeCreateModal();
+                    statusMessage.textContent = 'Terapeuta agregado correctamente.';
+                    statusMessage.classList.remove('error');
+                    loadTherapists();
+                } catch (error) {
+                    createModalStatus.textContent = error.message || 'No fue posible agregar el terapeuta.';
+                } finally {
+                    createSubmitButton.disabled = false;
+                }
+            };
+
+            newTherapistButton.addEventListener('click', openCreateModal);
+            createCancelButton.addEventListener('click', closeCreateModal);
+            createForm.addEventListener('submit', submitCreateForm);
+
+            createModalBackdrop.addEventListener('click', function (event) {
+                if (event.target === createModalBackdrop) {
+                    closeCreateModal();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && !createModalBackdrop.hidden) {
+                    closeCreateModal();
+                }
+            });
+
+            refreshButton.addEventListener('click', loadTherapists);
+
+            logoutButton.addEventListener('click', function () {
+                sessionStorage.removeItem(USER_ID_KEY);
+                sessionStorage.removeItem(ROLE_KEY);
+                sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
+                window.location.href = 'index.html';
+            });
+
+            loadTherapists();
+        })();
+    </script>
+</body>
+</html>

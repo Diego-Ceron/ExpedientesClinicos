@@ -2,352 +2,260 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Pacientes - Expedientes Clinicos</title>
+        <title>Pacientes asignados - Expedientes Clínicos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: Arial, sans-serif; margin: 24px; }
-        main { max-width: 1100px; }
-        header { margin-bottom: 24px; }
-        nav a { margin-right: 12px; }
-        form { border: 1px solid #ccc; padding: 16px; margin-bottom: 24px; border-radius: 6px; }
-        fieldset { margin-bottom: 16px; }
-        legend { font-weight: bold; }
-        label { display: block; margin-bottom: 8px; }
-        input, select, textarea { width: 100%; max-width: 420px; padding: 6px; margin-top: 4px; }
-        .response { background-color: #111; color: #f5f5f5; padding: 12px; margin-top: 12px; border-radius: 4px; white-space: pre-wrap; overflow-x: auto; min-height: 48px; }
-        .actions { margin-top: 12px; }
+        :root {
+            color-scheme: light;
+            --color-navy: #555879;
+            --color-navy-light: #98A1BC;
+            --color-beige: #DED3C4;
+            --color-cream: #F4EBD3;
+            --color-text: #2f2f3a;
+            --shadow-strong: rgba(85, 88, 121, 0.16);
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background-color: var(--color-cream); color: var(--color-text); }
+        header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; }
+        header h1 { margin: 0; font-size: 1.5rem; }
+        main { max-width: 960px; margin: 32px auto; padding: 0 16px 48px; }
+        .card { background-color: #fff; border-radius: 16px; box-shadow: 0 12px 28px var(--shadow-strong); overflow: hidden; border: 1px solid rgba(152, 161, 188, 0.25); }
+        .card-header { padding: 24px 28px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+        .card-header h2 { margin: 0; font-size: 1.4rem; }
+        #therapist-info { margin: 0 28px 4px; font-size: 0.95rem; color: var(--color-navy-light); }
+        #status-message { margin: 0 28px 16px; color: var(--color-navy); font-weight: 600; min-height: 24px; }
+        #status-message.error { color: #c62828; }
+        #patient-list { list-style: none; margin: 0; padding: 0; }
+        .patient-row { display: flex; justify-content: space-between; gap: 16px; padding: 18px 28px; border-top: 1px solid rgba(152, 161, 188, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .patient-row:hover { background-color: rgba(152, 161, 188, 0.16); }
+        .patient-row:focus { background-color: rgba(152, 161, 188, 0.24); outline: 2px solid var(--color-navy); outline-offset: 2px; }
+        .patient-row:active { transform: scale(0.99); }
+        .patient-row:first-of-type { border-top: none; }
+        .patient-info { display: flex; flex-direction: column; gap: 4px; }
+        .patient-name { font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
+        .patient-service { font-size: 0.95rem; color: var(--color-navy-light); }
+        .patient-status { font-size: 0.9rem; font-weight: 600; color: var(--color-navy); white-space: nowrap; }
+        .patient-status.status-en-espera { color: #8a775f; }
+        .patient-status.status-archivado { color: #a49789; }
+        .empty-state { margin: 0 28px 28px; padding: 20px; border-radius: 12px; background-color: rgba(244, 235, 211, 0.85); color: var(--color-navy); }
+        .actions { display: flex; gap: 12px; }
+        .actions button { border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: background-color 0.2s ease, transform 0.2s ease; }
+        #refresh-button { background-color: var(--color-navy); color: #fff; }
+        #refresh-button:hover { background-color: #404561; }
+        #logout-button { background-color: var(--color-beige); color: var(--color-navy); }
+        #logout-button:hover { background-color: #cfc2b1; }
+        .actions button:active { transform: scale(0.98); }
+        @media (max-width: 600px) {
+            .patient-row { flex-direction: column; align-items: flex-start; }
+            .patient-status { align-self: flex-end; }
+            .card-header { align-items: stretch; }
+            .actions { width: 100%; justify-content: flex-start; }
+        }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Expedientes Clínicos</h1>
+    </header>
     <main>
-        <header>
-            <h1>Gestion de pacientes</h1>
-            <p>Formularios basicos para interactuar con los endpoints de pacientes.</p>
-            <nav>
-                <a href="index.html">Inicio</a>
-                <a href="sesiones.html">Sesiones clinicas</a>
-                <a href="terapeutas.html">Terapeutas</a>
-            </nav>
-        </header>
-
-        
-
-        <section>
-            <h2>Crear paciente</h2>
-            <form data-endpoint="/api/pacientes" data-method="POST">
-                <fieldset>
-                    <legend>Solicitante</legend>
-                    <label>Usuario ID
-                        <input type="number" name="solicitante.usuarioId" data-type="number" required>
-                    </label>
-                    <label>Perfil
-                        <select name="solicitante.perfil" required>
-                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                            <option value="TERAPEUTA">TERAPEUTA</option>
-                        </select>
-                    </label>
-                </fieldset>
-
-                <fieldset>
-                    <legend>Datos del paciente</legend>
-                    <label>Nombre completo
-                        <input type="text" name="nombreCompleto" required>
-                    </label>
-                    <label>Celular
-                        <input type="tel" name="celular" required>
-                    </label>
-                    <label>Email
-                        <input type="email" name="email">
-                    </label>
-                    <label>Tipo de servicio
-                        <select name="tipoServicio" required>
-                            <option value="TERAPIA_INDIVIDUAL">TERAPIA_INDIVIDUAL</option>
-                            <option value="TERAPIA_FAMILIAR">TERAPIA_FAMILIAR</option>
-                            <option value="TERAPIA_PAREJA">TERAPIA_PAREJA</option>
-                            <option value="TERAPIA_GRUPAL">TERAPIA_GRUPAL</option>
-                            <option value="EVALUACION_PSICOLOGICA">EVALUACION_PSICOLOGICA</option>
-                            <option value="INTERVENCION_CRISIS">INTERVENCION_CRISIS</option>
-                        </select>
-                    </label>
-                    <label>Estado del expediente
-                        <select name="estado" required>
-                            <option value="ACTIVO">ACTIVO</option>
-                            <option value="EN_ESPERA">EN_ESPERA</option>
-                            <option value="ARCHIVADO">ARCHIVADO</option>
-                        </select>
-                    </label>
-                    <label>Sexo
-                        <select name="sexo" required>
-                            <option value="FEMENINO">FEMENINO</option>
-                            <option value="MASCULINO">MASCULINO</option>
-                            <option value="NO_BINARIO">NO_BINARIO</option>
-                            <option value="PREFIERE_NO_DECIR">PREFIERE_NO_DECIR</option>
-                        </select>
-                    </label>
-                    <label>Edad
-                        <input type="number" name="edad" data-type="number" min="0">
-                    </label>
-                    <label>Fecha de registro
-                        <input type="date" name="fechaRegistro" required>
-                    </label>
-                    <label>Fecha proxima sesion
-                        <input type="date" name="fechaProximaSesion">
-                    </label>
-                    <label>Terapeuta asignado (ID)
-                        <input type="number" name="terapeutaId" data-type="number" required>
-                    </label>
-                </fieldset>
-
+        <section class="card" aria-live="polite">
+            <div class="card-header">
+                <h2>Pacientes</h2>
                 <div class="actions">
-                    <button type="submit">Enviar</button>
-                    <button type="reset">Limpiar</button>
+                    <button id="refresh-button" type="button">Actualizar</button>
+                        <button id="logout-button" type="button">Cerrar sesión</button>
                 </div>
-                <pre class="response"></pre>
-            </form>
-        </section>
-
-        <section>
-            <h2>Actualizar paciente</h2>
-            <form data-endpoint="/api/pacientes/{pacienteId}" data-method="PUT">
-                <label>ID del paciente
-                    <input type="number" data-path="pacienteId" required>
-                </label>
-                <fieldset>
-                    <legend>Solicitante</legend>
-                    <label>Usuario ID
-                        <input type="number" name="solicitante.usuarioId" data-type="number" required>
-                    </label>
-                    <label>Perfil
-                        <select name="solicitante.perfil" required>
-                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                            <option value="TERAPEUTA">TERAPEUTA</option>
-                        </select>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <legend>Datos actualizados</legend>
-                    <label>Nombre completo
-                        <input type="text" name="nombreCompleto" required>
-                    </label>
-                    <label>Celular
-                        <input type="tel" name="celular" required>
-                    </label>
-                    <label>Email
-                        <input type="email" name="email">
-                    </label>
-                    <label>Tipo de servicio
-                        <select name="tipoServicio" required>
-                            <option value="TERAPIA_INDIVIDUAL">TERAPIA_INDIVIDUAL</option>
-                            <option value="TERAPIA_FAMILIAR">TERAPIA_FAMILIAR</option>
-                            <option value="TERAPIA_PAREJA">TERAPIA_PAREJA</option>
-                            <option value="TERAPIA_GRUPAL">TERAPIA_GRUPAL</option>
-                            <option value="EVALUACION_PSICOLOGICA">EVALUACION_PSICOLOGICA</option>
-                            <option value="INTERVENCION_CRISIS">INTERVENCION_CRISIS</option>
-                        </select>
-                    </label>
-                    <label>Estado del expediente
-                        <select name="estado" required>
-                            <option value="ACTIVO">ACTIVO</option>
-                            <option value="EN_ESPERA">EN_ESPERA</option>
-                            <option value="ARCHIVADO">ARCHIVADO</option>
-                        </select>
-                    </label>
-                    <label>Sexo
-                        <select name="sexo" required>
-                            <option value="FEMENINO">FEMENINO</option>
-                            <option value="MASCULINO">MASCULINO</option>
-                            <option value="NO_BINARIO">NO_BINARIO</option>
-                            <option value="PREFIERE_NO_DECIR">PREFIERE_NO_DECIR</option>
-                        </select>
-                    </label>
-                    <label>Edad
-                        <input type="number" name="edad" data-type="number" min="0">
-                    </label>
-                    <label>Fecha de registro
-                        <input type="date" name="fechaRegistro" required>
-                    </label>
-                    <label>Fecha proxima sesion
-                        <input type="date" name="fechaProximaSesion">
-                    </label>
-                    <label>Terapeuta asignado (ID)
-                        <input type="number" name="terapeutaId" data-type="number" required>
-                    </label>
-                </fieldset>
-                <div class="actions">
-                    <button type="submit">Actualizar</button>
-                </div>
-                <pre class="response"></pre>
-            </form>
-        </section>
-
-        <section>
-            <h2>Eliminar paciente</h2>
-            <form data-endpoint="/api/pacientes/{pacienteId}" data-method="DELETE">
-                <label>ID del paciente
-                    <input type="number" data-path="pacienteId" required>
-                </label>
-                <fieldset>
-                    <legend>Solicitante</legend>
-                    <label>Usuario ID
-                        <input type="number" name="solicitante.usuarioId" data-type="number" required>
-                    </label>
-                    <label>Perfil
-                        <select name="solicitante.perfil" required>
-                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                            <option value="TERAPEUTA">TERAPEUTA</option>
-                        </select>
-                    </label>
-                </fieldset>
-                <div class="actions">
-                    <button type="submit">Eliminar</button>
-                </div>
-                <pre class="response"></pre>
-            </form>
-        </section>
-
-        <section>
-            <h2>Consultar paciente por ID</h2>
-            <form data-endpoint="/api/pacientes/{pacienteId}" data-method="GET">
-                <label>ID del paciente
-                    <input type="number" data-path="pacienteId" required>
-                </label>
-                <label>Usuario solicitante ID
-                    <input type="number" data-query="usuarioId" required>
-                </label>
-                <label>Perfil solicitante
-                    <select data-query="perfil" required>
-                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                        <option value="TERAPEUTA">TERAPEUTA</option>
-                    </select>
-                </label>
-                <div class="actions">
-                    <button type="submit">Consultar</button>
-                </div>
-                <pre class="response"></pre>
-            </form>
-        </section>
-
-        <section>
-            <h2>Listar pacientes por terapeuta</h2>
-            <form data-endpoint="/api/pacientes/terapeutas/{terapeutaId}" data-method="GET">
-                <label>ID del terapeuta
-                    <input type="number" data-path="terapeutaId" required>
-                </label>
-                <label>Usuario solicitante ID
-                    <input type="number" data-query="usuarioId" required>
-                </label>
-                <label>Perfil solicitante
-                    <select data-query="perfil" required>
-                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                        <option value="TERAPEUTA">TERAPEUTA</option>
-                    </select>
-                </label>
-                <div class="actions">
-                    <button type="submit">Listar</button>
-                </div>
-                <pre class="response"></pre>
-            </form>
+            </div>
+            <p id="therapist-info"></p>
+            <p id="status-message"></p>
+            <ul id="patient-list"></ul>
+            <p id="empty-state" class="empty-state" hidden>No hay pacientes asignados todavía.</p>
         </section>
     </main>
 
     <script>
-         (function () {
-            const API_BASE = "https://expedientesclinicos.onrender.com";
+        (function () {
+            const DEFAULT_API_URL = "https://expedientesclinicos.onrender.com";
+            const API_BASE_KEY = 'expedientesclinicos.apiBaseUrl';
+            const USER_ID_KEY = 'expedientesclinicos.usuarioId';
+            const ROLE_KEY = 'expedientesclinicos.role';
+            const LEGACY_THERAPIST_KEY = 'expedientesclinicos.therapistId';
 
-            const forms = document.querySelectorAll('form[data-endpoint]');
-            forms.forEach(function (form) {
-                form.addEventListener('submit', async function (event) {
-                    event.preventDefault();
-                    const output = form.querySelector('.response');
-                    if (output) output.textContent = 'Enviando...';
+            const therapistInfo = document.getElementById('therapist-info');
+            const statusMessage = document.getElementById('status-message');
+            const patientList = document.getElementById('patient-list');
+            const emptyState = document.getElementById('empty-state');
+            const refreshButton = document.getElementById('refresh-button');
+            const logoutButton = document.getElementById('logout-button');
 
-                    const method = form.dataset.method || 'GET';
-                    let endpoint = form.dataset.endpoint;
+            const role = sessionStorage.getItem(ROLE_KEY);
+            if (role !== 'TERAPEUTA') {
+                window.location.href = 'index.html';
+                return;
+            }
 
-                    form.querySelectorAll('[data-path]').forEach(input => {
-                        endpoint = endpoint.replace(
-                            `{${input.dataset.path}}`,
-                            encodeURIComponent(input.value.trim())
-                        );
-                    });
+            let therapistIdRaw = sessionStorage.getItem(USER_ID_KEY);
+            if (!therapistIdRaw) {
+                const legacyId = sessionStorage.getItem(LEGACY_THERAPIST_KEY);
+                if (legacyId) {
+                    therapistIdRaw = legacyId;
+                    sessionStorage.setItem(USER_ID_KEY, legacyId);
+                }
+            }
 
-                    if (/\{.+\}/.test(endpoint)) {
-                        if (output) output.textContent = 'Faltan valores para completar la URL.';
-                        return;
+            if (!therapistIdRaw) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const therapistId = Number(therapistIdRaw);
+            if (Number.isNaN(therapistId)) {
+                statusMessage.textContent = 'El ID almacenado no es válido. Inicia sesión nuevamente.';
+                statusMessage.classList.add('error');
+                sessionStorage.removeItem(USER_ID_KEY);
+                sessionStorage.removeItem(ROLE_KEY);
+                sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
+                return;
+            }
+
+            const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
+            const setTherapistInfo = function (name) {
+                const trimmed = typeof name === 'string' ? name.trim() : '';
+                if (trimmed) {
+                    therapistInfo.textContent = 'Sesión de ' + trimmed;
+                    return;
+                }
+                therapistInfo.textContent = 'Sesión de terapeuta ID ' + therapistId;
+            };
+
+            const loadTherapist = async function () {
+                try {
+                    const url = apiBaseUrl + '/api/terapeutas/' + encodeURIComponent(therapistId);
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al obtener el terapeuta.');
+                    }
+                    const payload = await response.json();
+                    const fullName = payload.nombre || payload.nombreCompleto || '';
+                    setTherapistInfo(fullName);
+                } catch (error) {
+                    setTherapistInfo('');
+                    console.error(error);
+                }
+            };
+
+            setTherapistInfo('');
+            loadTherapist();
+
+            const formatService = function (service) {
+                if (!service) return 'Sin tipo';
+                const mapping = {
+                    TERAPIA_INDIVIDUAL: 'Psicoterapia',
+                    TERAPIA_FAMILIAR: 'Terapia familiar',
+                    TERAPIA_PAREJA: 'Terapia de pareja',
+                    TERAPIA_GRUPAL: 'Terapia grupal',
+                    EVALUACION_PSICOLOGICA: 'Psicodiagnóstico',
+                    INTERVENCION_CRISIS: 'Intervención en crisis'
+                };
+                return mapping[service] || service.replace(/_/g, ' ').toLowerCase();
+            };
+
+            const formatStatus = function (status) {
+                if (!status) return { text: 'Sin estado', className: '' };
+                const mapping = {
+                    ACTIVO: { text: 'Activo', className: '' },
+                    EN_ESPERA: { text: 'En espera', className: 'status-en-espera' },
+                    ARCHIVADO: { text: 'Archivado', className: 'status-archivado' }
+                };
+                return mapping[status] || { text: status, className: '' };
+            };
+
+            const renderPatients = function (patients) {
+                patientList.innerHTML = '';
+                if (!patients.length) {
+                    emptyState.hidden = false;
+                    return;
+                }
+                emptyState.hidden = true;
+                const fragment = document.createDocumentFragment();
+                patients.forEach(function (patient) {
+                    const li = document.createElement('li');
+                    li.className = 'patient-row';
+                    li.setAttribute('role', 'button');
+                    li.setAttribute('tabindex', '0');
+                    if (patient.id !== undefined && patient.id !== null) {
+                        const targetId = patient.id;
+                        const goToSessions = function () {
+                            window.location.href = 'sesiones.html?pacienteId=' + encodeURIComponent(targetId);
+                        };
+                        li.addEventListener('click', goToSessions);
+                        li.addEventListener('keydown', function (event) {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                goToSessions();
+                            }
+                        });
                     }
 
+                    const info = document.createElement('div');
+                    info.className = 'patient-info';
 
-                    const query = new URLSearchParams();
-                    form.querySelectorAll('[data-query]').forEach(input => {
-                        if (input.value.trim() !== '') {
-                            query.append(input.dataset.query, input.value.trim());
-                        }
-                    });
+                    const name = document.createElement('span');
+                    name.className = 'patient-name';
+                    name.textContent = patient.nombreCompleto || 'Paciente sin nombre';
 
-                    let url = API_BASE + endpoint;
-                    const queryString = query.toString();
-                    if (queryString) url += (url.includes('?') ? '&' : '?') + queryString;
+                    const service = document.createElement('span');
+                    service.className = 'patient-service';
+                    service.textContent = formatService(patient.tipoServicio);
 
-                    let body = null;
-                    if (method !== 'GET') {
-                        body = buildBody(form);
-                    }
+                    info.appendChild(name);
+                    info.appendChild(service);
 
-                    const requestInit = {
-                        method,
-                        headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
-                        body: method === 'GET' ? null : JSON.stringify(body || {})
-                    };
+                    const status = document.createElement('span');
+                    const formattedStatus = formatStatus(patient.estado);
+                    status.className = 'patient-status ' + formattedStatus.className;
+                    status.textContent = formattedStatus.text;
 
-                    try {
-                        const response = await fetch(url, requestInit);
-                        const rawText = await response.text();
-
-                        if (!response.ok) {
-                            output.textContent = `Error ${response.status}: ${rawText}`;
-                            return;
-                        }
-
-                        try {
-                            output.textContent = rawText ? JSON.stringify(JSON.parse(rawText), null, 2) : 'Sin contenido';
-                        } catch {
-                            output.textContent = rawText || 'Sin contenido';
-                        }
-                    } catch (error) {
-                        output.textContent = 'Fallo de red: ' + error.message;
-                    }
+                    li.appendChild(info);
+                    li.appendChild(status);
+                    fragment.appendChild(li);
                 });
+                patientList.appendChild(fragment);
+            };
+
+            const fetchPatients = async function () {
+                statusMessage.textContent = 'Cargando pacientes...';
+                statusMessage.classList.remove('error');
+
+                const url = new URL(apiBaseUrl + '/api/pacientes/terapeutas/' + encodeURIComponent(therapistId));
+                url.searchParams.set('usuarioId', therapistId);
+                url.searchParams.set('perfil', 'TERAPEUTA');
+
+                try {
+                    const response = await fetch(url.toString());
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al obtener los pacientes.');
+                    }
+                    const payload = await response.json();
+                    renderPatients(Array.isArray(payload) ? payload : []);
+                    const timeStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    statusMessage.textContent = 'Lista actualizada (' + timeStamp + ').';
+                } catch (error) {
+                    statusMessage.textContent = error.message;
+                    statusMessage.classList.add('error');
+                    renderPatients([]);
+                }
+            };
+
+            refreshButton.addEventListener('click', fetchPatients);
+            logoutButton.addEventListener('click', function () {
+                sessionStorage.removeItem(USER_ID_KEY);
+                sessionStorage.removeItem(ROLE_KEY);
+                sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
+                window.location.href = 'index.html';
             });
 
-            function buildBody(form) {
-                const data = {};
-                form.querySelectorAll('input[name], select[name], textarea[name]').forEach(input => {
-                    if (input.dataset.path || input.dataset.query) return;
-                    if (input.type === 'checkbox' && !input.checked) return;
-
-                    let value = input.value.trim();
-                    if (value === '') return;
-
-                    if (input.dataset.type === 'number') value = Number(value);
-                    setNestedValue(data, input.name, value);
-                });
-                return data;
-            }
-
-            function setNestedValue(target, path, value) {
-                const segments = path.split('.');
-                let cursor = target;
-
-                segments.forEach((segment, index) => {
-                    if (index === segments.length - 1) {
-                        cursor[segment] = value;
-                    } else {
-                        cursor[segment] = cursor[segment] || {};
-                        cursor = cursor[segment];
-                    }
-                });
-            }
-
+            fetchPatients();
         })();
     </script>
 </body>

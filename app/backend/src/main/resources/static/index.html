@@ -2,29 +2,53 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Expedientes Clinicos - Inicio</title>
+    <title>Expedientes Clínicos - Inicio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: Arial, sans-serif; margin: 24px; }
-        main { max-width: 960px; }
-        header { margin-bottom: 24px; }
-        nav a { display: inline-block; margin-right: 12px; padding: 8px 12px; border: 1px solid #333; text-decoration: none; border-radius: 4px; }
-        section { margin-top: 32px; }
+        :root {
+            color-scheme: light;
+            --color-navy: #555879;
+            --color-navy-light: #98A1BC;
+            --color-beige: #DED3C4;
+            --color-cream: #F4EBD3;
+            --color-text: #2f2f3a;
+            --shadow-strong: rgba(85, 88, 121, 0.16);
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background-color: var(--color-cream); color: var(--color-text); }
+        header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; }
+        header h1 { margin: 0; font-size: 1.6rem; }
+        main { display: flex; align-items: center; justify-content: center; padding: 48px 16px 64px; }
+        .card { background-color: #fff; border-radius: 16px; box-shadow: 0 12px 28px var(--shadow-strong); padding: 32px 36px; width: min(420px, 100%); border: 1px solid rgba(152, 161, 188, 0.25); }
+        .card h2 { margin: 0 0 16px; font-size: 1.4rem; text-align: center; }
+        form { display: grid; gap: 16px; }
+        label { font-size: 0.95rem; font-weight: 600; color: var(--color-text); display: grid; gap: 8px; }
+        input[type="text"] { border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 10px; padding: 12px; font-size: 1rem; background-color: #fff; color: var(--color-text); }
+        input[type="text"]:focus { outline: 2px solid var(--color-navy); }
+        button { border: none; border-radius: 10px; padding: 12px; font-weight: 600; font-size: 1rem; background-color: var(--color-navy); color: #fff; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        button:hover { background-color: #404561; }
+        button:active { transform: scale(0.98); }
+        .account-toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--color-navy-light); }
+        .account-toggle input { accent-color: var(--color-navy); }
+        #login-status { margin-top: 12px; font-size: 0.95rem; min-height: 20px; text-align: center; color: #c62828; }
+        #login-status.success { color: var(--color-navy); }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Expedientes Clínicos</h1>
+    </header>
     <main>
-        <header>
-            <h1>Expedientes Clinicos</h1>
-        </header>
-
-        <section>
-            <h2>Páginas disponibles</h2>
-            <nav>
-                <a href="pacientes.html">Pacientes</a>
-                <a href="sesiones.html">Sesiones clinicas</a>
-                <a href="terapeutas.html">Terapeutas</a>
-            </nav>
+        <section class="card" aria-live="polite">
+            <form id="login-form" autocomplete="off">
+                <h2>Iniciar sesión</h2>
+                <input id="therapist-id" name="therapist-id" type="text" required placeholder="Ingresa tu ID">
+                <label class="account-toggle" for="admin-toggle">
+                    <input id="admin-toggle" type="checkbox" name="admin"> Sesión como administrador
+                </label>
+                <button type="submit">Ingresar</button>
+            </form>
+            <p id="login-status"></p>
         </section>
     </main>
 
@@ -32,9 +56,66 @@
         (function () {
             const STORAGE_KEY = 'expedientesclinicos.apiBaseUrl';
             const DEFAULT_URL = "https://expedientesclinicos.onrender.com";
+            const USER_ID_KEY = 'expedientesclinicos.usuarioId';
+            const ROLE_KEY = 'expedientesclinicos.role';
+            const LEGACY_THERAPIST_KEY = 'expedientesclinicos.therapistId';
+
             if (!sessionStorage.getItem(STORAGE_KEY)) {
                 sessionStorage.setItem(STORAGE_KEY, DEFAULT_URL);
             }
+
+            const loginForm = document.getElementById('login-form');
+            const therapistIdInput = document.getElementById('therapist-id');
+            const loginStatus = document.getElementById('login-status');
+            const adminToggle = document.getElementById('admin-toggle');
+
+            let storedId = sessionStorage.getItem(USER_ID_KEY);
+            let storedRole = sessionStorage.getItem(ROLE_KEY);
+            if (!storedId) {
+                const legacyId = sessionStorage.getItem(LEGACY_THERAPIST_KEY);
+                if (legacyId) {
+                    storedId = legacyId;
+                    sessionStorage.setItem(USER_ID_KEY, legacyId);
+                    if (!storedRole) {
+                        storedRole = 'TERAPEUTA';
+                        sessionStorage.setItem(ROLE_KEY, storedRole);
+                    }
+                }
+            }
+            if (storedId && storedRole) {
+                const destination = storedRole === 'ADMINISTRADOR' ? 'panel_admin.html' : 'pacientes.html';
+                window.location.href = destination;
+                return;
+            }
+
+            loginForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const rawId = therapistIdInput.value.trim();
+
+                if (!rawId) {
+                    loginStatus.textContent = 'Ingresa un ID válido para continuar.';
+                    loginStatus.classList.remove('success');
+                    return;
+                }
+
+                const numericId = Number(rawId);
+                if (!Number.isInteger(numericId) || numericId <= 0) {
+                    loginStatus.textContent = 'El ID debe ser un número entero positivo.';
+                    loginStatus.classList.remove('success');
+                    return;
+                }
+
+                const role = adminToggle.checked ? 'ADMINISTRADOR' : 'TERAPEUTA';
+                sessionStorage.setItem(USER_ID_KEY, String(numericId));
+                sessionStorage.setItem(ROLE_KEY, role);
+                sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
+                if (role === 'TERAPEUTA') {
+                    sessionStorage.setItem(LEGACY_THERAPIST_KEY, String(numericId));
+                }
+                loginStatus.textContent = '';
+                loginStatus.classList.remove('success');
+                window.location.href = role === 'ADMINISTRADOR' ? 'panel_admin.html' : 'pacientes.html';
+            });
         }());
     </script>
 </body>

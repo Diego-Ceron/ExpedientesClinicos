@@ -2,381 +2,1030 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sesiones clinicas - Expedientes Clinicos</title>
+    <title>Sesiones clínicas - Expedientes Clínicos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: Arial, sans-serif; margin: 24px; }
-        main { max-width: 1100px; }
-        header { margin-bottom: 24px; }
-        nav a { margin-right: 12px; }
-        form { border: 1px solid #ccc; padding: 16px; margin-bottom: 24px; border-radius: 6px; }
-        fieldset { margin-bottom: 16px; }
-        legend { font-weight: bold; }
-        label { display: block; margin-bottom: 8px; }
-        input, select, textarea { width: 100%; max-width: 420px; padding: 6px; margin-top: 4px; }
-        textarea { min-height: 80px; }
-        .response { background-color: #111; color: #f5f5f5; padding: 12px; margin-top: 12px; border-radius: 4px; white-space: pre-wrap; overflow-x: auto; min-height: 48px; }
-        .actions { margin-top: 12px; }
+        :root {
+            color-scheme: light;
+            --color-navy: #555879;
+            --color-navy-light: #98A1BC;
+            --color-beige: #DED3C4;
+            --color-cream: #F4EBD3;
+            --color-text: #2f2f3a;
+            --shadow-strong: rgba(85, 88, 121, 0.18);
+            --shadow-soft: rgba(85, 88, 121, 0.12);
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background-color: var(--color-cream); color: var(--color-text); }
+        header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; }
+        header h1 { margin: 0; font-size: 1.5rem; }
+        main { max-width: 1024px; margin: 32px auto; padding: 0 16px 48px; }
+        .card { background-color: #fff; border-radius: 16px; box-shadow: 0 12px 28px var(--shadow-strong); overflow: hidden; border: 1px solid rgba(152, 161, 188, 0.25); }
+        .card-header { padding: 24px 28px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; }
+        .card-header h2 { margin: 0; font-size: 1.6rem; }
+        .card-header p { margin: 4px 0 0; color: var(--color-navy-light); }
+        .card-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .status-chip { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 999px; background-color: rgba(152, 161, 188, 0.22); color: var(--color-navy); font-weight: 600; font-size: 0.9rem; }
+        .status-chip.estado-en-espera { background-color: rgba(222, 211, 196, 0.6); color: #8a775f; }
+        .status-chip.estado-archivado { background-color: rgba(244, 235, 211, 0.7); color: #8f7d63; }
+        .status-chip.estado-activo { background-color: rgba(85, 88, 121, 0.18); color: var(--color-navy); }
+        .status-banner { margin: 0 28px 16px; padding: 10px 14px; border-radius: 8px; background-color: rgba(152, 161, 188, 0.15); color: var(--color-navy); font-weight: 600; min-height: 24px; }
+        .status-banner.error { background-color: #fdecea; color: #b3261e; }
+        .detail-grid { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(360px, 1.8fr); gap: 20px; padding: 0 28px 28px; }
+        .panel { background-color: #fff; border: 1px solid rgba(152, 161, 188, 0.25); border-radius: 12px; padding: 20px 24px; box-shadow: 0 4px 14px var(--shadow-soft); }
+        .panel h3 { margin: 0 0 16px; font-size: 1.1rem; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .panel-header h3 { margin: 0; }
+        .panel-actions-inline { display: flex; gap: 10px; flex-wrap: wrap; }
+        .detail-list { display: grid; gap: 12px; font-size: 0.95rem; }
+        .detail-list dt { font-weight: 600; color: var(--color-text); }
+        .detail-list dd { margin: 4px 0 0; color: var(--color-navy-light); }
+        .sessions-panel { grid-column: span 1; }
+        .session-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+        .session-card { border: 1px solid rgba(222, 211, 196, 0.75); border-radius: 10px; padding: 16px 18px; background-color: rgba(244, 235, 211, 0.75); box-shadow: 0 3px 8px var(--shadow-soft); display: flex; flex-direction: column; gap: 12px; }
+        .session-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .session-number { font-weight: 700; font-size: 1rem; color: var(--color-text); }
+        .session-status { font-weight: 600; font-size: 0.9rem; padding: 4px 10px; border-radius: 999px; }
+        .session-status.asistio { background-color: rgba(85, 88, 121, 0.18); color: var(--color-navy); }
+        .session-status.cancelada { background-color: rgba(222, 211, 196, 0.65); color: #8a775f; }
+        .session-status.falta { background-color: rgba(152, 161, 188, 0.25); color: var(--color-navy); }
+        .session-body p { margin: 6px 0; font-size: 0.92rem; color: var(--color-text); }
+        .session-body strong { color: var(--color-navy); }
+        .session-notes { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(152, 161, 188, 0.3); }
+        .session-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .empty-state { margin: 0; padding: 18px; border-radius: 10px; background-color: rgba(244, 235, 211, 0.85); color: var(--color-navy); text-align: center; font-weight: 600; }
+        .stats-panel { margin: 0 28px 28px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+        .stat-item { background-color: rgba(244, 235, 211, 0.7); border: 1px solid rgba(222, 211, 196, 0.7); border-radius: 12px; padding: 14px 16px; box-shadow: 0 4px 10px var(--shadow-soft); }
+        .stat-value { display: block; font-size: 1.4rem; font-weight: 700; color: var(--color-navy); }
+        .stat-label { color: var(--color-navy-light); font-size: 0.9rem; margin-top: 4px; display: block; }
+        button { border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; background-color: var(--color-navy); color: #fff; transition: background-color 0.2s ease, transform 0.2s ease; }
+        button:hover { background-color: #404561; }
+        button:active { transform: scale(0.98); }
+        button.button-secondary { background-color: var(--color-beige); color: var(--color-navy); }
+        button.button-secondary:hover { background-color: #cfc2b1; }
+        button.button-outline { background-color: transparent; color: var(--color-navy); border: 1px solid var(--color-navy); }
+        button.button-outline:hover { background-color: rgba(152, 161, 188, 0.2); }
+        #back-button { background-color: var(--color-beige); color: var(--color-navy); }
+        #back-button:hover { background-color: #cfc2b1; }
+        #context-info { margin: 0 28px 12px; color: var(--color-navy-light); font-size: 0.95rem; }
+        input[type="text"], input[type="email"], input[type="number"], input[type="date"], select, textarea {
+            width: 100%;
+            border: 1px solid rgba(152, 161, 188, 0.6);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--color-text);
+            background-color: #fff;
+        }
+        input:focus, select:focus, textarea:focus { outline: 2px solid var(--color-navy); }
+        textarea { min-height: 96px; resize: vertical; }
+        label.form-field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--color-text); font-size: 0.95rem; }
+        .modal-backdrop { position: fixed; inset: 0; background-color: rgba(85, 88, 121, 0.56); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
+        .modal-backdrop[hidden] { display: none; }
+        .modal { background-color: #fff; border-radius: 12px; box-shadow: 0 18px 38px rgba(85, 88, 121, 0.24); max-width: 420px; width: 100%; padding: 20px 22px; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(152, 161, 188, 0.3); }
+        .modal h3 { margin: 0 0 12px; font-size: 1.2rem; }
+        .modal form { display: grid; gap: 10px; }
+        .modal input,
+        .modal select,
+        .modal textarea { padding: 8px 10px; font-size: 0.92rem; border-radius: 6px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 2px; }
+        @media (max-width: 860px) {
+            .detail-grid { grid-template-columns: 1fr; }
+            .sessions-panel { grid-column: auto; }
+        }
+        @media (max-width: 600px) {
+            .card-header { flex-direction: column; align-items: flex-start; }
+            .card-actions { width: 100%; justify-content: flex-start; }
+        }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Expedientes Clínicos</h1>
+    </header>
     <main>
-        <header>
-            <h1>Gestion de sesiones clinicas</h1>
-            <p>Formularios base para administrar las sesiones de cada paciente.</p>
-            <nav>
-                <a href="index.html">Inicio</a>
-                <a href="pacientes.html">Pacientes</a>
-                <a href="terapeutas.html">Terapeutas</a>
-            </nav>
-        </header>
-
-        <section>
-            <h2>Registrar sesion</h2>
-            <form data-endpoint="/api/pacientes/{pacienteId}/sesiones" data-method="POST">
-                <label>ID del paciente
-                    <input type="number" data-path="pacienteId" required>
-                </label>
-                <fieldset>
-                    <legend>Solicitante</legend>
-                    <label>Usuario ID
-                        <input type="number" name="solicitante.usuarioId" data-type="number" required>
-                    </label>
-                    <label>Perfil
-                        <select name="solicitante.perfil" required>
-                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                            <option value="TERAPEUTA">TERAPEUTA</option>
-                        </select>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <legend>Datos de la sesion</legend>
-                    <label>Terapeuta ID
-                        <input type="number" name="terapeutaId" data-type="number" required>
-                    </label>
-                    <label>Numero de sesion
-                        <input type="number" name="numeroSesion" data-type="number" required>
-                    </label>
-                    <label>Tipo de sesion
-                        <select name="tipoSesion" required>
-                            <option value="INDIVIDUAL">INDIVIDUAL</option>
-                            <option value="FAMILIAR">FAMILIAR</option>
-                            <option value="GRUPAL">GRUPAL</option>
-                            <option value="EVALUACION_INICIAL">EVALUACION_INICIAL</option>
-                            <option value="SEGUIMIENTO">SEGUIMIENTO</option>
-                            <option value="CRISIS">CRISIS</option>
-                            <option value="PSICOEDUCATIVA">PSICOEDUCATIVA</option>
-                        </select>
-                    </label>
-                    <label>Fecha
-                        <input type="date" name="fecha" required>
-                    </label>
-                    <label>Estado de asistencia
-                        <select name="asistencia" required>
-                            <option value="ASISTIO">ASISTIO</option>
-                            <option value="CANCELADA">CANCELADA</option>
-                            <option value="FALTA">FALTA</option>
-                        </select>
-                    </label>
-                    <label>Duracion en minutos
-                        <input type="number" name="duracionMinutos" data-type="number" min="0">
-                    </label>
-                    <label>Motivo de cancelacion (solo si aplica)
-                        <textarea name="motivoCancelacion"></textarea>
-                    </label>
-                    <label>Descripcion
-                        <textarea name="descripcion" required></textarea>
-                    </label>
-                    <label>Observaciones
-                        <textarea name="observaciones"></textarea>
-                    </label>
-                </fieldset>
-                <div class="actions">
-                    <button type="submit">Registrar</button>
-                    <button type="reset">Limpiar</button>
+        <section class="card" aria-live="polite">
+            <div class="card-header">
+                <div>
+                    <h2 id="patient-name">Paciente</h2>
+                    <p id="patient-service">Tipo de servicio</p>
                 </div>
-                <pre class="response"></pre>
-            </form>
-        </section>
-
-        <section>
-            <h2>Actualizar sesion</h2>
-            <form data-endpoint="/api/pacientes/{pacienteId}/sesiones/{sesionId}" data-method="PUT">
-                <label>ID del paciente
-                    <input type="number" data-path="pacienteId" required>
-                </label>
-                <label>ID de la sesion
-                    <input type="number" data-path="sesionId" required>
-                </label>
-                <fieldset>
-                    <legend>Solicitante</legend>
-                    <label>Usuario ID
-                        <input type="number" name="solicitante.usuarioId" data-type="number" required>
-                    </label>
-                    <label>Perfil
-                        <select name="solicitante.perfil" required>
-                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                            <option value="TERAPEUTA">TERAPEUTA</option>
-                        </select>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <legend>Datos de la sesion</legend>
-                    <label>Terapeuta ID
-                        <input type="number" name="terapeutaId" data-type="number" required>
-                    </label>
-                    <label>Numero de sesion
-                        <input type="number" name="numeroSesion" data-type="number" required>
-                    </label>
-                    <label>Tipo de sesion
-                        <select name="tipoSesion" required>
-                            <option value="INDIVIDUAL">INDIVIDUAL</option>
-                            <option value="FAMILIAR">FAMILIAR</option>
-                            <option value="GRUPAL">GRUPAL</option>
-                            <option value="EVALUACION_INICIAL">EVALUACION_INICIAL</option>
-                            <option value="SEGUIMIENTO">SEGUIMIENTO</option>
-                            <option value="CRISIS">CRISIS</option>
-                            <option value="PSICOEDUCATIVA">PSICOEDUCATIVA</option>
-                        </select>
-                    </label>
-                    <label>Fecha
-                        <input type="date" name="fecha" required>
-                    </label>
-                    <label>Estado de asistencia
-                        <select name="asistencia" required>
-                            <option value="ASISTIO">ASISTIO</option>
-                            <option value="CANCELADA">CANCELADA</option>
-                            <option value="FALTA">FALTA</option>
-                        </select>
-                    </label>
-                    <label>Duracion en minutos
-                        <input type="number" name="duracionMinutos" data-type="number" min="0">
-                    </label>
-                    <label>Motivo de cancelacion
-                        <textarea name="motivoCancelacion"></textarea>
-                    </label>
-                    <label>Descripcion
-                        <textarea name="descripcion" required></textarea>
-                    </label>
-                    <label>Observaciones
-                        <textarea name="observaciones"></textarea>
-                    </label>
-                </fieldset>
-                <div class="actions">
-                    <button type="submit">Actualizar</button>
+                <div class="card-actions">
+                    <span id="patient-status" class="status-chip">Estado</span>
+                    <button id="back-button" type="button">Volver a pacientes</button>
                 </div>
-                <pre class="response"></pre>
-            </form>
-        </section>
-
-        <section>
-            <h2>Listar sesiones por paciente</h2>
-            <form data-endpoint="/api/pacientes/{pacienteId}/sesiones" data-method="GET">
-                <label>ID del paciente
-                    <input type="number" data-path="pacienteId" required>
-                </label>
-                <label>Usuario solicitante ID
-                    <input type="number" data-query="usuarioId" required>
-                </label>
-                <label>Perfil solicitante
-                    <select data-query="perfil" required>
-                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                        <option value="TERAPEUTA">TERAPEUTA</option>
-                    </select>
-                </label>
-                <div class="actions">
-                    <button type="submit">Listar</button>
+            </div>
+            <p id="context-info" hidden></p>
+            <div id="status-banner" class="status-banner"></div>
+            <div class="detail-grid">
+                <section class="panel" aria-labelledby="basic-title">
+                    <div class="panel-header">
+                        <h3 id="basic-title">Información básica</h3>
+                        <button id="edit-patient-button" type="button" class="button-secondary">Editar</button>
+                    </div>
+                    <dl class="detail-list">
+                        <div>
+                            <dt>Celular</dt>
+                            <dd id="detail-celular">--</dd>
+                        </div>
+                        <div>
+                            <dt>Email</dt>
+                            <dd id="detail-email">--</dd>
+                        </div>
+                        <div>
+                            <dt>Servicio</dt>
+                            <dd id="detail-servicio">--</dd>
+                        </div>
+                        <div>
+                            <dt>Terapeuta asignado</dt>
+                            <dd id="detail-terapeuta">--</dd>
+                        </div>
+                        <div>
+                            <dt>Fecha de registro</dt>
+                            <dd id="detail-fecha-registro">--</dd>
+                        </div>
+                        <div>
+                            <dt>Próxima sesión</dt>
+                            <dd id="detail-proxima-sesion">--</dd>
+                        </div>
+                        <div>
+                            <dt>Edad</dt>
+                            <dd id="detail-edad">--</dd>
+                        </div>
+                        <div>
+                            <dt>Sexo</dt>
+                            <dd id="detail-sexo">--</dd>
+                        </div>
+                    </dl>
+                </section>
+                <section class="panel sessions-panel" aria-labelledby="sessions-title">
+                    <div class="panel-header">
+                        <h3 id="sessions-title">Sesiones registradas</h3>
+                        <div class="panel-actions-inline">
+                            <button id="refresh-button" type="button" class="button-secondary">Actualizar</button>
+                            <button id="add-session-button" type="button" class="button-outline">Agregar sesión</button>
+                        </div>
+                    </div>
+                    <ul id="sessions-list" class="session-grid"></ul>
+                    <p id="sessions-empty" class="empty-state" hidden>No hay sesiones registradas.</p>
+                </section>
+            </div>
+            <section class="panel stats-panel" aria-labelledby="stats-title">
+                <h3 id="stats-title">Asistencias</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span id="stat-total" class="stat-value">0</span>
+                        <span class="stat-label">Sesiones totales</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="stat-completadas" class="stat-value">0</span>
+                        <span class="stat-label">Sesiones asistidas</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="stat-canceladas" class="stat-value">0</span>
+                        <span class="stat-label">Sesiones canceladas</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="stat-faltas" class="stat-value">0</span>
+                        <span class="stat-label">Faltas registradas</span>
+                    </div>
                 </div>
-                <pre class="response"></pre>
-            </form>
-        </section>
-
-        <section>
-            <h2>Historial de una sesion</h2>
-            <form data-endpoint="/api/pacientes/{pacienteId}/sesiones/{sesionId}/history" data-method="GET">
-                <label>ID del paciente
-                    <input type="number" data-path="pacienteId" required>
-                </label>
-                <label>ID de la sesion
-                    <input type="number" data-path="sesionId" required>
-                </label>
-                <label>Usuario solicitante ID
-                    <input type="number" data-query="usuarioId" required>
-                </label>
-                <label>Perfil solicitante
-                    <select data-query="perfil" required>
-                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                        <option value="TERAPEUTA">TERAPEUTA</option>
-                    </select>
-                </label>
-                <div class="actions">
-                    <button type="submit">Consultar</button>
-                </div>
-                <pre class="response"></pre>
-            </form>
-        </section>
-
-        <section>
-            <h2>Revertir sesion</h2>
-            <form data-endpoint="/api/pacientes/{pacienteId}/sesiones/{sesionId}/revert" data-method="POST">
-                <label>ID del paciente
-                    <input type="number" data-path="pacienteId" required>
-                </label>
-                <label>ID de la sesion
-                    <input type="number" data-path="sesionId" required>
-                </label>
-                <label>ID del historial a restaurar
-                    <input type="number" name="historyId" data-type="number" required>
-                </label>
-                <fieldset>
-                    <legend>Solicitante</legend>
-                    <label>Usuario ID
-                        <input type="number" name="solicitante.usuarioId" data-type="number" required>
-                    </label>
-                    <label>Perfil
-                        <select name="solicitante.perfil" required>
-                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                            <option value="TERAPEUTA">TERAPEUTA</option>
-                        </select>
-                    </label>
-                </fieldset>
-                <div class="actions">
-                    <button type="submit">Revertir</button>
-                </div>
-                <pre class="response"></pre>
-            </form>
-        </section>
-
-        <section>
-            <h2>Generar PDF de la sesion</h2>
-            <form data-endpoint="/api/pacientes/{pacienteId}/sesiones/{sesionId}/pdf" data-method="GET" data-expect="pdf">
-                <label>ID del paciente
-                    <input type="number" data-path="pacienteId" required>
-                </label>
-                <label>ID de la sesion
-                    <input type="number" data-path="sesionId" required>
-                </label>
-                <label>Usuario solicitante ID
-                    <input type="number" data-query="usuarioId" required>
-                </label>
-                <label>Perfil solicitante
-                    <select data-query="perfil" required>
-                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                        <option value="TERAPEUTA">TERAPEUTA</option>
-                    </select>
-                </label>
-                <div class="actions">
-                    <button type="submit">Generar PDF</button>
-                </div>
-                <pre class="response"></pre>
-            </form>
+            </section>
         </section>
     </main>
 
+    <div id="session-modal-backdrop" class="modal-backdrop" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="session-modal-title">
+            <h3 id="session-modal-title">Registrar sesión</h3>
+            <form id="session-form">
+                <label class="form-field" for="session-numero">
+                    Número de sesión
+                    <input id="session-numero" name="numeroSesion" type="number" min="1" required>
+                </label>
+                <label class="form-field" for="session-fecha">
+                    Fecha
+                    <input id="session-fecha" name="fecha" type="date" required>
+                </label>
+                <label class="form-field" for="session-tipo">
+                    Tipo de sesión
+                    <select id="session-tipo" name="tipoSesion" required></select>
+                </label>
+                <label class="form-field" for="session-asistencia">
+                    Estado de asistencia
+                    <select id="session-asistencia" name="asistencia" required></select>
+                </label>
+                <label class="form-field" for="session-duracion">
+                    Duración (minutos)
+                    <input id="session-duracion" name="duracionMinutos" type="number" min="0" placeholder="Ej. 60">
+                </label>
+                <label class="form-field" for="session-motivo">
+                    Motivo de cancelación
+                    <input id="session-motivo" name="motivoCancelacion" type="text" placeholder="Especifica solo si aplica">
+                </label>
+                <label class="form-field" for="session-descripcion">
+                    Descripción
+                    <textarea id="session-descripcion" name="descripcion" required></textarea>
+                </label>
+                <label class="form-field" for="session-observaciones">
+                    Observaciones
+                    <textarea id="session-observaciones" name="observaciones"></textarea>
+                </label>
+                <div class="modal-actions">
+                    <button id="session-cancel-button" type="button" class="button-secondary">Cancelar</button>
+                    <button id="session-submit-button" type="submit">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         (function () {
-            
-            const API_BASE = "https://expedientesclinicos.onrender.com";
+            const DEFAULT_API_URL = "https://expedientesclinicos.onrender.com";
+            const API_BASE_KEY = 'expedientesclinicos.apiBaseUrl';
+            const USER_ID_KEY = 'expedientesclinicos.usuarioId';
+            const ROLE_KEY = 'expedientesclinicos.role';
+            const LEGACY_THERAPIST_KEY = 'expedientesclinicos.therapistId';
 
-            const forms = document.querySelectorAll('form[data-endpoint]');
-            forms.forEach(function (form) {
-                form.addEventListener('submit', async function (event) {
-                    event.preventDefault();
+            const patientName = document.getElementById('patient-name');
+            const patientService = document.getElementById('patient-service');
+            const patientStatus = document.getElementById('patient-status');
+            const contextInfo = document.getElementById('context-info');
+            const statusBanner = document.getElementById('status-banner');
+            const detailFields = {
+                celular: document.getElementById('detail-celular'),
+                email: document.getElementById('detail-email'),
+                servicio: document.getElementById('detail-servicio'),
+                terapeuta: document.getElementById('detail-terapeuta'),
+                fechaRegistro: document.getElementById('detail-fecha-registro'),
+                proximaSesion: document.getElementById('detail-proxima-sesion'),
+                edad: document.getElementById('detail-edad'),
+                sexo: document.getElementById('detail-sexo')
+            };
+            const sessionsList = document.getElementById('sessions-list');
+            const sessionsEmpty = document.getElementById('sessions-empty');
+            const statFields = {
+                total: document.getElementById('stat-total'),
+                completadas: document.getElementById('stat-completadas'),
+                canceladas: document.getElementById('stat-canceladas'),
+                faltas: document.getElementById('stat-faltas')
+            };
+            const refreshButton = document.getElementById('refresh-button');
+            const addSessionButton = document.getElementById('add-session-button');
+            const backButton = document.getElementById('back-button');
+            const editPatientButton = document.getElementById('edit-patient-button');
 
-                    const output = form.querySelector('.response');
-                    if (output) output.textContent = 'Enviando...';
+            const sessionModalBackdrop = document.getElementById('session-modal-backdrop');
+            const sessionForm = document.getElementById('session-form');
+            const sessionModalTitle = document.getElementById('session-modal-title');
+            const sessionCancelButton = document.getElementById('session-cancel-button');
+            const sessionSubmitButton = document.getElementById('session-submit-button');
+            const sessionNumeroInput = document.getElementById('session-numero');
+            const sessionFechaInput = document.getElementById('session-fecha');
+            const sessionTipoSelect = document.getElementById('session-tipo');
+            const sessionAsistenciaSelect = document.getElementById('session-asistencia');
+            const sessionDuracionInput = document.getElementById('session-duracion');
+            const sessionMotivoInput = document.getElementById('session-motivo');
+            const sessionDescripcionInput = document.getElementById('session-descripcion');
+            const sessionObservacionesInput = document.getElementById('session-observaciones');
 
-                    const method = form.dataset.method || 'GET';
-                    let endpoint = form.dataset.endpoint;
+            let currentPatient = null;
+            let isEditingPatient = false;
+            let editingSession = null;
+            let currentSessions = [];
+            const fieldEditors = {};
 
-                    form.querySelectorAll('[data-path]').forEach(input => {
-                        endpoint = endpoint.replace(
-                            `{${input.dataset.path}}`,
-                            encodeURIComponent(input.value.trim())
-                        );
-                    });
+            const SERVICE_OPTIONS = [
+                { value: 'TERAPIA_INDIVIDUAL', label: 'Psicoterapia' },
+                { value: 'TERAPIA_FAMILIAR', label: 'Terapia familiar' },
+                { value: 'TERAPIA_PAREJA', label: 'Terapia de pareja' },
+                { value: 'TERAPIA_GRUPAL', label: 'Terapia grupal' },
+                { value: 'EVALUACION_PSICOLOGICA', label: 'Psicodiagnóstico' },
+                { value: 'INTERVENCION_CRISIS', label: 'Intervención en crisis' }
+            ];
 
-                    if (/\{.+\}/.test(endpoint)) {
-                        if (output) output.textContent = 'Faltan valores para completar la URL.';
+            const SEX_OPTIONS = [
+                { value: 'FEMENINO', label: 'Femenino' },
+                { value: 'MASCULINO', label: 'Masculino' },
+                { value: 'NO_BINARIO', label: 'No binario' },
+                { value: 'PREFIERE_NO_DECIR', label: 'Prefiere no decir' }
+            ];
+
+            const SESSION_TYPE_OPTIONS = [
+                { value: 'INDIVIDUAL', label: 'Sesión individual' },
+                { value: 'FAMILIAR', label: 'Sesión familiar' },
+                { value: 'GRUPAL', label: 'Sesión grupal' },
+                { value: 'EVALUACION_INICIAL', label: 'Evaluación inicial' },
+                { value: 'SEGUIMIENTO', label: 'Sesión de seguimiento' },
+                { value: 'CRISIS', label: 'Atención en crisis' },
+                { value: 'PSICOEDUCATIVA', label: 'Sesión psicoeducativa' }
+            ];
+
+            const ATTENDANCE_OPTIONS = [
+                { value: 'ASISTIO', label: 'Asistió' },
+                { value: 'CANCELADA', label: 'Cancelada' },
+                { value: 'FALTA', label: 'Falta' }
+            ];
+
+            const SERVICE_LABELS = SERVICE_OPTIONS.reduce(function (acc, option) {
+                acc[option.value] = option.label;
+                return acc;
+            }, {});
+
+            const SESSION_TYPE_LABELS = SESSION_TYPE_OPTIONS.reduce(function (acc, option) {
+                acc[option.value] = option.label;
+                return acc;
+            }, {});
+
+            const editableFieldConfig = {
+                celular: { type: 'text', required: true, placeholder: 'Ingresa celular', label: 'Celular' },
+                email: { type: 'email', placeholder: 'correo@ejemplo.com', label: 'Email' },
+                servicio: { type: 'select', options: SERVICE_OPTIONS, rawKey: 'tipoServicio', label: 'Servicio' },
+                proximaSesion: { type: 'date', rawKey: 'fechaProximaSesion', label: 'Próxima sesión' },
+                edad: { type: 'number', min: 0, placeholder: 'Ej. 30', label: 'Edad' },
+                sexo: { type: 'select', options: SEX_OPTIONS, label: 'Sexo' }
+            };
+
+            const populateSelect = function (select, options) {
+                select.innerHTML = '';
+                options.forEach(function (option) {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.label;
+                    select.appendChild(opt);
+                });
+            };
+
+            populateSelect(sessionTipoSelect, SESSION_TYPE_OPTIONS);
+            populateSelect(sessionAsistenciaSelect, ATTENDANCE_OPTIONS);
+
+            const role = sessionStorage.getItem(ROLE_KEY);
+            if (role !== 'TERAPEUTA') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            let therapistIdRaw = sessionStorage.getItem(USER_ID_KEY);
+            if (!therapistIdRaw) {
+                const legacyId = sessionStorage.getItem(LEGACY_THERAPIST_KEY);
+                if (legacyId) {
+                    therapistIdRaw = legacyId;
+                    sessionStorage.setItem(USER_ID_KEY, legacyId);
+                }
+            }
+
+            if (!therapistIdRaw) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const therapistId = Number(therapistIdRaw);
+            if (Number.isNaN(therapistId)) {
+                statusBanner.textContent = 'El ID de terapeuta almacenado no es válido. Inicia sesión nuevamente.';
+                statusBanner.classList.add('error');
+                sessionStorage.removeItem(USER_ID_KEY);
+                sessionStorage.removeItem(ROLE_KEY);
+                sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const patientParam = params.get('pacienteId');
+            const patientId = patientParam ? Number(patientParam) : NaN;
+
+            if (Number.isNaN(patientId)) {
+                statusBanner.textContent = 'Selecciona un paciente desde la lista de pacientes para ver sus sesiones.';
+                statusBanner.classList.add('error');
+                refreshButton.disabled = true;
+                return;
+            }
+
+            const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
+            contextInfo.textContent = '';
+
+            const formatService = function (service) {
+                if (!service) return 'Sin tipo';
+                return SERVICE_LABELS[service] || service.replace(/_/g, ' ').toLowerCase();
+            };
+
+            const formatPatientStatus = function (status) {
+                if (!status) return { text: 'Sin estado', className: '' };
+                const mapping = {
+                    ACTIVO: { text: 'Activo', className: 'estado-activo' },
+                    EN_ESPERA: { text: 'En espera', className: 'estado-en-espera' },
+                    ARCHIVADO: { text: 'Archivado', className: 'estado-archivado' }
+                };
+                return mapping[status] || { text: status, className: '' };
+            };
+
+            const formatSessionType = function (type) {
+                if (!type) return 'Sin tipo';
+                return SESSION_TYPE_LABELS[type] || type.replace(/_/g, ' ').toLowerCase();
+            };
+
+            const formatAttendance = function (state) {
+                if (!state) return { text: 'Sin registro', className: '' };
+                const mapping = {
+                    ASISTIO: { text: 'Asistió', className: 'asistio' },
+                    CANCELADA: { text: 'Cancelada', className: 'cancelada' },
+                    FALTA: { text: 'Falta', className: 'falta' }
+                };
+                return mapping[state] || { text: state, className: '' };
+            };
+
+            const formatDate = function (value) {
+                if (!value) return '--';
+                try {
+                    const date = new Date(value + 'T00:00:00');
+                    return new Intl.DateTimeFormat('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+                } catch (error) {
+                    return value;
+                }
+            };
+
+            const formatSexo = function (value) {
+                if (!value) return '--';
+                const mapping = {
+                    FEMENINO: 'Femenino',
+                    MASCULINO: 'Masculino',
+                    NO_BINARIO: 'No binario',
+                    PREFIERE_NO_DECIR: 'Prefiere no decir'
+                };
+                return mapping[value] || value;
+            };
+
+            const createInfoRow = function (label, value, extraClass) {
+                const p = document.createElement('p');
+                if (extraClass) {
+                    p.classList.add(extraClass);
+                }
+                const strong = document.createElement('strong');
+                strong.textContent = label;
+                p.appendChild(strong);
+                p.appendChild(document.createTextNode(' ' + value));
+                return p;
+            };
+
+            const setDetailFieldText = function (key, value) {
+                if (!detailFields[key]) {
+                    return;
+                }
+                detailFields[key].textContent = value;
+            };
+
+            const updatePatientDetailView = function () {
+                if (!currentPatient) {
+                    return;
+                }
+                setDetailFieldText('celular', currentPatient.celular || '--');
+                setDetailFieldText('email', currentPatient.email || '--');
+                setDetailFieldText('servicio', formatService(currentPatient.tipoServicio));
+                if (currentPatient.terapeutaAsignado && currentPatient.terapeutaAsignado.nombre) {
+                    const terapeuta = currentPatient.terapeutaAsignado;
+                    const texto = terapeuta.nombre + (terapeuta.especialidad ? ' - ' + terapeuta.especialidad : '');
+                    setDetailFieldText('terapeuta', texto);
+                } else {
+                    setDetailFieldText('terapeuta', '--');
+                }
+                setDetailFieldText('fechaRegistro', formatDate(currentPatient.fechaRegistro));
+                setDetailFieldText('proximaSesion', formatDate(currentPatient.fechaProximaSesion));
+                const edadTexto = currentPatient.edad !== null && currentPatient.edad !== undefined ? currentPatient.edad + ' anos' : '--';
+                setDetailFieldText('edad', edadTexto);
+                setDetailFieldText('sexo', formatSexo(currentPatient.sexo));
+            };
+
+            const createEditorForField = function (key, config) {
+                const field = detailFields[key];
+                if (!field) {
+                    return;
+                }
+                field.innerHTML = '';
+                const rawKey = config.rawKey || key;
+                const rawValue = currentPatient ? currentPatient[rawKey] : null;
+                let editor;
+                if (config.type === 'select') {
+                    editor = document.createElement('select');
+                    populateSelect(editor, config.options);
+                    if (rawValue !== null && rawValue !== undefined && rawValue !== '') {
+                        editor.value = rawValue;
+                    }
+                } else if (config.type === 'date') {
+                    editor = document.createElement('input');
+                    editor.type = 'date';
+                    if (rawValue) {
+                        editor.value = rawValue;
+                    }
+                } else if (config.type === 'number') {
+                    editor = document.createElement('input');
+                    editor.type = 'number';
+                    if (config.min !== undefined) {
+                        editor.min = String(config.min);
+                    }
+                    editor.value = rawValue !== null && rawValue !== undefined ? rawValue : '';
+                } else {
+                    editor = document.createElement('input');
+                    editor.type = config.type || 'text';
+                    if (rawValue) {
+                        editor.value = rawValue;
+                    }
+                }
+                if (config.placeholder) {
+                    editor.placeholder = config.placeholder;
+                }
+                if (config.required) {
+                    editor.required = true;
+                }
+                editor.setAttribute('data-field', rawKey);
+                field.appendChild(editor);
+                fieldEditors[key] = { element: editor, config: config };
+            };
+
+            const enterPatientEditMode = function () {
+                if (isEditingPatient || !currentPatient) {
+                    return;
+                }
+                Object.keys(editableFieldConfig).forEach(function (key) {
+                    createEditorForField(key, editableFieldConfig[key]);
+                });
+                isEditingPatient = true;
+                editPatientButton.textContent = 'Guardar';
+                statusBanner.textContent = 'Modo edicion activado. Guarda los cambios para persistirlos.';
+                statusBanner.classList.remove('error');
+            };
+
+            const resetEditors = function () {
+                Object.keys(fieldEditors).forEach(function (key) {
+                    delete fieldEditors[key];
+                });
+            };
+
+            const exitPatientEditMode = function () {
+                if (!isEditingPatient) {
+                    return;
+                }
+                isEditingPatient = false;
+                editPatientButton.textContent = 'Editar';
+                resetEditors();
+                updatePatientDetailView();
+            };
+
+            const collectPatientUpdateValues = function () {
+                const updates = {};
+                let hasChanges = false;
+                const keys = Object.keys(fieldEditors);
+                for (let i = 0; i < keys.length; i += 1) {
+                    const key = keys[i];
+                    const entry = fieldEditors[key];
+                    const editor = entry.element;
+                    const config = entry.config;
+                    const rawKey = config.rawKey || key;
+                    let value;
+                    if (config.type === 'number') {
+                        const parsed = editor.value === '' ? null : Number(editor.value);
+                        if (parsed !== null && Number.isNaN(parsed)) {
+                            throw new Error('El campo ' + (config.label || rawKey) + ' debe ser numerico.');
+                        }
+                        value = parsed;
+                    } else if (config.type === 'date') {
+                        value = editor.value ? editor.value : null;
+                    } else {
+                        const raw = editor.value || '';
+                        value = raw.trim();
+                        if (value.length === 0) {
+                            value = null;
+                        }
+                    }
+
+                    if (config.required && (value === null || value === undefined)) {
+                        throw new Error('El campo ' + (config.label || rawKey) + ' es obligatorio.');
+                    }
+
+                    updates[rawKey] = value;
+
+                    const currentValue = currentPatient ? currentPatient[rawKey] : null;
+                    const normalizedCurrent = currentValue === undefined ? null : currentValue;
+                    const normalizedValue = value === undefined ? null : value;
+                    if (!hasChanges && normalizedCurrent !== normalizedValue) {
+                        hasChanges = true;
+                    }
+                }
+                return { updates: updates, hasChanges: hasChanges };
+            };
+
+            const buildPatientUpdatePayload = function (overrides) {
+                const base = currentPatient || {};
+                return {
+                    solicitante: { usuarioId: therapistId, perfil: 'TERAPEUTA' },
+                    nombreCompleto: base.nombreCompleto || '',
+                    celular: overrides.celular !== undefined ? overrides.celular : base.celular || '',
+                    email: overrides.email !== undefined ? overrides.email : base.email,
+                    tipoServicio: overrides.tipoServicio !== undefined ? overrides.tipoServicio : base.tipoServicio,
+                    estado: base.estado,
+                    sexo: overrides.sexo !== undefined ? overrides.sexo : base.sexo,
+                    edad: overrides.edad !== undefined ? overrides.edad : base.edad,
+                    fechaRegistro: base.fechaRegistro,
+                    fechaProximaSesion: overrides.fechaProximaSesion !== undefined ? overrides.fechaProximaSesion : base.fechaProximaSesion,
+                    terapeutaId: (base.terapeutaAsignado && base.terapeutaAsignado.id) ? base.terapeutaAsignado.id : therapistId
+                };
+            };
+
+            const savePatientUpdates = async function () {
+                try {
+                    const result = collectPatientUpdateValues();
+                    if (!result.hasChanges) {
+                        statusBanner.textContent = 'No se detectaron cambios para guardar.';
+                        statusBanner.classList.remove('error');
+                        exitPatientEditMode();
                         return;
                     }
 
-        
-                    const queryParams = new URLSearchParams();
-                    form.querySelectorAll('[data-query]').forEach(input => {
-                        const v = input.value.trim();
-                        if (v !== '') queryParams.append(input.dataset.query, v);
+                    statusBanner.textContent = 'Guardando informacion del paciente...';
+                    statusBanner.classList.remove('error');
+
+                    const payload = buildPatientUpdatePayload(result.updates);
+                    const url = apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId);
+                    const response = await fetch(url, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al actualizar el paciente.');
+                    }
+                    const updated = await response.json();
+                    currentPatient = updated;
+                    exitPatientEditMode();
+                    renderPatient(updated);
+                    statusBanner.textContent = 'Paciente actualizado correctamente.';
+                    statusBanner.classList.remove('error');
+                } catch (error) {
+                    statusBanner.textContent = error.message || 'No fue posible actualizar el paciente.';
+                    statusBanner.classList.add('error');
+                }
+            };
+
+            const computeNextSessionNumber = function () {
+                if (!currentSessions.length) {
+                    return 1;
+                }
+                return currentSessions.reduce(function (max, session) {
+                    const numero = typeof session.numeroSesion === 'number' ? session.numeroSesion : 0;
+                    return numero > max ? numero : max;
+                }, 0) + 1;
+            };
+
+            const resetSessionForm = function () {
+                sessionForm.reset();
+                sessionMotivoInput.value = '';
+                sessionObservacionesInput.value = '';
+            };
+
+            const fillSessionForm = function (session) {
+                if (session) {
+                    sessionNumeroInput.value = session.numeroSesion !== null && session.numeroSesion !== undefined ? session.numeroSesion : '';
+                    sessionFechaInput.value = session.fecha || '';
+                    sessionTipoSelect.value = session.tipoSesion || SESSION_TYPE_OPTIONS[0].value;
+                    sessionAsistenciaSelect.value = session.asistencia || ATTENDANCE_OPTIONS[0].value;
+                    sessionDuracionInput.value = session.duracionMinutos !== null && session.duracionMinutos !== undefined ? session.duracionMinutos : '';
+                    sessionMotivoInput.value = session.motivoCancelacion || '';
+                    sessionDescripcionInput.value = session.descripcion || '';
+                    sessionObservacionesInput.value = session.observaciones || '';
+                } else {
+                    resetSessionForm();
+                    sessionNumeroInput.value = computeNextSessionNumber();
+                    const today = new Date().toISOString().slice(0, 10);
+                    sessionFechaInput.value = today;
+                    sessionTipoSelect.value = SESSION_TYPE_OPTIONS[0].value;
+                    sessionAsistenciaSelect.value = ATTENDANCE_OPTIONS[0].value;
+                }
+            };
+
+            const openSessionModal = function (mode, session) {
+                editingSession = mode === 'edit' ? session : null;
+                sessionModalTitle.textContent = mode === 'edit' ? 'Editar sesion' : 'Registrar sesion';
+                sessionSubmitButton.textContent = mode === 'edit' ? 'Guardar cambios' : 'Registrar';
+                fillSessionForm(editingSession);
+                sessionModalBackdrop.hidden = false;
+                sessionSubmitButton.disabled = false;
+                setTimeout(function () {
+                    sessionNumeroInput.focus();
+                }, 0);
+            };
+
+            const closeSessionModal = function () {
+                sessionModalBackdrop.hidden = true;
+                sessionSubmitButton.disabled = false;
+                editingSession = null;
+                resetSessionForm();
+            };
+
+            const buildSessionPayload = function () {
+                const numeroSesion = Number(sessionNumeroInput.value);
+                if (!numeroSesion || Number.isNaN(numeroSesion) || numeroSesion < 1) {
+                    throw new Error('El número de sesión debe ser mayor o igual a 1.');
+                }
+                const fecha = sessionFechaInput.value;
+                if (!fecha) {
+                    throw new Error('La fecha de la sesion es obligatoria.');
+                }
+                const tipoSesion = sessionTipoSelect.value;
+                const asistencia = sessionAsistenciaSelect.value;
+                const descripcion = sessionDescripcionInput.value.trim();
+                if (!descripcion) {
+                    throw new Error('La descripcion de la sesion es obligatoria.');
+                }
+                let duracion = sessionDuracionInput.value === '' ? null : Number(sessionDuracionInput.value);
+                if (duracion !== null && Number.isNaN(duracion)) {
+                    throw new Error('La duración debe ser un número válido.');
+                }
+                const motivo = sessionMotivoInput.value.trim();
+                const observaciones = sessionObservacionesInput.value.trim();
+
+                return {
+                    solicitante: { usuarioId: therapistId, perfil: 'TERAPEUTA' },
+                    terapeutaId: therapistId,
+                    numeroSesion: numeroSesion,
+                    tipoSesion: tipoSesion,
+                    fecha: fecha,
+                    asistencia: asistencia,
+                    duracionMinutos: duracion,
+                    motivoCancelacion: motivo.length ? motivo : null,
+                    descripcion: descripcion,
+                    observaciones: observaciones.length ? observaciones : null
+                };
+            };
+
+            const submitSessionForm = async function (event) {
+                event.preventDefault();
+                try {
+                    const payload = buildSessionPayload();
+                    sessionSubmitButton.disabled = true;
+                    const baseUrl = apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId) + '/sesiones';
+                    const isEdit = Boolean(editingSession && editingSession.id);
+                    const url = isEdit ? baseUrl + '/' + encodeURIComponent(editingSession.id) : baseUrl;
+                    const method = isEdit ? 'PUT' : 'POST';
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al ' + (isEdit ? 'actualizar' : 'registrar') + ' la sesion.');
+                    }
+                    closeSessionModal();
+                    const success = await loadData();
+                    if (success) {
+                        statusBanner.textContent = isEdit ? 'Sesion actualizada correctamente.' : 'Sesion registrada correctamente.';
+                        statusBanner.classList.remove('error');
+                    }
+                } catch (error) {
+                    sessionSubmitButton.disabled = false;
+                    statusBanner.textContent = error.message || 'No fue posible guardar la sesion.';
+                    statusBanner.classList.add('error');
+                }
+            };
+
+            const imprimirSesion = async function (session) {
+                if (!session || !session.id) {
+                    statusBanner.textContent = 'No se pudo encontrar la sesion seleccionada.';
+                    statusBanner.classList.add('error');
+                    return;
+                }
+                try {
+                    statusBanner.textContent = 'Generando PDF de la sesion...';
+                    statusBanner.classList.remove('error');
+                    const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId) + '/sesiones/' + encodeURIComponent(session.id) + '/pdf');
+                    url.searchParams.set('usuarioId', therapistId);
+                    url.searchParams.set('perfil', 'TERAPEUTA');
+                    const response = await fetch(url.toString());
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al generar el PDF de la sesion.');
+                    }
+                    const blob = await response.blob();
+                    const pdfUrl = URL.createObjectURL(blob);
+                    window.open(pdfUrl, '_blank');
+                    setTimeout(function () {
+                        URL.revokeObjectURL(pdfUrl);
+                    }, 120000);
+                    statusBanner.textContent = 'PDF generado en una nueva pestaña.';
+                    statusBanner.classList.remove('error');
+                } catch (error) {
+                    statusBanner.textContent = error.message || 'No fue posible generar el PDF de la sesion.';
+                    statusBanner.classList.add('error');
+                }
+            };
+
+            const renderPatient = function (patient) {
+                currentPatient = patient;
+                patientName.textContent = patient.nombreCompleto || 'Paciente sin nombre';
+                const serviceText = formatService(patient.tipoServicio);
+                patientService.textContent = serviceText;
+                const statusInfo = formatPatientStatus(patient.estado);
+                patientStatus.textContent = statusInfo.text;
+                patientStatus.className = 'status-chip ' + statusInfo.className;
+
+                if (patient.terapeutaAsignado && patient.terapeutaAsignado.nombre) {
+                    const terapeuta = patient.terapeutaAsignado;
+                    const texto = terapeuta.nombre + (terapeuta.especialidad ? ' - ' + terapeuta.especialidad : '');
+                    setDetailFieldText('terapeuta', texto);
+                } else {
+                    setDetailFieldText('terapeuta', '--');
+                }
+
+                if (!isEditingPatient) {
+                    updatePatientDetailView();
+                }
+            };
+
+            const renderSessions = function (sessions) {
+                currentSessions = Array.isArray(sessions) ? sessions.slice() : [];
+                sessionsList.innerHTML = '';
+                if (!sessions || !sessions.length) {
+                    sessionsEmpty.hidden = false;
+                    return;
+                }
+                sessionsEmpty.hidden = true;
+                const fragment = document.createDocumentFragment();
+                sessions.sort(function (a, b) {
+                    return (a.numeroSesion || 0) - (b.numeroSesion || 0);
+                });
+                sessions.forEach(function (session) {
+                    const li = document.createElement('li');
+                    li.className = 'session-card';
+
+                    const header = document.createElement('div');
+                    header.className = 'session-header';
+
+                    const number = document.createElement('span');
+                    number.className = 'session-number';
+                    const numero = session.numeroSesion !== null && session.numeroSesion !== undefined ? session.numeroSesion : '?';
+                    number.textContent = 'Sesión ' + numero;
+
+                    const statusInfo = formatAttendance(session.asistencia);
+                    const status = document.createElement('span');
+                    status.className = 'session-status ' + statusInfo.className;
+                    status.textContent = statusInfo.text;
+
+                    header.appendChild(number);
+                    header.appendChild(status);
+
+                    const body = document.createElement('div');
+                    body.className = 'session-body';
+
+                    const durationText = session.duracionMinutos ? session.duracionMinutos + ' min' : 'No registrado';
+                    const description = session.descripcion ? session.descripcion : 'Sin descripcion.';
+
+                    body.appendChild(createInfoRow('Fecha:', formatDate(session.fecha)));
+                    body.appendChild(createInfoRow('Tipo:', formatSessionType(session.tipoSesion)));
+                    body.appendChild(createInfoRow('Duración:', durationText));
+
+                    if (session.motivoCancelacion) {
+                        body.appendChild(createInfoRow('Motivo de cancelación:', session.motivoCancelacion));
+                    }
+
+                    if (session.observaciones) {
+                        body.appendChild(createInfoRow('Observaciones:', session.observaciones));
+                    }
+
+                    body.appendChild(createInfoRow('Notas:', description, 'session-notes'));
+
+                    li.appendChild(header);
+                    li.appendChild(body);
+                    const actions = document.createElement('div');
+                    actions.className = 'session-actions';
+
+                    const editButton = document.createElement('button');
+                    editButton.type = 'button';
+                    editButton.className = 'button-outline';
+                    editButton.textContent = 'Editar';
+                    editButton.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        openSessionModal('edit', session);
                     });
 
-                    let url = API_BASE + endpoint;
-                    const qs = queryParams.toString();
-                    if (qs) url += (url.includes('?') ? '&' : '?') + qs;
+                    const printButton = document.createElement('button');
+                    printButton.type = 'button';
+                    printButton.className = 'button-secondary';
+                    printButton.textContent = 'Imprimir';
+                    printButton.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        imprimirSesion(session);
+                    });
 
-                    let body = null;
-                    if (method !== 'GET') body = buildBody(form);
-
-                    const init = {
-                        method,
-                        headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
-                        body: method === 'GET' ? null : JSON.stringify(body || {})
-                    };
-
-                    try {
-                        const response = await fetch(url, init);
-
-                        if (!response.ok) {
-                            const errorText = await response.text();
-                            output.textContent = `Error ${response.status}: ${errorText}`;
-                            return;
-                        }
-
-                        
-                        if (form.dataset.expect === 'pdf') {
-                            const blob = await response.blob();
-                            const pdfUrl = URL.createObjectURL(blob);
-                            window.open(pdfUrl, '_blank');
-                            output.textContent = 'PDF generado y abierto.';
-                            return;
-                        }
-
-                       
-                        const text = await response.text();
-                        try {
-                            output.textContent = text ? JSON.stringify(JSON.parse(text), null, 2) : 'Sin contenido';
-                        } catch {
-                            output.textContent = text || 'Sin contenido';
-                        }
-
-                    } catch (e) {
-                        output.textContent = 'Fallo de red: ' + e.message;
-                    }
+                    actions.appendChild(editButton);
+                    actions.appendChild(printButton);
+                    li.appendChild(actions);
+                    fragment.appendChild(li);
                 });
+                sessionsList.appendChild(fragment);
+            };
+
+            const renderStats = function (sessions) {
+                const total = sessions.length;
+                const completadas = sessions.filter(function (s) { return s.asistencia === 'ASISTIO'; }).length;
+                const canceladas = sessions.filter(function (s) { return s.asistencia === 'CANCELADA'; }).length;
+                const faltas = sessions.filter(function (s) { return s.asistencia === 'FALTA'; }).length;
+
+                statFields.total.textContent = total;
+                statFields.completadas.textContent = completadas;
+                statFields.canceladas.textContent = canceladas;
+                statFields.faltas.textContent = faltas;
+            };
+
+            const fetchPatient = async function () {
+                const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId));
+                url.searchParams.set('usuarioId', therapistId);
+                url.searchParams.set('perfil', 'TERAPEUTA');
+                const response = await fetch(url.toString());
+                if (!response.ok) {
+                    throw new Error('Error ' + response.status + ' al obtener el paciente.');
+                }
+                return response.json();
+            };
+
+            const fetchSessions = async function () {
+                const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId) + '/sesiones');
+                url.searchParams.set('usuarioId', therapistId);
+                url.searchParams.set('perfil', 'TERAPEUTA');
+                const response = await fetch(url.toString());
+                if (!response.ok) {
+                    throw new Error('Error ' + response.status + ' al obtener las sesiones.');
+                }
+                return response.json();
+            };
+
+            const loadData = async function () {
+                statusBanner.textContent = 'Cargando informacion...';
+                statusBanner.classList.remove('error');
+                try {
+                    const [patient, sessions] = await Promise.all([fetchPatient(), fetchSessions()]);
+                    renderPatient(patient);
+                    const list = Array.isArray(sessions) ? sessions : [];
+                    renderSessions(list);
+                    renderStats(list);
+                    const timeStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    statusBanner.textContent = 'Datos actualizados (' + timeStamp + ').';
+                    statusBanner.classList.remove('error');
+                    return true;
+                } catch (error) {
+                    statusBanner.textContent = error.message;
+                    statusBanner.classList.add('error');
+                    renderSessions([]);
+                    renderStats([]);
+                    return false;
+                }
+            };
+
+            editPatientButton.addEventListener('click', function () {
+                if (isEditingPatient) {
+                    savePatientUpdates();
+                } else {
+                    enterPatientEditMode();
+                }
             });
 
-            function buildBody(form) {
-                const data = {};
-                form.querySelectorAll('input[name], select[name], textarea[name]').forEach(input => {
-                    if (input.dataset.path || input.dataset.query) return;
-                    let value = input.value.trim();
-                    if (!value) return;
+            addSessionButton.addEventListener('click', function () {
+                openSessionModal('create');
+            });
 
-                    if (input.dataset.type === 'number') value = Number(value);
-                    setNestedValue(data, input.name, value);
-                });
-                return data;
-            }
+            sessionCancelButton.addEventListener('click', function () {
+                closeSessionModal();
+            });
 
-            function setNestedValue(target, path, value) {
-                const keys = path.split('.');
-                let curr = target;
-                keys.forEach((k, i) => {
-                    if (i === keys.length - 1) curr[k] = value;
-                    else {
-                        if (!curr[k]) curr[k] = {};
-                        curr = curr[k];
+            sessionForm.addEventListener('submit', submitSessionForm);
+
+            sessionModalBackdrop.addEventListener('click', function (event) {
+                if (event.target === sessionModalBackdrop) {
+                    closeSessionModal();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    if (!sessionModalBackdrop.hidden) {
+                        closeSessionModal();
+                    } else if (isEditingPatient) {
+                        exitPatientEditMode();
+                        statusBanner.textContent = 'Edicion cancelada. No se guardaron cambios.';
+                        statusBanner.classList.remove('error');
                     }
-                });
-            }
+                }
+            });
+
+            refreshButton.addEventListener('click', function () {
+                if (isEditingPatient) {
+                    statusBanner.textContent = 'Guarda o cancela los cambios antes de actualizar la informacion.';
+                    statusBanner.classList.add('error');
+                    return;
+                }
+                loadData();
+            });
+            backButton.addEventListener('click', function () {
+                window.location.href = 'pacientes.html';
+            });
+
+            loadData();
         })();
     </script>
 </body>
