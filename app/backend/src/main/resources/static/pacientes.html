@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-        <title>Pacientes asignados - Expedientes Clínicos</title>
+    <title>Pacientes asignados - Expedientes Clínicos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root {
@@ -14,42 +14,66 @@
             --color-text: #2f2f3a;
             --shadow-strong: rgba(85, 88, 121, 0.16);
         }
-        * { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; }
         body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background-color: var(--color-cream); color: var(--color-text); }
         header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; }
         header h1 { margin: 0; font-size: 1.5rem; }
-        main { max-width: 960px; margin: 32px auto; padding: 0 16px 48px; }
+        main { max-width: 960px; margin: 32px auto; padding: 0 16px 64px; }
         .card { background-color: #fff; border-radius: 16px; box-shadow: 0 12px 28px var(--shadow-strong); overflow: hidden; border: 1px solid rgba(152, 161, 188, 0.25); }
-        .card-header { padding: 24px 28px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+        .card-header { padding: 24px 28px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
         .card-header h2 { margin: 0; font-size: 1.4rem; }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        button { border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: background-color 0.2s ease, transform 0.2s ease; }
+        button:hover { background-color: #404561; }
+        button:active { transform: scale(0.98); }
+        #new-patient-button,
+        #refresh-button { background-color: var(--color-navy); color: #fff; }
+        #logout-button { background-color: var(--color-beige); color: var(--color-navy); }
+        #logout-button:hover { background-color: #cfc2b1; }
         #therapist-info { margin: 0 28px 4px; font-size: 0.95rem; color: var(--color-navy-light); }
         #status-message { margin: 0 28px 16px; color: var(--color-navy); font-weight: 600; min-height: 24px; }
         #status-message.error { color: #c62828; }
         #patient-list { list-style: none; margin: 0; padding: 0; }
-        .patient-row { display: flex; justify-content: space-between; gap: 16px; padding: 18px 28px; border-top: 1px solid rgba(152, 161, 188, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .patient-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 20px 28px; border-top: 1px solid rgba(152, 161, 188, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
         .patient-row:hover { background-color: rgba(152, 161, 188, 0.16); }
         .patient-row:focus { background-color: rgba(152, 161, 188, 0.24); outline: 2px solid var(--color-navy); outline-offset: 2px; }
         .patient-row:active { transform: scale(0.99); }
         .patient-row:first-of-type { border-top: none; }
-        .patient-info { display: flex; flex-direction: column; gap: 4px; }
+        .patient-info { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
         .patient-name { font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
         .patient-service { font-size: 0.95rem; color: var(--color-navy-light); }
+        .patient-meta { font-size: 0.9rem; color: var(--color-navy-light); }
+        .patient-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
         .patient-status { font-size: 0.9rem; font-weight: 600; color: var(--color-navy); white-space: nowrap; }
         .patient-status.status-en-espera { color: #8a775f; }
         .patient-status.status-archivado { color: #a49789; }
+        .button-secondary { background-color: var(--color-beige); color: var(--color-navy); }
+        .button-secondary:hover { background-color: #cfc2b1; }
+        .button-danger { background-color: #dc2626; color: #fff; }
+        .button-danger:hover { background-color: #b91c1c; }
         .empty-state { margin: 0 28px 28px; padding: 20px; border-radius: 12px; background-color: rgba(244, 235, 211, 0.85); color: var(--color-navy); }
-        .actions { display: flex; gap: 12px; }
-        .actions button { border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: background-color 0.2s ease, transform 0.2s ease; }
-        #refresh-button { background-color: var(--color-navy); color: #fff; }
-        #refresh-button:hover { background-color: #404561; }
-        #logout-button { background-color: var(--color-beige); color: var(--color-navy); }
-        #logout-button:hover { background-color: #cfc2b1; }
-        .actions button:active { transform: scale(0.98); }
-        @media (max-width: 600px) {
-            .patient-row { flex-direction: column; align-items: flex-start; }
-            .patient-status { align-self: flex-end; }
-            .card-header { align-items: stretch; }
+        .modal-backdrop { position: fixed; inset: 0; background-color: rgba(85, 88, 121, 0.56); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
+        .modal-backdrop[hidden] { display: none; }
+        .modal { background-color: #fff; border-radius: 12px; box-shadow: 0 18px 38px rgba(85, 88, 121, 0.24); max-width: 460px; width: 100%; padding: 24px 26px; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(152, 161, 188, 0.3); }
+        .modal h3 { margin: 0 0 16px; font-size: 1.2rem; color: var(--color-text); }
+        .modal form { display: grid; gap: 12px; }
+        label.form-field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--color-text); font-size: 0.95rem; }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        input[type="date"],
+        select { border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; font-family: inherit; color: var(--color-text); background-color: #fff; }
+        input:focus,
+        select:focus { outline: 2px solid var(--color-navy); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+        .modal-status { margin: 0; font-size: 0.9rem; color: #c62828; min-height: 20px; }
+        @media (max-width: 720px) {
+            .card-header { flex-direction: column; align-items: flex-start; }
             .actions { width: 100%; justify-content: flex-start; }
+            .patient-row { grid-template-columns: 1fr; }
+            .patient-actions { width: 100%; justify-content: flex-start; }
+            .patient-status { order: -1; }
         }
     </style>
 </head>
@@ -62,8 +86,9 @@
             <div class="card-header">
                 <h2>Pacientes</h2>
                 <div class="actions">
+                    <button id="new-patient-button" type="button">Nuevo</button>
                     <button id="refresh-button" type="button">Actualizar</button>
-                        <button id="logout-button" type="button">Cerrar sesión</button>
+                    <button id="logout-button" type="button">Cerrar sesión</button>
                 </div>
             </div>
             <p id="therapist-info"></p>
@@ -72,6 +97,66 @@
             <p id="empty-state" class="empty-state" hidden>No hay pacientes asignados todavía.</p>
         </section>
     </main>
+
+    <div id="create-modal-backdrop" class="modal-backdrop" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
+            <h3 id="create-modal-title">Registrar paciente</h3>
+            <form id="create-form" autocomplete="off">
+                <label class="form-field" for="create-nombre">
+                    Nombre completo
+                    <input id="create-nombre" name="nombreCompleto" type="text" required>
+                </label>
+                <label class="form-field" for="create-celular">
+                    Teléfono
+                    <input id="create-celular" name="celular" type="tel" required>
+                </label>
+                <label class="form-field" for="create-email">
+                    Correo electrónico (opcional)
+                    <input id="create-email" name="email" type="email" placeholder="correo@ejemplo.com">
+                </label>
+                <label class="form-field" for="create-servicio">
+                    Tipo de servicio
+                    <select id="create-servicio" name="tipoServicio" required></select>
+                </label>
+                <label class="form-field" for="create-estado">
+                    Estado del expediente
+                    <select id="create-estado" name="estado" required></select>
+                </label>
+                <label class="form-field" for="create-sexo">
+                    Sexo
+                    <select id="create-sexo" name="sexo" required></select>
+                </label>
+                <label class="form-field" for="create-edad">
+                    Edad
+                    <input id="create-edad" name="edad" type="number" min="0" placeholder="Ej. 30">
+                </label>
+                <label class="form-field" for="create-fecha-registro">
+                    Fecha de registro
+                    <input id="create-fecha-registro" name="fechaRegistro" type="date" required>
+                </label>
+                <label class="form-field" for="create-fecha-proxima">
+                    Próxima sesión (opcional)
+                    <input id="create-fecha-proxima" name="fechaProximaSesion" type="date">
+                </label>
+                <p id="create-modal-status" class="modal-status"></p>
+                <div class="modal-actions">
+                    <button id="create-cancel-button" type="button" class="button-secondary">Cancelar</button>
+                    <button id="create-submit-button" type="submit">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="delete-modal-backdrop" class="modal-backdrop" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+            <h3 id="delete-modal-title">Eliminar paciente</h3>
+            <p id="delete-modal-message">Confirma si deseas eliminar al paciente.</p>
+            <div class="modal-actions">
+                <button id="delete-cancel-button" type="button" class="button-secondary">Cancelar</button>
+                <button id="delete-confirm-button" type="button" class="button-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         (function () {
@@ -85,8 +170,72 @@
             const statusMessage = document.getElementById('status-message');
             const patientList = document.getElementById('patient-list');
             const emptyState = document.getElementById('empty-state');
+            const newPatientButton = document.getElementById('new-patient-button');
             const refreshButton = document.getElementById('refresh-button');
             const logoutButton = document.getElementById('logout-button');
+
+            const createModalBackdrop = document.getElementById('create-modal-backdrop');
+            const createForm = document.getElementById('create-form');
+            const createModalStatus = document.getElementById('create-modal-status');
+            const createSubmitButton = document.getElementById('create-submit-button');
+            const createCancelButton = document.getElementById('create-cancel-button');
+            const createServicioSelect = document.getElementById('create-servicio');
+            const createEstadoSelect = document.getElementById('create-estado');
+            const createSexoSelect = document.getElementById('create-sexo');
+            const createFechaRegistroInput = document.getElementById('create-fecha-registro');
+
+            const deleteModalBackdrop = document.getElementById('delete-modal-backdrop');
+            const deleteModalMessage = document.getElementById('delete-modal-message');
+            const deleteCancelButton = document.getElementById('delete-cancel-button');
+            const deleteConfirmButton = document.getElementById('delete-confirm-button');
+
+            let patientPendingDelete = null;
+
+            const SERVICE_OPTIONS = [
+                { value: 'TERAPIA_INDIVIDUAL', label: 'Psicoterapia' },
+                { value: 'TERAPIA_FAMILIAR', label: 'Terapia familiar' },
+                { value: 'TERAPIA_PAREJA', label: 'Terapia de pareja' },
+                { value: 'TERAPIA_GRUPAL', label: 'Terapia grupal' },
+                { value: 'EVALUACION_PSICOLOGICA', label: 'Psicodiagnóstico' },
+                { value: 'INTERVENCION_CRISIS', label: 'Intervención en crisis' }
+            ];
+
+            const STATUS_OPTIONS = [
+                { value: 'ACTIVO', label: 'Activo' },
+                { value: 'EN_ESPERA', label: 'En espera' },
+                { value: 'ARCHIVADO', label: 'Archivado' }
+            ];
+
+            const SEX_OPTIONS = [
+                { value: 'FEMENINO', label: 'Femenino' },
+                { value: 'MASCULINO', label: 'Masculino' },
+                { value: 'NO_BINARIO', label: 'No binario' },
+                { value: 'PREFIERE_NO_DECIR', label: 'Prefiere no decir' }
+            ];
+
+            const SERVICE_LABELS = SERVICE_OPTIONS.reduce(function (acc, option) {
+                acc[option.value] = option.label;
+                return acc;
+            }, {});
+
+            const STATUS_LABELS = STATUS_OPTIONS.reduce(function (acc, option) {
+                acc[option.value] = option.label;
+                return acc;
+            }, {});
+
+            const populateSelect = function (select, options) {
+                select.innerHTML = '';
+                options.forEach(function (option) {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.label;
+                    select.appendChild(opt);
+                });
+            };
+
+            populateSelect(createServicioSelect, SERVICE_OPTIONS);
+            populateSelect(createEstadoSelect, STATUS_OPTIONS);
+            populateSelect(createSexoSelect, SEX_OPTIONS);
 
             const role = sessionStorage.getItem(ROLE_KEY);
             if (role !== 'TERAPEUTA') {
@@ -119,6 +268,7 @@
             }
 
             const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
+
             const setTherapistInfo = function (name) {
                 const trimmed = typeof name === 'string' ? name.trim() : '';
                 if (trimmed) {
@@ -148,26 +298,30 @@
             loadTherapist();
 
             const formatService = function (service) {
-                if (!service) return 'Sin tipo';
-                const mapping = {
-                    TERAPIA_INDIVIDUAL: 'Psicoterapia',
-                    TERAPIA_FAMILIAR: 'Terapia familiar',
-                    TERAPIA_PAREJA: 'Terapia de pareja',
-                    TERAPIA_GRUPAL: 'Terapia grupal',
-                    EVALUACION_PSICOLOGICA: 'Psicodiagnóstico',
-                    INTERVENCION_CRISIS: 'Intervención en crisis'
-                };
-                return mapping[service] || service.replace(/_/g, ' ').toLowerCase();
+                if (!service) {
+                    return 'Sin tipo';
+                }
+                return SERVICE_LABELS[service] || service.replace(/_/g, ' ').toLowerCase();
             };
 
             const formatStatus = function (status) {
-                if (!status) return { text: 'Sin estado', className: '' };
-                const mapping = {
-                    ACTIVO: { text: 'Activo', className: '' },
-                    EN_ESPERA: { text: 'En espera', className: 'status-en-espera' },
-                    ARCHIVADO: { text: 'Archivado', className: 'status-archivado' }
-                };
-                return mapping[status] || { text: status, className: '' };
+                if (!status) {
+                    return { text: 'Sin estado', className: '' };
+                }
+                const label = STATUS_LABELS[status] || status;
+                const className = status === 'EN_ESPERA' ? 'status-en-espera'
+                    : status === 'ARCHIVADO' ? 'status-archivado' : '';
+                return { text: label, className: className };
+            };
+
+            const formatNextSession = function (patient) {
+                if (patient.fechaProximaSesion) {
+                    return 'Próxima sesión: ' + patient.fechaProximaSesion;
+                }
+                if (patient.fechaRegistro) {
+                    return 'Registrado: ' + patient.fechaRegistro;
+                }
+                return '';
             };
 
             const renderPatients = function (patients) {
@@ -181,21 +335,6 @@
                 patients.forEach(function (patient) {
                     const li = document.createElement('li');
                     li.className = 'patient-row';
-                    li.setAttribute('role', 'button');
-                    li.setAttribute('tabindex', '0');
-                    if (patient.id !== undefined && patient.id !== null) {
-                        const targetId = patient.id;
-                        const goToSessions = function () {
-                            window.location.href = 'sesiones.html?pacienteId=' + encodeURIComponent(targetId);
-                        };
-                        li.addEventListener('click', goToSessions);
-                        li.addEventListener('keydown', function (event) {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                                event.preventDefault();
-                                goToSessions();
-                            }
-                        });
-                    }
 
                     const info = document.createElement('div');
                     info.className = 'patient-info';
@@ -211,26 +350,178 @@
                     info.appendChild(name);
                     info.appendChild(service);
 
+                    const metaText = formatNextSession(patient);
+                    if (metaText) {
+                        const meta = document.createElement('span');
+                        meta.className = 'patient-meta';
+                        meta.textContent = metaText;
+                        info.appendChild(meta);
+                    }
+
+                    const actions = document.createElement('div');
+                    actions.className = 'patient-actions';
+
                     const status = document.createElement('span');
                     const formattedStatus = formatStatus(patient.estado);
                     status.className = 'patient-status ' + formattedStatus.className;
                     status.textContent = formattedStatus.text;
+                    actions.appendChild(status);
+
+                    if (patient.id !== undefined && patient.id !== null) {
+                        li.addEventListener('click', function () {
+                            window.location.href = 'sesiones.html?pacienteId=' + encodeURIComponent(patient.id);
+                        });
+                        li.addEventListener('keydown', function (event) {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                window.location.href = 'sesiones.html?pacienteId=' + encodeURIComponent(patient.id);
+                            }
+                        });
+                        li.setAttribute('role', 'button');
+                        li.setAttribute('tabindex', '0');
+                    }
 
                     li.appendChild(info);
-                    li.appendChild(status);
+                    li.appendChild(actions);
                     fragment.appendChild(li);
                 });
                 patientList.appendChild(fragment);
             };
 
+            const buildCreatePayload = function () {
+                const formData = new FormData(createForm);
+                const nombre = (formData.get('nombreCompleto') || '').toString().trim();
+                const celular = (formData.get('celular') || '').toString().trim();
+                const emailRaw = (formData.get('email') || '').toString().trim();
+                const tipoServicio = formData.get('tipoServicio');
+                const estado = formData.get('estado');
+                const sexo = formData.get('sexo');
+                const edadRaw = (formData.get('edad') || '').toString().trim();
+                const fechaRegistro = (formData.get('fechaRegistro') || '').toString().trim();
+                const fechaProxima = (formData.get('fechaProximaSesion') || '').toString().trim();
+
+                if (!nombre || !celular || !tipoServicio || !estado || !sexo || !fechaRegistro) {
+                    throw new Error('Completa todos los campos obligatorios.');
+                }
+
+                let edad = null;
+                if (edadRaw.length) {
+                    const parsed = Number(edadRaw);
+                    if (!Number.isInteger(parsed) || parsed < 0) {
+                        throw new Error('La edad debe ser un número entero positivo.');
+                    }
+                    edad = parsed;
+                }
+
+                return {
+                    solicitante: { usuarioId: therapistId, perfil: 'TERAPEUTA' },
+                    nombreCompleto: nombre,
+                    celular: celular,
+                    email: emailRaw.length ? emailRaw : null,
+                    tipoServicio: tipoServicio,
+                    estado: estado,
+                    sexo: sexo,
+                    edad: edad,
+                    fechaRegistro: fechaRegistro,
+                    fechaProximaSesion: fechaProxima.length ? fechaProxima : null,
+                    terapeutaId: therapistId
+                };
+            };
+
+            const openCreateModal = function () {
+                createForm.reset();
+                createModalStatus.textContent = '';
+                const today = new Date().toISOString().slice(0, 10);
+                createFechaRegistroInput.value = today;
+                createModalBackdrop.hidden = false;
+                setTimeout(function () {
+                    document.getElementById('create-nombre').focus();
+                }, 0);
+            };
+
+            const closeCreateModal = function () {
+                createModalBackdrop.hidden = true;
+                createModalStatus.textContent = '';
+            };
+
+            const submitCreateForm = async function (event) {
+                event.preventDefault();
+                try {
+                    const payload = buildCreatePayload();
+                    createSubmitButton.disabled = true;
+                    createModalStatus.textContent = 'Registrando paciente...';
+                    const response = await fetch(apiBaseUrl + '/api/pacientes', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al registrar el paciente.');
+                    }
+                    closeCreateModal();
+                    statusMessage.textContent = 'Paciente registrado correctamente.';
+                    statusMessage.classList.remove('error');
+                    fetchPatients();
+                } catch (error) {
+                    createModalStatus.textContent = error.message || 'No fue posible registrar al paciente.';
+                } finally {
+                    createSubmitButton.disabled = false;
+                }
+            };
+
+            const openDeleteModal = function (patient) {
+                if (!patient || patient.id === undefined || patient.id === null) {
+                    return;
+                }
+                patientPendingDelete = patient;
+                const name = patient.nombreCompleto || 'sin nombre';
+                deleteModalMessage.textContent = 'Estás a punto de eliminar al paciente "' + name + '". Esta acción no se puede deshacer.';
+                deleteModalBackdrop.hidden = false;
+                deleteConfirmButton.disabled = false;
+                deleteCancelButton.disabled = false;
+            };
+
+            const closeDeleteModal = function () {
+                patientPendingDelete = null;
+                deleteModalBackdrop.hidden = true;
+            };
+
+            const deletePatient = async function () {
+                if (!patientPendingDelete) {
+                    return;
+                }
+                deleteConfirmButton.disabled = true;
+                deleteCancelButton.disabled = true;
+                statusMessage.textContent = 'Eliminando paciente...';
+                statusMessage.classList.remove('error');
+                try {
+                    const url = apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientPendingDelete.id);
+                    const response = await fetch(url, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuarioId: therapistId, perfil: 'TERAPEUTA' })
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al eliminar el paciente.');
+                    }
+                    closeDeleteModal();
+                    statusMessage.textContent = 'Paciente eliminado correctamente.';
+                    statusMessage.classList.remove('error');
+                    fetchPatients();
+                } catch (error) {
+                    statusMessage.textContent = error.message || 'No fue posible eliminar al paciente.';
+                    statusMessage.classList.add('error');
+                    deleteConfirmButton.disabled = false;
+                    deleteCancelButton.disabled = false;
+                }
+            };
+
             const fetchPatients = async function () {
                 statusMessage.textContent = 'Cargando pacientes...';
                 statusMessage.classList.remove('error');
-
                 const url = new URL(apiBaseUrl + '/api/pacientes/terapeutas/' + encodeURIComponent(therapistId));
                 url.searchParams.set('usuarioId', therapistId);
                 url.searchParams.set('perfil', 'TERAPEUTA');
-
                 try {
                     const response = await fetch(url.toString());
                     if (!response.ok) {
@@ -241,11 +532,43 @@
                     const timeStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     statusMessage.textContent = 'Lista actualizada (' + timeStamp + ').';
                 } catch (error) {
-                    statusMessage.textContent = error.message;
+                    statusMessage.textContent = error.message || 'No fue posible cargar los pacientes.';
                     statusMessage.classList.add('error');
                     renderPatients([]);
                 }
             };
+
+            newPatientButton.addEventListener('click', openCreateModal);
+            createCancelButton.addEventListener('click', closeCreateModal);
+            createForm.addEventListener('submit', submitCreateForm);
+            createModalBackdrop.addEventListener('click', function (event) {
+                if (event.target === createModalBackdrop) {
+                    closeCreateModal();
+                }
+            });
+
+            deleteCancelButton.addEventListener('click', function () {
+                deleteConfirmButton.disabled = false;
+                deleteCancelButton.disabled = false;
+                closeDeleteModal();
+            });
+            deleteConfirmButton.addEventListener('click', deletePatient);
+            deleteModalBackdrop.addEventListener('click', function (event) {
+                if (event.target === deleteModalBackdrop) {
+                    closeDeleteModal();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    if (!createModalBackdrop.hidden) {
+                        closeCreateModal();
+                    }
+                    if (!deleteModalBackdrop.hidden) {
+                        closeDeleteModal();
+                    }
+                }
+            });
 
             refreshButton.addEventListener('click', fetchPatients);
             logoutButton.addEventListener('click', function () {

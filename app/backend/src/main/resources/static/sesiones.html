@@ -66,8 +66,12 @@
         button.button-secondary:hover { background-color: #cfc2b1; }
         button.button-outline { background-color: transparent; color: var(--color-navy); border: 1px solid var(--color-navy); }
         button.button-outline:hover { background-color: rgba(152, 161, 188, 0.2); }
+        button.button-danger { background-color: #dc2626; color: #fff; }
+        button.button-danger:hover { background-color: #b91c1c; }
         #back-button { background-color: var(--color-beige); color: var(--color-navy); }
         #back-button:hover { background-color: #cfc2b1; }
+        .card-footer { display: flex; justify-content: flex-end; padding: 0 28px 28px; }
+        .footer-actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
         #context-info { margin: 0 28px 12px; color: var(--color-navy-light); font-size: 0.95rem; }
         input[type="text"], input[type="email"], input[type="number"], input[type="date"], select, textarea {
             width: 100%;
@@ -123,7 +127,9 @@
                 <section class="panel" aria-labelledby="basic-title">
                     <div class="panel-header">
                         <h3 id="basic-title">Información básica</h3>
-                        <button id="edit-patient-button" type="button" class="button-secondary">Editar</button>
+                        <div class="panel-actions-inline">
+                            <button id="edit-patient-button" type="button" class="button-secondary">Editar</button>
+                        </div>
                     </div>
                     <dl class="detail-list">
                         <div>
@@ -193,8 +199,24 @@
                     </div>
                 </div>
             </section>
+            <div class="card-footer">
+                <div class="footer-actions">
+                    <button id="delete-patient-button" type="button" class="button-danger">Eliminar paciente</button>
+                </div>
+            </div>
         </section>
     </main>
+
+    <div id="delete-modal-backdrop" class="modal-backdrop" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+            <h3 id="delete-modal-title">Eliminar paciente</h3>
+            <p id="delete-modal-message">Confirma si deseas eliminar el expediente del paciente.</p>
+            <div class="modal-actions">
+                <button id="delete-cancel-button" type="button" class="button-secondary">Cancelar</button>
+                <button id="delete-confirm-button" type="button" class="button-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
 
     <div id="session-modal-backdrop" class="modal-backdrop" hidden>
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="session-modal-title">
@@ -275,6 +297,12 @@
             const addSessionButton = document.getElementById('add-session-button');
             const backButton = document.getElementById('back-button');
             const editPatientButton = document.getElementById('edit-patient-button');
+            const deletePatientButton = document.getElementById('delete-patient-button');
+
+            const deleteModalBackdrop = document.getElementById('delete-modal-backdrop');
+            const deleteModalMessage = document.getElementById('delete-modal-message');
+            const deleteCancelButton = document.getElementById('delete-cancel-button');
+            const deleteConfirmButton = document.getElementById('delete-confirm-button');
 
             const sessionModalBackdrop = document.getElementById('session-modal-backdrop');
             const sessionForm = document.getElementById('session-form');
@@ -665,6 +693,62 @@
                 }
             };
 
+            const openDeleteModal = function () {
+                if (isEditingPatient) {
+                    statusBanner.textContent = 'Guarda o cancela los cambios antes de eliminar al paciente.';
+                    statusBanner.classList.add('error');
+                    return;
+                }
+                if (!currentPatient) {
+                    statusBanner.textContent = 'No hay un paciente cargado para eliminar.';
+                    statusBanner.classList.add('error');
+                    return;
+                }
+                const name = currentPatient.nombreCompleto || 'sin nombre';
+                deleteModalMessage.textContent = 'Estás a punto de eliminar el expediente de "' + name + '". Esta acción no se puede deshacer.';
+                deleteConfirmButton.disabled = false;
+                deleteCancelButton.disabled = false;
+                deleteModalBackdrop.hidden = false;
+            };
+
+            const closeDeleteModal = function () {
+                deleteModalBackdrop.hidden = true;
+                deleteConfirmButton.disabled = false;
+                deleteCancelButton.disabled = false;
+            };
+
+            const deletePatientRecord = async function () {
+                if (!currentPatient) {
+                    return;
+                }
+                deleteConfirmButton.disabled = true;
+                deleteCancelButton.disabled = true;
+                statusBanner.textContent = 'Eliminando paciente...';
+                statusBanner.classList.remove('error');
+                try {
+                    const url = apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId);
+                    const response = await fetch(url, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuarioId: therapistId, perfil: 'TERAPEUTA' })
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al eliminar el paciente.');
+                    }
+                    closeDeleteModal();
+                    statusBanner.textContent = 'Paciente eliminado correctamente. Regresando a la lista...';
+                    statusBanner.classList.remove('error');
+                    setTimeout(function () {
+                        window.location.href = 'pacientes.html';
+                    }, 900);
+                } catch (error) {
+                    statusBanner.textContent = error.message || 'No fue posible eliminar el paciente.';
+                    statusBanner.classList.add('error');
+                    deleteConfirmButton.disabled = false;
+                    deleteCancelButton.disabled = false;
+                }
+            };
+
             const computeNextSessionNumber = function () {
                 if (!currentSessions.length) {
                     return 1;
@@ -985,6 +1069,17 @@
                 }
             });
 
+            deletePatientButton.addEventListener('click', openDeleteModal);
+            deleteCancelButton.addEventListener('click', function () {
+                closeDeleteModal();
+            });
+            deleteConfirmButton.addEventListener('click', deletePatientRecord);
+            deleteModalBackdrop.addEventListener('click', function (event) {
+                if (event.target === deleteModalBackdrop) {
+                    closeDeleteModal();
+                }
+            });
+
             addSessionButton.addEventListener('click', function () {
                 openSessionModal('create');
             });
@@ -1005,6 +1100,8 @@
                 if (event.key === 'Escape') {
                     if (!sessionModalBackdrop.hidden) {
                         closeSessionModal();
+                    } else if (!deleteModalBackdrop.hidden) {
+                        closeDeleteModal();
                     } else if (isEditingPatient) {
                         exitPatientEditMode();
                         statusBanner.textContent = 'Edicion cancelada. No se guardaron cambios.';
