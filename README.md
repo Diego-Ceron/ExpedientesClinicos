@@ -22,8 +22,8 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
             - **`/resources/`**:
                 - `static/`: Páginas html estáticas para la interfaz web.
                 - `application.properties`: Configuración de Spring Boot y datasource.
-    - `Dockerfile`: 
-    - `pom.xml`:
+    - `Dockerfile`: Compila la aplicación con Maven y crea una imagen de ejecución que contiene el JAR final.
+    - `pom.xml`: Define el artefacto, dependencias y el plugin de Spring Boot
 - **`docs/`**: Documentación del proyecto (alcances, requisitos, diagramas, historias de usuario, entregables y archivos de presentación).
 
 ## Documentación
