@@ -31,4 +31,29 @@
 
     **Entregas**
    - [Primer entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Primer-entrega)
-   - [Segunda entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Segunda-entrega)
+ - [Segunda entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Segunda-entrega)
+ 
+## Estructura del repositorio
+
+A continuación se describe brevemente qué contiene cada carpeta principal y su función dentro del proyecto.
+
+- **`app/`**: Código fuente de la aplicación.
+    - **`app/backend/`**: Backend Java (Spring Boot) del sistema.
+        - `pom.xml`: Dependencias y configuración Maven del módulo backend.
+        - **`src/main/`**: Código fuente Java del backend.
+            - **`java/com/expedientesclinicos/`**:
+                - `config/`: Configura las reglas CORS para la aplicación
+                - `controller/`: Controladores REST.
+                - `dto/`: Objetos de transferencia (requests, responses y resúmenes para la API).
+                - `exception/`: Excepciones personalizadas y manejadores de errores.
+                - `model/paciente`: Entidades JPA que representan tablas en la base de datos.
+                - `repository/paciente`: Repositorios Spring Data JPA para acceso a la base de datos.
+                - `service/`: Lógica de negocio y servicios para operar con entidades.
+                - `ExpedientesClinicosApplication.java`
+            - **`/resources/`**:
+                - `static/`: 
+                - `application.properties`: Configuración de Spring Boot y datasource.
+    - `Dockerfile`: 
+    - `pom.xml`:
+- **`docs/`**: Documentación del proyecto (alcances, requisitos, diagramas, historias de usuario, entregables y archivos de presentación).
+
