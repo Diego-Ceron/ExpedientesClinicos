@@ -51,7 +51,7 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
                 - `service/`: Lógica de negocio y servicios para operar con entidades.
                 - `ExpedientesClinicosApplication.java`
             - **`/resources/`**:
-                - `static/`: 
+                - `static/`: Páginas html estáticas para la interfaz web.
                 - `application.properties`: Configuración de Spring Boot y datasource.
     - `Dockerfile`: 
     - `pom.xml`:
