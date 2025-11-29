@@ -1,6 +1,8 @@
 package com.expedientesclinicos.controller.paciente;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +18,7 @@ import com.expedientesclinicos.dto.common.PerfilSolicitante;
 import com.expedientesclinicos.dto.paciente.ConsentimientoInformadoRequest;
 import com.expedientesclinicos.dto.paciente.ConsentimientoInformadoResponse;
 import com.expedientesclinicos.service.paciente.ConsentimientoInformadoService;
+import com.expedientesclinicos.service.util.PdfService;
 
 import jakarta.validation.Valid;
 
@@ -24,9 +27,11 @@ import jakarta.validation.Valid;
 public class ConsentimientoInformadoController {
 
     private final ConsentimientoInformadoService consentimientoInformadoService;
+    private final PdfService pdfService;
 
-    public ConsentimientoInformadoController(ConsentimientoInformadoService consentimientoInformadoService) {
+    public ConsentimientoInformadoController(ConsentimientoInformadoService consentimientoInformadoService, PdfService pdfService) {
         this.consentimientoInformadoService = consentimientoInformadoService;
+        this.pdfService = pdfService;
     }
 
     @GetMapping
@@ -47,5 +52,17 @@ public class ConsentimientoInformadoController {
     public ConsentimientoInformadoResponse actualizar(@PathVariable Long pacienteId,
                                                       @Valid @RequestBody ConsentimientoInformadoRequest request) {
         return consentimientoInformadoService.crearOActualizar(pacienteId, request);
+    }
+
+    @GetMapping("/pdf")
+    public ResponseEntity<byte[]> pdf(@PathVariable Long pacienteId,
+                                      @RequestParam Long usuarioId,
+                                      @RequestParam PerfilSolicitante perfil) {
+        ConsentimientoInformadoResponse consentimiento = consentimientoInformadoService.obtener(pacienteId, ModificadorRequest.of(usuarioId, perfil));
+        byte[] pdf = pdfService.generarPdfDesdeConsentimiento(consentimiento);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=consentimiento_" + pacienteId + ".pdf");
+        return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
     }
 }

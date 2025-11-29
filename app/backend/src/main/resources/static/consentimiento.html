@@ -79,7 +79,9 @@
                     <input id="aceptacion" name="aceptacion" type="text" placeholder="Acepto / No acepto" required>
                 </label>
                 <div class="card-actions">
-                    <button id="save-button" type="submit">Guardar</button>
+                    <button id="edit-button" type="button" class="button-outline">Editar</button>
+                    <button id="print-button" type="button" class="button-secondary" style="margin-left:auto">Imprimir</button>
+                    <button id="save-button" type="submit" hidden>Guardar</button>
                 </div>
             </form>
         </section>
@@ -100,6 +102,50 @@
     const statusBanner = document.getElementById('status-banner');
     const contextInfo = document.getElementById('context-info');
     const form = document.getElementById('consent-form');
+    const editButton = document.getElementById('edit-button');
+    const printButton = document.getElementById('print-button');
+        printButton.addEventListener('click', async function(){
+            if (Number.isNaN(pacienteId)) {
+                statusBanner.textContent = 'Paciente no válido para imprimir.';
+                statusBanner.classList.add('error');
+                return;
+            }
+            statusBanner.textContent = 'Generando PDF...';
+            statusBanner.classList.remove('error');
+            try {
+                const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId) + '/consentimiento/pdf');
+                url.searchParams.set('usuarioId', therapistId);
+                url.searchParams.set('perfil', 'TERAPEUTA');
+                const resp = await fetch(url.toString());
+                if(!resp.ok){ throw new Error('Error ' + resp.status + ' al generar PDF'); }
+                const blob = await resp.blob();
+                const pdfUrl = URL.createObjectURL(blob);
+                window.open(pdfUrl, '_blank');
+                setTimeout(function(){ URL.revokeObjectURL(pdfUrl); }, 120000);
+                statusBanner.textContent = 'PDF abierto en nueva pestaña.';
+            } catch(err){
+                statusBanner.textContent = err.message || 'No se pudo generar el PDF.';
+                statusBanner.classList.add('error');
+            }
+        });
+    const saveButton = document.getElementById('save-button');
+    let editMode = false;
+
+    function setEditMode(enabled){
+        editMode = enabled;
+        saveButton.hidden = !enabled;
+        editButton.textContent = enabled ? 'Cancelar' : 'Editar';
+        ['alcance','riesgos','aceptacion'].forEach(function(id){
+            const el = document.getElementById(id);
+            el.readOnly = !enabled;
+        });
+    }
+
+    editButton.addEventListener('click', function(){
+        setEditMode(!editMode);
+    });
+
+    setEditMode(false);
 
     const params = new URLSearchParams(window.location.search);
     const pacienteIdParam = params.get('pacienteId');
@@ -164,12 +210,18 @@
                 document.getElementById('aceptacion').value = data.aceptacion || '';
                 statusBanner.textContent = 'Consentimiento cargado.';
                 statusBanner.classList.remove('error');
+                setEditMode(false);
             }
         } catch(err){ /* puede no existir */ }
     }
 
     form.addEventListener('submit', async function(e){
         e.preventDefault();
+        if (!editMode) {
+            statusBanner.textContent = 'Activa edición para guardar cambios.';
+            statusBanner.classList.add('error');
+            return;
+        }
         if (Number.isNaN(pacienteId)) {
             statusBanner.textContent = 'No se puede guardar: paciente no válido.';
             statusBanner.classList.add('error');
@@ -190,6 +242,7 @@
             if(!resp.ok){ throw new Error('Error ' + resp.status + ' al guardar consentimiento'); }
             statusBanner.textContent = 'Consentimiento guardado.';
             statusBanner.classList.remove('error');
+            setEditMode(false);
         } catch(err){
             statusBanner.textContent = err.message || 'No fue posible guardar el consentimiento.';
             statusBanner.classList.add('error');
