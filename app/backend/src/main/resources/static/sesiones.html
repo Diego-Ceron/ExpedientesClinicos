@@ -119,6 +119,7 @@
                 <div class="card-actions">
                     <span id="patient-status" class="status-chip">Estado</span>
                     <button id="back-button" type="button">Volver a pacientes</button>
+                    <button id="back-expediente-button" type="button" class="button-outline">Volver al expediente</button>
                 </div>
             </div>
             <p id="context-info" hidden></p>
@@ -296,6 +297,7 @@
             const refreshButton = document.getElementById('refresh-button');
             const addSessionButton = document.getElementById('add-session-button');
             const backButton = document.getElementById('back-button');
+            const backExpedienteButton = document.getElementById('back-expediente-button');
             const editPatientButton = document.getElementById('edit-patient-button');
             const deletePatientButton = document.getElementById('delete-patient-button');
 
@@ -1120,6 +1122,11 @@
             });
             backButton.addEventListener('click', function () {
                 window.location.href = 'pacientes.html';
+            });
+            backExpedienteButton.addEventListener('click', function () {
+                if (!Number.isNaN(patientId)) {
+                    window.location.href = 'expediente.html?pacienteId=' + encodeURIComponent(patientId);
+                }
             });
 
             loadData();
