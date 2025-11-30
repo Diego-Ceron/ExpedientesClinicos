@@ -34,8 +34,8 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
     - [Limitaciones](docs/limitaciones.md)
 2. **[Propuesta de valor](docs/propuesta_valor.md)**
 3. **Requisitos**
-    - [Requisitos Funcionales (RF)](docs/requisitos_funcionales.md)
-    - [Requisitos No Funcionales (RNF)](docs/requisitos_no_funcionales.md)
+    - [Requisitos Funcionales (RF)](docsrequisitos/requisitos_funcionales.md)
+    - [Requisitos No Funcionales (RNF)](docs/requisitos/requisitos_no_funcionales.md)
 4. **Priorización**
     - [Método de prioridad](docs/metodos_prioridad.md)
     - [Requisitos/Historias de Usuario](docs/requisitos.md)
