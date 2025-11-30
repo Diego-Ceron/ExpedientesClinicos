@@ -51,6 +51,10 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
     - `pom.xml`: Define el artefacto, dependencias y el plugin de Spring Boot
 - **`docs/`**: Documentación del proyecto (alcances, requisitos, diagramas, historias de usuario, entregables y archivos de presentación).
 
+## API
+
+>La documentación de la api se realiza con Swagger UI, se puede acceder desde [aquí](https://expedientesclinicos.onrender.com/swagger-ui/index.html#/)
+
 ## Requisitos
 >[Requisitos Funcionales (RF)](docs/requisitos/requisitos_funcionales.md)
 >[Requisitos No Funcionales (RNF)](docs/requisitos/requisitos_no_funcionales.md)
