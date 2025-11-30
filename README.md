@@ -2,6 +2,19 @@
 
 En este repositorio se encuentra el sistema de expedientes clínicos de la facultad de psicología. El web service de la app funciona con render [aquí](https://expedientesclinicos.onrender.com)
 
+## Introducción
+
+Información acerca de la planeación e impacto del proyecto.
+
+>### Objetivo
+>[Archivo](docs/objetivo.md)
+
+>### Alcances
+>[Archivo](docs/alcances.md)
+
+>### Limitaciones
+>[Archivo](docs/limitaciones.md)
+
 ## Estructura del repositorio
 
 A continuación se describe brevemente qué contiene cada carpeta principal y su función dentro del proyecto.
@@ -28,10 +41,6 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
 
 ## Documentación
 
-1. **Introducción**
-    - [Objetivo](docs/objetivo.md)
-    - [Alcances](docs/alcances.md)
-    - [Limitaciones](docs/limitaciones.md)
 2. **[Propuesta de valor](docs/propuesta_valor.md)**
 3. **Requisitos**
     - [Requisitos Funcionales (RF)](docs/requisitos/requisitos_funcionales.md)
