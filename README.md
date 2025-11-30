@@ -26,6 +26,8 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
     - `pom.xml`: Define el artefacto, dependencias y el plugin de Spring Boot
 - **`docs/`**: Documentación del proyecto (alcances, requisitos, diagramas, historias de usuario, entregables y archivos de presentación).
 
+## API
+
 ## Documentación
 
 1. **Introducción**
@@ -56,5 +58,5 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
    - [Powerpoint](docs/presentacion/ExpedientesClinicos.pdf)
 
     **Entregas**
-   - [Primer entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Primer-entrega)
- - [Segunda entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Segunda-entrega)
+    - [Primer entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Primer-entrega)
+    - [Segunda entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Segunda-entrega)
