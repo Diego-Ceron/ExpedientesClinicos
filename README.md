@@ -6,21 +6,26 @@ En este repositorio se encuentra el sistema de expedientes clínicos de la facul
 
 Información acerca de la planeación e impacto del proyecto.
 
-### Objetivo
+>### Objetivo
 >[Archivo](docs/objetivo.md)
 >Info
 
-### Alcances
+>### Alcances
 >[Archivo](docs/alcances.md)
 >Info
 
-### Limitaciones
+>### Limitaciones
 >[Archivo](docs/limitaciones.md)
 >Info
 
 ## Propuesta de valor
 
 >[Archivo](docs/propuesta_valor.md)
+
+>**Presentación**
+
+>[![Video](https://img.youtube.com/vi/GppRmBpD5Mc/0.jpg)](https://www.youtube.com/watch?v=GppRmBpD5Mc "Expedientes clínicos")
+>[Powerpoint](docs/presentacion/ExpedientesClinicos.pdf)
 
 ## Estructura del repositorio
 
@@ -46,30 +51,28 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
     - `pom.xml`: Define el artefacto, dependencias y el plugin de Spring Boot
 - **`docs/`**: Documentación del proyecto (alcances, requisitos, diagramas, historias de usuario, entregables y archivos de presentación).
 
-## Documentación
+## Requisitos
+>[Requisitos Funcionales (RF)](docs/requisitos/requisitos_funcionales.md)
+>[Requisitos No Funcionales (RNF)](docs/requisitos/requisitos_no_funcionales.md)
 
-3. **Requisitos**
-    - [Requisitos Funcionales (RF)](docs/requisitos/requisitos_funcionales.md)
-    - [Requisitos No Funcionales (RNF)](docs/requisitos/requisitos_no_funcionales.md)
-4. **Priorización**
-    - [Método de prioridad](docs/priorizacion/metodos_prioridad.md)
-    - [Requisitos/Historias de Usuario](docs/priorizacion/requisitos/requisitos.md)
-    - [Análisis de factibilidad](docs/priorizacion/analisis_factibilidad.md)
-5. **Artefactos**
-    - [Vista previa Casos de uso](docs/artefactos/diagrama_casos.png)
-    - [Historias de usuario](docs/artefactos/historias_usuario.md)
-6. **Procesos de abstracción**
-    - [Estructura de clases](docs/artefactos/estructura_clases.md)
-    - [Vista previa UML](docs/artefactos/diagrama_uml_preview.png)
-7. **Procesos del proyecto**
-    - [Descripción](docs/proceso-proyecto/descripcion_proceso.md)
-    - [Gestión](docs/proceso-proyecto/gestion_proceso.md)
-    - [Contribuciones individuales](docs/proceso-proyecto/contribucion_individual.md)
-8. **Presentación**
+## Priorización
+>[Método de prioridad](docs/priorizacion/metodos_prioridad.md)
+>[Requisitos/Historias de Usuario](docs/priorizacion/requisitos/requisitos.md)
+>[Análisis de factibilidad](docs/priorizacion/analisis_factibilidad.md)
 
-    [![Video](https://img.youtube.com/vi/GppRmBpD5Mc/0.jpg)](https://www.youtube.com/watch?v=GppRmBpD5Mc "Expedientes clínicos")
-   - [Powerpoint](docs/presentacion/ExpedientesClinicos.pdf)
+## Artefactos
+>[Vista previa Casos de uso](docs/artefactos/diagrama_casos.png)
+>[Historias de usuario](docs/artefactos/historias_usuario.md)
 
-    **Entregas**
-    - [Primer entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Primer-entrega)
-    - [Segunda entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Segunda-entrega)
+## Procesos de abstracción
+>[Estructura de clases](docs/artefactos/estructura_clases.md)
+>[Vista previa UML](docs/artefactos/diagrama_uml_preview.png)
+
+## Procesos del proyecto
+>[Descripción](docs/proceso-proyecto/descripcion_proceso.md)
+>[Gestión](docs/proceso-proyecto/gestion_proceso.md)
+>[Contribuciones individuales](docs/proceso-proyecto/contribucion_individual.md)
+
+## Entregas
+>[Primer entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Primer-entrega)
+>[Segunda entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Segunda-entrega)
