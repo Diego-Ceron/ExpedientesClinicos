@@ -1,8 +1,8 @@
-# Módulo - Sistema de Expedientes Digitales
+<h1 align="center">Módulo - Sistema de Expedientes Digitales<h1>
 
 En este repositorio se encuentra el sistema de expedientes clínicos de la facultad de psicología. El web service de la app funciona con render [aquí](https://expedientesclinicos.onrender.com)
 
-## Estructura del repositorio
+<h2>Estructura del repositorio<h2>
 
 A continuación se describe brevemente qué contiene cada carpeta principal y su función dentro del proyecto.
 
