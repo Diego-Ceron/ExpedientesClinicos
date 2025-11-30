@@ -6,11 +6,12 @@ En este repositorio se encuentra el sistema de expedientes clínicos de la facul
 
 Información acerca de la planeación e impacto del proyecto.
 
->### Objetivo
->[Archivo](docs/objetivo.md)
-
->### Alcances
->[Archivo](docs/alcances.md)
+### Objetivo
+```
+[Archivo](docs/objetivo.md)
+``` 
+### Alcances
+[Archivo](docs/alcances.md)
 
 >### Limitaciones
 >[Archivo](docs/limitaciones.md)
