@@ -1,7 +1,7 @@
 # Módulo - Sistema de Expedientes Digitales
 
 <p align="center">
-  <img src="docs/uady.jpg" width="250"/>
+  <img src="docs/uady.jpg" width="500"/>
 </p>
 
 En este repositorio se encuentra el sistema de expedientes clínicos de la facultad de psicología. El web service de la app funciona con render [aquí](https://expedientesclinicos.onrender.com)
