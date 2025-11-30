@@ -7,14 +7,20 @@ En este repositorio se encuentra el sistema de expedientes clínicos de la facul
 Información acerca de la planeación e impacto del proyecto.
 
 ### Objetivo
-```
-[Archivo](docs/objetivo.md)
-``` 
-### Alcances
-[Archivo](docs/alcances.md)
+>[Archivo](docs/objetivo.md)
+>Info
 
->### Limitaciones
+### Alcances
+>[Archivo](docs/alcances.md)
+>Info
+
+### Limitaciones
 >[Archivo](docs/limitaciones.md)
+>Info
+
+## Propuesta de valor
+
+>[Archivo](docs/propuesta_valor.md)
 
 ## Estructura del repositorio
 
@@ -42,7 +48,6 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
 
 ## Documentación
 
-2. **[Propuesta de valor](docs/propuesta_valor.md)**
 3. **Requisitos**
     - [Requisitos Funcionales (RF)](docs/requisitos/requisitos_funcionales.md)
     - [Requisitos No Funcionales (RNF)](docs/requisitos/requisitos_no_funcionales.md)
