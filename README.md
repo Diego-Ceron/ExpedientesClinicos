@@ -1,5 +1,9 @@
 # Módulo - Sistema de Expedientes Digitales
 
+<p align="center">
+  <img src="docs/uady.jpg" width="250"/>
+</p>
+
 En este repositorio se encuentra el sistema de expedientes clínicos de la facultad de psicología. El web service de la app funciona con render [aquí](https://expedientesclinicos.onrender.com)
 
 ## Introducción
@@ -8,15 +12,12 @@ Información acerca de la planeación e impacto del proyecto.
 
 >### Objetivo
 >[Archivo](docs/objetivo.md)
->Info
 
 >### Alcances
 >[Archivo](docs/alcances.md)
->Info
 
 >### Limitaciones
 >[Archivo](docs/limitaciones.md)
->Info
 
 ## Propuesta de valor
 
@@ -24,8 +25,8 @@ Información acerca de la planeación e impacto del proyecto.
 
 >**Presentación**
 
->[![Video](https://img.youtube.com/vi/GppRmBpD5Mc/0.jpg)](https://www.youtube.com/watch?v=GppRmBpD5Mc "Expedientes clínicos")
 >[Powerpoint](docs/presentacion/ExpedientesClinicos.pdf)
+>[![Video](https://img.youtube.com/vi/GppRmBpD5Mc/0.jpg)](https://www.youtube.com/watch?v=GppRmBpD5Mc "Expedientes clínicos")
 
 ## Estructura del repositorio
 
