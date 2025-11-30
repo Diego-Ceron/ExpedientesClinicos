@@ -6,6 +6,8 @@ import com.expedientesclinicos.dto.paciente.PacienteCreateRequest;
 import com.expedientesclinicos.dto.paciente.PacienteResponse;
 import com.expedientesclinicos.dto.paciente.PacienteUpdateRequest;
 import com.expedientesclinicos.service.paciente.PacienteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/pacientes")
+@Tag(name = "Pacientes", description = "Operaciones para administrar pacientes")
 public class PacienteController {
 
     private final PacienteService pacienteService;
@@ -32,18 +35,21 @@ public class PacienteController {
     }
 
     @PostMapping
+    @Operation(summary = "Crear paciente", description = "Registra un nuevo paciente en el sistema")
     public ResponseEntity<PacienteResponse> crear(@Valid @RequestBody PacienteCreateRequest request) {
         PacienteResponse respuesta = pacienteService.crearPaciente(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
     @PutMapping("/{pacienteId}")
+    @Operation(summary = "Actualizar paciente", description = "Modifica datos del paciente por ID")
     public PacienteResponse actualizar(@PathVariable Long pacienteId,
                                        @Valid @RequestBody PacienteUpdateRequest request) {
         return pacienteService.actualizarPaciente(pacienteId, request);
     }
 
     @DeleteMapping("/{pacienteId}")
+    @Operation(summary = "Eliminar paciente", description = "Elimina el expediente de un paciente por ID")
     public ResponseEntity<Void> eliminar(@PathVariable Long pacienteId,
                                          @Valid @RequestBody ModificadorRequest solicitante) {
         pacienteService.eliminarPaciente(pacienteId, solicitante);
@@ -51,6 +57,7 @@ public class PacienteController {
     }
 
     @GetMapping("/{pacienteId}")
+    @Operation(summary = "Obtener paciente", description = "Devuelve datos del paciente por ID")
     public PacienteResponse obtenerPorId(@PathVariable Long pacienteId,
                                           @RequestParam Long usuarioId,
                                           @RequestParam PerfilSolicitante perfil) {
@@ -58,6 +65,7 @@ public class PacienteController {
     }
 
     @GetMapping("/terapeutas/{terapeutaId}")
+    @Operation(summary = "Listar pacientes por terapeuta", description = "Lista todos los pacientes asignados a un terapeuta")
     public List<PacienteResponse> listarPorTerapeuta(@PathVariable Long terapeutaId,
                                                      @RequestParam Long usuarioId,
                                                      @RequestParam PerfilSolicitante perfil) {

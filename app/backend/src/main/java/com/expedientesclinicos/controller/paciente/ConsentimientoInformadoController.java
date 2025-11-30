@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import com.expedientesclinicos.dto.common.ModificadorRequest;
 import com.expedientesclinicos.dto.common.PerfilSolicitante;
@@ -24,6 +26,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/pacientes/{pacienteId}/consentimiento")
+@Tag(name = "Consentimiento Informado", description = "Operaciones sobre el consentimiento informado del paciente")
 public class ConsentimientoInformadoController {
 
     private final ConsentimientoInformadoService consentimientoInformadoService;
@@ -35,6 +38,7 @@ public class ConsentimientoInformadoController {
     }
 
     @GetMapping
+    @Operation(summary = "Obtener consentimiento informado", description = "Recupera el estado del consentimiento informado")
     public ConsentimientoInformadoResponse obtener(@PathVariable Long pacienteId,
                                                    @RequestParam Long usuarioId,
                                                    @RequestParam PerfilSolicitante perfil) {
@@ -42,6 +46,7 @@ public class ConsentimientoInformadoController {
     }
 
     @PostMapping
+    @Operation(summary = "Registrar consentimiento informado", description = "Crea el registro de consentimiento informado del paciente")
     public ResponseEntity<ConsentimientoInformadoResponse> crear(@PathVariable Long pacienteId,
                                                                  @Valid @RequestBody ConsentimientoInformadoRequest request) {
         ConsentimientoInformadoResponse r = consentimientoInformadoService.crearOActualizar(pacienteId, request);
@@ -49,12 +54,14 @@ public class ConsentimientoInformadoController {
     }
 
     @PutMapping
+    @Operation(summary = "Actualizar consentimiento informado", description = "Actualiza el estado del consentimiento informado")
     public ConsentimientoInformadoResponse actualizar(@PathVariable Long pacienteId,
                                                       @Valid @RequestBody ConsentimientoInformadoRequest request) {
         return consentimientoInformadoService.crearOActualizar(pacienteId, request);
     }
 
     @GetMapping("/pdf")
+    @Operation(summary = "Generar PDF consentimiento informado", description = "Genera un PDF con el consentimiento informado del paciente")
     public ResponseEntity<byte[]> pdf(@PathVariable Long pacienteId,
                                       @RequestParam Long usuarioId,
                                       @RequestParam PerfilSolicitante perfil) {
