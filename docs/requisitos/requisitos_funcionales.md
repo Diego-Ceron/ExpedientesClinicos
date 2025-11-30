@@ -8,4 +8,4 @@
 |RF-05|El sistema de expedientes clínicos deberá permitir el procesamiento de cada apartado del expediente en archivos digitales. |<ul><li>El sistema deberá permitir exportar el expediente completo o secciones específicas (historial de sesiones) en formato PDF.</li><li>El sistema deberá permitir visualizar archivos sin necesidad de descargarlos.|
 
 ---
-[Volver al inicio](../README.md)
+[Volver al inicio](../../README.md)

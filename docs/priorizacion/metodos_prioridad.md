@@ -19,4 +19,4 @@ Este método es útil porque:
 * Da visibilidad clara de qué priorizar en fases tempranas.
 
 ---
-[Volver al inicio](../README.md)
+[Volver al inicio](../../README.md)

@@ -22,4 +22,4 @@ Deseables (Could Have): Alertas automáticas y recordatorios.
 El sistema es factible en su desarrollo técnico y operativo. La mayoría de los requerimientos críticos (Must Have) tienen una alta factibilidad de implementación y garantizan el cumplimiento del propósito principal: facilitar el control digital de expedientes clínicos y sesiones, reduciendo la dependencia de registros físicos.
 
 ---
-[Volver al inicio](../README.md)
+[Volver al inicio](../../README.md)

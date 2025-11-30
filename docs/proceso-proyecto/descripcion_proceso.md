@@ -18,4 +18,4 @@ Entre ellos se encuentran diagramas de casos de uso y clases, así como las hist
 Estos materiales permitieron visualizar la funcionalidad del sistema y sentar las bases para su futura implementación.  
 
 ---
-[Volver al inicio](../README.md)
+[Volver al inicio](../../README.md)
