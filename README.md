@@ -1,8 +1,8 @@
-<h1 align="center">Módulo - Sistema de Expedientes Digitales<h1>
+# Módulo - Sistema de Expedientes Digitales
 
 En este repositorio se encuentra el sistema de expedientes clínicos de la facultad de psicología. El web service de la app funciona con render [aquí](https://expedientesclinicos.onrender.com)
 
-<h2>Estructura del repositorio<h2>
+## Estructura del repositorio
 
 A continuación se describe brevemente qué contiene cada carpeta principal y su función dentro del proyecto.
 
@@ -25,8 +25,6 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
     - `Dockerfile`: Compila la aplicación con Maven y crea una imagen de ejecución que contiene el JAR final.
     - `pom.xml`: Define el artefacto, dependencias y el plugin de Spring Boot
 - **`docs/`**: Documentación del proyecto (alcances, requisitos, diagramas, historias de usuario, entregables y archivos de presentación).
-
-## API
 
 ## Documentación
 
