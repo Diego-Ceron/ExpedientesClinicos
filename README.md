@@ -98,7 +98,9 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
 ### 🔍 Procesos de abstracción
 - >[Estructura de clases](docs/artefactos/estructura_clases.md)
 
-- >[Vista previa UML](docs/artefactos/diagrama_uml_preview.png)
+- >[Vista previa Diagrama de Modelo de Dominio](docs/artefactos/Domain_Model.jpeg)
+
+- >[Vista previa Diagrama de Componentes](docs/artefactos/UML_Component_Diagram.jpeg)
 
 ### ⚙️ Procesos del proyecto
 - >[Descripción](docs/proceso-proyecto/descripcion_proceso.md)
