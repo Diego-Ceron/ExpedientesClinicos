@@ -19,9 +19,6 @@ public abstract class Usuario {
     @Column(nullable = false, length = 120, unique = true)
     private String correo;
 
-    @Column(nullable = false, length = 120)
-    private String password;
-
     @Column(nullable = false, length = 40)
     private String rol;
 
@@ -47,14 +44,6 @@ public abstract class Usuario {
 
     public void setCorreo(String correo) {
         this.correo = correo;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getRol() {

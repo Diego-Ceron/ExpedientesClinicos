@@ -1,24 +1,38 @@
 package com.expedientesclinicos.dto.paciente;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+public class TerapeutaDetailResponse {
 
-public class TerapeutaCreateRequest {
-
-    @NotBlank
+    private Long id;
     private String nombre;
-
-    @NotBlank
-    @Email
     private String correo;
-
-    @NotBlank
     private String especialidad;
-
-    @NotBlank
     private String cedulaProfesional;
-
     private String telefono;
+
+    public TerapeutaDetailResponse() {
+    }
+
+    public TerapeutaDetailResponse(Long id,
+                                   String nombre,
+                                   String correo,
+                                   String especialidad,
+                                   String cedulaProfesional,
+                                   String telefono) {
+        this.id = id;
+        this.nombre = nombre;
+        this.correo = correo;
+        this.especialidad = especialidad;
+        this.cedulaProfesional = cedulaProfesional;
+        this.telefono = telefono;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getNombre() {
         return nombre;

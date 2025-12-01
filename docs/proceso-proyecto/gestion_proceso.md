@@ -16,4 +16,4 @@ El progreso del proyecto se supervisó a través de la revisión de entregables 
 La gestión del proceso permitió mantener una visión clara de los objetivos, adaptarse a los cambios necesarios y garantizar que el proyecto avanzara de manera ordenada.  
 
 ---
-[Volver al inicio](../README.md)
+[Volver al inicio](../../README.md)

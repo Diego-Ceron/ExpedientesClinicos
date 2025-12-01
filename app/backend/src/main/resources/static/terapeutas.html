@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Terapeutas - Expedientes Clínicos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            color-scheme: light;
+            --color-navy: #555879;
+            --color-navy-light: #98A1BC;
+            --color-beige: #DED3C4;
+            --color-cream: #F4EBD3;
+            --color-text: #2f2f3a;
+        }
+        body { font-family: "Segoe UI", Arial, sans-serif; margin: 24px; background-color: var(--color-cream); color: var(--color-text); }
+        main { max-width: 900px; margin: 0 auto; background-color: #fff; border-radius: 16px; padding: 24px 28px; box-shadow: 0 12px 28px rgba(85, 88, 121, 0.15); border: 1px solid rgba(152, 161, 188, 0.25); }
+        header { margin-bottom: 24px; }
+        nav { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 12px; }
+        nav a { color: var(--color-navy); text-decoration: none; font-weight: 600; padding: 6px 10px; border-radius: 6px; background-color: rgba(152, 161, 188, 0.15); }
+        nav a:hover { background-color: rgba(152, 161, 188, 0.25); }
+        form { border: 1px solid rgba(152, 161, 188, 0.35); padding: 16px; margin-bottom: 24px; border-radius: 12px; background-color: rgba(244, 235, 211, 0.4); }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--color-text); }
+        input, textarea { width: 100%; max-width: 420px; padding: 8px 10px; margin-top: 4px; border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
+        input:focus, textarea:focus { outline: 2px solid var(--color-navy); }
+        .response { background-color: var(--color-navy); color: #f5f5f5; padding: 12px; margin-top: 12px; border-radius: 8px; white-space: pre-wrap; min-height: 48px; overflow-x: auto; }
+        .actions { margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap; }
+        button { border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; font-weight: 600; font-size: 0.95rem; background-color: var(--color-navy); color: #fff; transition: background-color 0.2s ease, transform 0.2s ease; }
+        button:hover { background-color: #404561; }
+        button:active { transform: scale(0.98); }
+        button[type="reset"] { background-color: var(--color-beige); color: var(--color-navy); }
+        button[type="reset"]:hover { background-color: #cfc2b1; }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>Gestión de terapeutas</h1>
+            <p>Pantallas sencillas para crear y consultar terapeutas registrados.</p>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="pacientes.html">Pacientes</a>
+                <a href="sesiones.html">Sesiones clínicas</a>
+            </nav>
+        </header>
+
+        <section>
+            <h2>Registrar terapeuta</h2>
+            <form data-endpoint="/api/terapeutas" data-method="POST">
+                <label>Nombre completo
+                    <input type="text" name="nombre" required>
+                </label>
+                <label>Correo electrónico
+                    <input type="email" name="correo" required>
+                </label>
+                <label>Especialidad
+                    <input type="text" name="especialidad" required>
+                </label>
+                <label>Cédula profesional
+                    <input type="text" name="cedulaProfesional" required>
+                </label>
+                <label>Teléfono de contacto
+                    <input type="tel" name="telefono">
+                </label>
+                <div class="actions">
+                    <button type="submit">Registrar</button>
+                    <button type="reset">Limpiar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+
+        <section>
+            <h2>Listar terapeutas</h2>
+            <form data-endpoint="/api/terapeutas" data-method="GET">
+                <div class="actions">
+                    <button type="submit">Listar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+
+        <section>
+            <h2>Consultar terapeuta por ID</h2>
+            <form data-endpoint="/api/terapeutas/{id}" data-method="GET">
+                <label>ID del terapeuta
+                    <input type="number" data-path="id" required>
+                </label>
+                <div class="actions">
+                    <button type="submit">Consultar</button>
+                </div>
+                <pre class="response"></pre>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+
+           
+            const API_BASE = "https://expedientesclinicos.onrender.com";
+
+            const forms = document.querySelectorAll('form[data-endpoint]');
+
+            forms.forEach(function (form) {
+                form.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+
+                    const output = form.querySelector('.response');
+                    if (output) output.textContent = 'Enviando...';
+
+                    const method = form.dataset.method || 'GET';
+                    let endpoint = form.dataset.endpoint;
+
+                    form.querySelectorAll('[data-path]').forEach(function (input) {
+                        endpoint = endpoint.replace(
+                            `{${input.dataset.path}}`,
+                            encodeURIComponent(input.value.trim())
+                        );
+                    });
+
+                    if (/\{.+\}/.test(endpoint)) {
+                        output.textContent = 'Faltan valores para completar la URL.';
+                        return;
+                    }
+
+                    const url = API_BASE + endpoint;
+
+                    const init = {
+                        method,
+                        headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
+                        body: null
+                    };
+
+                    if (method !== 'GET') {
+                        const body = buildBody(form);
+                        init.body = JSON.stringify(body || {});
+                    }
+
+                    try {
+                        const response = await fetch(url, init);
+                        const text = await response.text();
+
+                        if (!response.ok) {
+                            output.textContent = `Error ${response.status}: ${text}`;
+                            return;
+                        }
+
+                        try {
+                            output.textContent = text ? JSON.stringify(JSON.parse(text), null, 2) : 'Sin contenido';
+                        } catch {
+                            output.textContent = text || 'Sin contenido';
+                        }
+
+                    } catch (error) {
+                        output.textContent = 'Fallo de red: ' + error.message;
+                    }
+                });
+            });
+
+            function buildBody(form) {
+                const data = {};
+                const inputs = form.querySelectorAll('input[name], textarea[name]');
+                inputs.forEach(function (input) {
+                    if (input.dataset.path) return;
+
+                    let value = input.value.trim();
+                    if (!value) return;
+
+                    setNestedValue(data, input.name, value);
+                });
+                return data;
+            }
+
+            function setNestedValue(target, path, value) {
+                const parts = path.split('.');
+                let current = target;
+
+                parts.forEach((part, index) => {
+                    if (index === parts.length - 1) {
+                        current[part] = value;
+                    } else {
+                        if (!current[part]) current[part] = {};
+                        current = current[part];
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

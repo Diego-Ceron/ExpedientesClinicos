@@ -14,4 +14,4 @@ Como administrador, quiero consultar todos los expedientes de pacientes, para te
 Como administrador, quiero exportar los reportes en PDF o Excel, para su fácil manejo y archivado.
 
 ---
-[Volver al inicio](../README.md)
+[Volver al inicio](../../README.md)

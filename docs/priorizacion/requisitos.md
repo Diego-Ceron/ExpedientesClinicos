@@ -40,4 +40,4 @@ Administrativos
 * Could Have: Estadísticas avanzadas, alertas automáticas de inactividad.
 
 ---
-[Volver al inicio](../README.md)
+[Volver al inicio](../../README.md)

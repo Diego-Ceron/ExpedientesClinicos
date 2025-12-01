@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Entrevista del paciente - Expedientes Clínicos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            color-scheme: light;
+            --color-navy: #555879;
+            --color-navy-light: #98A1BC;
+            --color-beige: #DED3C4;
+            --color-cream: #F4EBD3;
+            --color-text: #2f2f3a;
+            --shadow-strong: rgba(85, 88, 121, 0.18);
+            --shadow-soft: rgba(85, 88, 121, 0.12);
+        }
+        * { box-sizing: border-box; }
+        body { margin:0; font-family: "Segoe UI", Arial, sans-serif; background-color: var(--color-cream); color: var(--color-text); }
+        header { background-color: var(--color-navy); color:#fff; padding:16px 24px; }
+        header h1 { margin:0; font-size:1.5rem; }
+        main { max-width:1024px; margin:32px auto; padding:0 16px 48px; }
+        .card { background-color:#fff; border-radius:16px; box-shadow:0 12px 28px var(--shadow-strong); overflow:hidden; border:1px solid rgba(152,161,188,0.25); }
+        .card-header { padding:24px 28px 16px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; }
+        .card-header h2 { margin:0; font-size:1.6rem; }
+        .card-header p { margin:4px 0 0; color: var(--color-navy-light); }
+        .card-actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+        .status-chip { display:inline-flex; align-items:center; padding:6px 12px; border-radius:999px; background-color: rgba(152,161,188,0.22); color: var(--color-navy); font-weight:600; font-size:0.9rem; }
+        .status-banner { margin:0 28px 16px; padding:10px 14px; border-radius:8px; background-color: rgba(152,161,188,0.15); color: var(--color-navy); font-weight:600; min-height:24px; }
+        .status-banner.error { background-color:#fdecea; color:#b3261e; }
+        .panel { background-color:#fff; border:1px solid rgba(152,161,188,0.25); border-radius:12px; padding:20px 24px; box-shadow:0 4px 14px var(--shadow-soft); margin:0 28px 28px; }
+        button { border:none; border-radius:8px; padding:10px 18px; cursor:pointer; font-weight:600; font-size:0.95rem; background-color: var(--color-navy); color:#fff; transition: background-color .2s ease, transform .2s ease; }
+        button:hover { background-color:#404561; }
+        button:active { transform: scale(.98); }
+        button.button-secondary { background-color: var(--color-beige); color: var(--color-navy); }
+        button.button-secondary:hover { background-color:#cfc2b1; }
+        button.button-outline { background-color: transparent; color: var(--color-navy); border:1px solid var(--color-navy); }
+        button.button-outline:hover { background-color: rgba(152,161,188,0.2); }
+        #back-button { background-color: var(--color-beige); color: var(--color-navy); }
+        #back-button:hover { background-color:#cfc2b1; }
+        label.form-field { display:flex; flex-direction:column; gap:6px; font-weight:600; color:var(--color-text); font-size:0.95rem; }
+        input[type="text"], textarea { width:100%; border:1px solid rgba(152,161,188,0.6); border-radius:8px; padding:10px 12px; font-family:inherit; font-size:0.95rem; color:var(--color-text); background-color:#fff; }
+        textarea { min-height:140px; resize:vertical; }
+        @media (max-width: 600px) {
+            .card-header { flex-direction: column; align-items:flex-start; }
+            .card-actions { width:100%; justify-content:flex-start; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Expedientes Clínicos</h1>
+</header>
+<main>
+    <section class="card" aria-live="polite">
+        <div class="card-header">
+            <div>
+                <h2 id="page-title">Entrevista del paciente</h2>
+                <p id="patient-info" class="card-subtitle"></p>
+            </div>
+            <div class="card-actions">
+                <span id="patient-status" class="status-chip" hidden>Estado</span>
+                <button id="back-button" type="button" class="button-secondary">Volver a pacientes</button>
+                <button id="back-expediente-button" type="button" class="button-outline">Volver al expediente</button>
+            </div>
+        </div>
+        <p id="context-info" hidden></p>
+        <div id="status-banner" class="status-banner"></div>
+        <section class="panel" aria-labelledby="form-title">
+            <h3 id="form-title">Registro de entrevista</h3>
+            <form id="interview-form">
+                <label class="form-field" for="motivo-consulta">Motivo de consulta
+                    <textarea id="motivo-consulta" name="motivoConsulta" required></textarea>
+                </label>
+                <label class="form-field" for="antecedentes">Antecedentes relevantes
+                    <textarea id="antecedentes" name="antecedentes"></textarea>
+                </label>
+                <label class="form-field" for="observaciones">Observaciones
+                    <textarea id="observaciones" name="observaciones"></textarea>
+                </label>
+                <div class="card-actions">
+                    <button id="edit-button" type="button" class="button-outline">Editar</button>
+                    <button id="print-button" type="button" class="button-secondary" style="margin-left:auto">Imprimir</button>
+                    <button id="save-button" type="submit" hidden>Guardar</button>
+                </div>
+            </form>
+        </section>
+    </section>
+</main>
+<script>
+(function(){
+    const DEFAULT_API_URL = "https://expedientesclinicos.onrender.com";
+    const API_BASE_KEY = 'expedientesclinicos.apiBaseUrl';
+    const ROLE_KEY = 'expedientesclinicos.role';
+    const USER_ID_KEY = 'expedientesclinicos.usuarioId';
+    const LEGACY_THERAPIST_KEY = 'expedientesclinicos.therapistId';
+
+    const backButton = document.getElementById('back-button');
+    const backExpedienteButton = document.getElementById('back-expediente-button');
+    const patientInfo = document.getElementById('patient-info');
+    const patientStatus = document.getElementById('patient-status');
+    const statusBanner = document.getElementById('status-banner');
+    const contextInfo = document.getElementById('context-info');
+    const form = document.getElementById('interview-form');
+    const editButton = document.getElementById('edit-button');
+    const printButton = document.getElementById('print-button');
+        printButton.addEventListener('click', async function(){
+            if (Number.isNaN(pacienteId)) {
+                statusBanner.textContent = 'Paciente no válido para imprimir.';
+                statusBanner.classList.add('error');
+                return;
+            }
+            statusBanner.textContent = 'Generando PDF...';
+            statusBanner.classList.remove('error');
+            try {
+                const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId) + '/entrevista/pdf');
+                url.searchParams.set('usuarioId', therapistId);
+                url.searchParams.set('perfil', 'TERAPEUTA');
+                const resp = await fetch(url.toString());
+                if(!resp.ok){ throw new Error('Error ' + resp.status + ' al generar PDF'); }
+                const blob = await resp.blob();
+                const pdfUrl = URL.createObjectURL(blob);
+                window.open(pdfUrl, '_blank');
+                setTimeout(function(){ URL.revokeObjectURL(pdfUrl); }, 120000);
+                statusBanner.textContent = 'PDF abierto en nueva pestaña.';
+            } catch(err){
+                statusBanner.textContent = err.message || 'No se pudo generar el PDF.';
+                statusBanner.classList.add('error');
+            }
+        });
+    const saveButton = document.getElementById('save-button');
+
+    const params = new URLSearchParams(window.location.search);
+    const pacienteIdParam = params.get('pacienteId');
+    const pacienteId = pacienteIdParam ? Number(pacienteIdParam) : NaN;
+
+    const role = sessionStorage.getItem(ROLE_KEY);
+    if (role !== 'TERAPEUTA') {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    let therapistIdRaw = sessionStorage.getItem(USER_ID_KEY);
+    if (!therapistIdRaw) {
+        const legacyId = sessionStorage.getItem(LEGACY_THERAPIST_KEY);
+        if (legacyId) {
+            therapistIdRaw = legacyId;
+            sessionStorage.setItem(USER_ID_KEY, legacyId);
+        }
+    }
+    if (!therapistIdRaw) {
+        window.location.href = 'index.html';
+        return;
+    }
+    const therapistId = Number(therapistIdRaw);
+    if (Number.isNaN(therapistId)) {
+        statusBanner.textContent = 'ID de terapeuta inválido. Inicia sesión nuevamente.';
+        statusBanner.classList.add('error');
+        return;
+    }
+
+    if (Number.isNaN(pacienteId)) {
+        statusBanner.textContent = 'Selecciona un paciente desde la lista para registrar entrevista.';
+        statusBanner.classList.add('error');
+    } else {
+        patientInfo.textContent = 'Paciente ID: ' + pacienteId;
+    }
+
+    const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
+    contextInfo.textContent = '';
+
+    backButton.addEventListener('click', function(){
+        window.location.href = 'pacientes.html';
+    });
+
+    backExpedienteButton.addEventListener('click', function(){
+        if (!Number.isNaN(pacienteId)) {
+            window.location.href = 'expediente.html?pacienteId=' + encodeURIComponent(pacienteId);
+        }
+    });
+
+    let editMode = false;
+
+    function setEditMode(enabled){
+        editMode = enabled;
+        saveButton.hidden = !enabled;
+        editButton.textContent = enabled ? 'Cancelar' : 'Editar';
+        // habilitar/deshabilitar campos
+        ['motivo-consulta','antecedentes','observaciones'].forEach(function(id){
+            const el = document.getElementById(id);
+            el.readOnly = !enabled;
+        });
+    }
+
+    editButton.addEventListener('click', function(){
+        setEditMode(!editMode);
+    });
+
+    // Por defecto, no edición
+    setEditMode(false);
+
+    async function cargarEntrevista(){
+        if (Number.isNaN(pacienteId)) return;
+        try {
+            const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId) + '/entrevista');
+            url.searchParams.set('usuarioId', therapistId);
+            url.searchParams.set('perfil', 'TERAPEUTA');
+            const resp = await fetch(url.toString());
+            if (resp.ok) {
+                const data = await resp.json();
+                document.getElementById('motivo-consulta').value = data.motivoConsulta || '';
+                document.getElementById('antecedentes').value = data.antecedentes || '';
+                document.getElementById('observaciones').value = data.observaciones || '';
+                statusBanner.textContent = 'Entrevista cargada.';
+                statusBanner.classList.remove('error');
+                setEditMode(false);
+            }
+        } catch(err){ /* silencio: puede no existir */ }
+    }
+
+    form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        if (!editMode) {
+            statusBanner.textContent = 'Activa edición para guardar cambios.';
+            statusBanner.classList.add('error');
+            return;
+        }
+        if (Number.isNaN(pacienteId)) {
+            statusBanner.textContent = 'No se puede guardar: paciente no válido.';
+            statusBanner.classList.add('error');
+            return;
+        }
+        statusBanner.textContent = 'Guardando entrevista...';
+        statusBanner.classList.remove('error');
+        const payload = {
+            solicitante: { usuarioId: therapistId, perfil: 'TERAPEUTA' },
+            motivoConsulta: document.getElementById('motivo-consulta').value.trim(),
+            antecedentes: document.getElementById('antecedentes').value.trim() || null,
+            observaciones: document.getElementById('observaciones').value.trim() || null
+        };
+        const url = apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId) + '/entrevista';
+        try {
+            const method = 'PUT'; // usar PUT para idempotencia crear/actualizar en servicio
+            const resp = await fetch(url, { method: method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+            if(!resp.ok){ throw new Error('Error ' + resp.status + ' al guardar entrevista'); }
+            statusBanner.textContent = 'Entrevista guardada.';
+            statusBanner.classList.remove('error');
+            setEditMode(false);
+        } catch(err){
+            statusBanner.textContent = err.message || 'No fue posible guardar la entrevista.';
+            statusBanner.classList.add('error');
+        }
+    });
+
+    cargarEntrevista();
+})();
+</script>
+</body>
+</html>
