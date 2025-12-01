@@ -66,12 +66,13 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
 >[Análisis de factibilidad](docs/priorizacion/analisis_factibilidad.md)
 
 ## Artefactos
->[Vista previa Casos de uso](docs/artefactos/diagrama_casos.png)
+>[Vista previa Casos de uso](docs/artefactos/Use_Case_Diagram.jpeg)
 >[Historias de usuario](docs/artefactos/historias_usuario.md)
 
 ## Procesos de abstracción
 >[Estructura de clases](docs/artefactos/estructura_clases.md)
->[Vista previa UML](docs/artefactos/diagrama_uml_preview.png)
+>[Diagrama de Modelo de Dominio](docs/artefactos/Domain_Model.jpeg)
+>[Diagrama de Componentes](docs/artefactos/UML_Component_Diagram.jpeg)
 
 ## Procesos del proyecto
 >[Descripción](docs/proceso-proyecto/descripcion_proceso.md)
