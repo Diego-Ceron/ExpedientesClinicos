@@ -70,6 +70,8 @@
         button.button-danger:hover { background-color: #b91c1c; }
         #back-button { background-color: var(--color-beige); color: var(--color-navy); }
         #back-button:hover { background-color: #cfc2b1; }
+        .button-muted { background-color: #e5e7eb !important; color: #9aa0b4 !important; border-color: #d1d5db !important; }
+        .button-muted:hover { background-color: #e5e7eb !important; }
         .card-footer { display: flex; justify-content: flex-end; padding: 0 28px 28px; }
         .footer-actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
         #context-info { margin: 0 28px 12px; color: var(--color-navy-light); font-size: 0.95rem; }
@@ -682,6 +684,15 @@
                 patientStatus.textContent = statusInfo.text;
                 patientStatus.className = 'status-chip ' + statusInfo.className;
 
+                // Si el paciente está archivado, atenuar acciones de edición y mostrar aviso al intentar usarlas
+                if (patient.estado === 'ARCHIVADO') {
+                    addSessionButton.classList.add('button-muted');
+                    addSessionButton.onclick = function () {
+                        statusBanner.textContent = 'El paciente se encuentra archivado; no es posible registrar o editar sesiones.';
+                        statusBanner.classList.remove('error');
+                    };
+                }
+
                 if (patient.terapeutaAsignado && patient.terapeutaAsignado.nombre) {
                     const terapeuta = patient.terapeutaAsignado;
                     const texto = terapeuta.nombre + (terapeuta.especialidad ? ' - ' + terapeuta.especialidad : '');
@@ -754,10 +765,19 @@
                     editButton.type = 'button';
                     editButton.className = 'button-outline';
                     editButton.textContent = 'Editar';
-                    editButton.addEventListener('click', function (event) {
-                        event.stopPropagation();
-                        openSessionModal('edit', session);
-                    });
+                    if (currentPatient && currentPatient.estado === 'ARCHIVADO') {
+                        editButton.classList.add('button-muted');
+                        editButton.addEventListener('click', function (event) {
+                            event.stopPropagation();
+                            statusBanner.textContent = 'El paciente se encuentra archivado; no es posible editar sesiones.';
+                            statusBanner.classList.remove('error');
+                        });
+                    } else {
+                        editButton.addEventListener('click', function (event) {
+                            event.stopPropagation();
+                            openSessionModal('edit', session);
+                        });
+                    }
 
                     actions.appendChild(editButton);
                     li.appendChild(actions);

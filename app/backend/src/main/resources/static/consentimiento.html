@@ -38,6 +38,8 @@
         button.button-outline:hover { background-color: rgba(152,161,188,0.2); }
         #back-button { background-color: var(--color-beige); color: var(--color-navy); }
         #back-button:hover { background-color:#cfc2b1; }
+        .button-muted { background-color: #e5e7eb !important; color: #9aa0b4 !important; border-color: #d1d5db !important; }
+        .button-muted:hover { background-color: #e5e7eb !important; }
         label.form-field { display:flex; flex-direction:column; gap:6px; font-weight:600; color:var(--color-text); font-size:0.95rem; }
         input[type="text"], textarea { width:100%; border:1px solid rgba(152,161,188,0.6); border-radius:8px; padding:10px 12px; font-family:inherit; font-size:0.95rem; color:var(--color-text); background-color:#fff; }
         textarea { min-height:140px; resize:vertical; }
@@ -142,6 +144,11 @@
     }
 
     editButton.addEventListener('click', function(){
+        if (currentPatient && currentPatient.estado === 'ARCHIVADO') {
+            statusBanner.textContent = 'El paciente se encuentra archivado; no es posible editar el consentimiento.';
+            statusBanner.classList.remove('error');
+            return;
+        }
         setEditMode(!editMode);
     });
 
