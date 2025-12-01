@@ -86,9 +86,8 @@
             <div class="card-header">
                 <h2>Pacientes</h2>
                 <div class="actions">
-                    <button id="new-patient-button" type="button">Nuevo</button>
                     <button id="refresh-button" type="button">Actualizar</button>
-                    <button id="logout-button" type="button">Cerrar sesión</button>
+                    <button id="logout-button" type="button">Salir</button>
                 </div>
             </div>
             <p id="therapist-info"></p>
@@ -96,67 +95,7 @@
             <ul id="patient-list"></ul>
             <p id="empty-state" class="empty-state" hidden>No hay pacientes asignados todavía.</p>
         </section>
-    </main>
-
-    <div id="create-modal-backdrop" class="modal-backdrop" hidden>
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
-            <h3 id="create-modal-title">Registrar paciente</h3>
-            <form id="create-form" autocomplete="off">
-                <label class="form-field" for="create-nombre">
-                    Nombre completo
-                    <input id="create-nombre" name="nombreCompleto" type="text" required>
-                </label>
-                <label class="form-field" for="create-celular">
-                    Teléfono
-                    <input id="create-celular" name="celular" type="tel" required>
-                </label>
-                <label class="form-field" for="create-email">
-                    Correo electrónico (opcional)
-                    <input id="create-email" name="email" type="email" placeholder="correo@ejemplo.com">
-                </label>
-                <label class="form-field" for="create-servicio">
-                    Tipo de servicio
-                    <select id="create-servicio" name="tipoServicio" required></select>
-                </label>
-                <label class="form-field" for="create-estado">
-                    Estado del expediente
-                    <select id="create-estado" name="estado" required></select>
-                </label>
-                <label class="form-field" for="create-sexo">
-                    Sexo
-                    <select id="create-sexo" name="sexo" required></select>
-                </label>
-                <label class="form-field" for="create-edad">
-                    Edad
-                    <input id="create-edad" name="edad" type="number" min="0" placeholder="Ej. 30">
-                </label>
-                <label class="form-field" for="create-fecha-registro">
-                    Fecha de registro
-                    <input id="create-fecha-registro" name="fechaRegistro" type="date" required>
-                </label>
-                <label class="form-field" for="create-fecha-proxima">
-                    Próxima sesión (opcional)
-                    <input id="create-fecha-proxima" name="fechaProximaSesion" type="date">
-                </label>
-                <p id="create-modal-status" class="modal-status"></p>
-                <div class="modal-actions">
-                    <button id="create-cancel-button" type="button" class="button-secondary">Cancelar</button>
-                    <button id="create-submit-button" type="submit">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="delete-modal-backdrop" class="modal-backdrop" hidden>
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
-            <h3 id="delete-modal-title">Eliminar paciente</h3>
-            <p id="delete-modal-message">Confirma si deseas eliminar al paciente.</p>
-            <div class="modal-actions">
-                <button id="delete-cancel-button" type="button" class="button-secondary">Cancelar</button>
-                <button id="delete-confirm-button" type="button" class="button-danger">Eliminar</button>
-            </div>
-        </div>
-    </div>
+    </main>   
 
     <script>
         (function () {
@@ -170,26 +109,8 @@
             const statusMessage = document.getElementById('status-message');
             const patientList = document.getElementById('patient-list');
             const emptyState = document.getElementById('empty-state');
-            const newPatientButton = document.getElementById('new-patient-button');
             const refreshButton = document.getElementById('refresh-button');
-            const logoutButton = document.getElementById('logout-button');
-
-            const createModalBackdrop = document.getElementById('create-modal-backdrop');
-            const createForm = document.getElementById('create-form');
-            const createModalStatus = document.getElementById('create-modal-status');
-            const createSubmitButton = document.getElementById('create-submit-button');
-            const createCancelButton = document.getElementById('create-cancel-button');
-            const createServicioSelect = document.getElementById('create-servicio');
-            const createEstadoSelect = document.getElementById('create-estado');
-            const createSexoSelect = document.getElementById('create-sexo');
-            const createFechaRegistroInput = document.getElementById('create-fecha-registro');
-
-            const deleteModalBackdrop = document.getElementById('delete-modal-backdrop');
-            const deleteModalMessage = document.getElementById('delete-modal-message');
-            const deleteCancelButton = document.getElementById('delete-cancel-button');
-            const deleteConfirmButton = document.getElementById('delete-confirm-button');
-
-            let patientPendingDelete = null;
+            const logoutButton = document.getElementById('logout-button');           
 
             const SERVICE_OPTIONS = [
                 { value: 'TERAPIA_INDIVIDUAL', label: 'Psicoterapia' },
@@ -221,21 +142,7 @@
             const STATUS_LABELS = STATUS_OPTIONS.reduce(function (acc, option) {
                 acc[option.value] = option.label;
                 return acc;
-            }, {});
-
-            const populateSelect = function (select, options) {
-                select.innerHTML = '';
-                options.forEach(function (option) {
-                    const opt = document.createElement('option');
-                    opt.value = option.value;
-                    opt.textContent = option.label;
-                    select.appendChild(opt);
-                });
-            };
-
-            populateSelect(createServicioSelect, SERVICE_OPTIONS);
-            populateSelect(createEstadoSelect, STATUS_OPTIONS);
-            populateSelect(createSexoSelect, SEX_OPTIONS);
+            }, {});      
 
             const role = sessionStorage.getItem(ROLE_KEY);
             if (role !== 'TERAPEUTA') {
@@ -387,135 +294,7 @@
                     fragment.appendChild(li);
                 });
                 patientList.appendChild(fragment);
-            };
-
-            const buildCreatePayload = function () {
-                const formData = new FormData(createForm);
-                const nombre = (formData.get('nombreCompleto') || '').toString().trim();
-                const celular = (formData.get('celular') || '').toString().trim();
-                const emailRaw = (formData.get('email') || '').toString().trim();
-                const tipoServicio = formData.get('tipoServicio');
-                const estado = formData.get('estado');
-                const sexo = formData.get('sexo');
-                const edadRaw = (formData.get('edad') || '').toString().trim();
-                const fechaRegistro = (formData.get('fechaRegistro') || '').toString().trim();
-                const fechaProxima = (formData.get('fechaProximaSesion') || '').toString().trim();
-
-                if (!nombre || !celular || !tipoServicio || !estado || !sexo || !fechaRegistro) {
-                    throw new Error('Completa todos los campos obligatorios.');
-                }
-
-                let edad = null;
-                if (edadRaw.length) {
-                    const parsed = Number(edadRaw);
-                    if (!Number.isInteger(parsed) || parsed < 0) {
-                        throw new Error('La edad debe ser un número entero positivo.');
-                    }
-                    edad = parsed;
-                }
-
-                return {
-                    solicitante: { usuarioId: therapistId, perfil: 'TERAPEUTA' },
-                    nombreCompleto: nombre,
-                    celular: celular,
-                    email: emailRaw.length ? emailRaw : null,
-                    tipoServicio: tipoServicio,
-                    estado: estado,
-                    sexo: sexo,
-                    edad: edad,
-                    fechaRegistro: fechaRegistro,
-                    fechaProximaSesion: fechaProxima.length ? fechaProxima : null,
-                    terapeutaId: therapistId
-                };
-            };
-
-            const openCreateModal = function () {
-                createForm.reset();
-                createModalStatus.textContent = '';
-                const today = new Date().toISOString().slice(0, 10);
-                createFechaRegistroInput.value = today;
-                createModalBackdrop.hidden = false;
-                setTimeout(function () {
-                    document.getElementById('create-nombre').focus();
-                }, 0);
-            };
-
-            const closeCreateModal = function () {
-                createModalBackdrop.hidden = true;
-                createModalStatus.textContent = '';
-            };
-
-            const submitCreateForm = async function (event) {
-                event.preventDefault();
-                try {
-                    const payload = buildCreatePayload();
-                    createSubmitButton.disabled = true;
-                    createModalStatus.textContent = 'Registrando paciente...';
-                    const response = await fetch(apiBaseUrl + '/api/pacientes', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) {
-                        throw new Error('Error ' + response.status + ' al registrar el paciente.');
-                    }
-                    closeCreateModal();
-                    statusMessage.textContent = 'Paciente registrado correctamente.';
-                    statusMessage.classList.remove('error');
-                    fetchPatients();
-                } catch (error) {
-                    createModalStatus.textContent = error.message || 'No fue posible registrar al paciente.';
-                } finally {
-                    createSubmitButton.disabled = false;
-                }
-            };
-
-            const openDeleteModal = function (patient) {
-                if (!patient || patient.id === undefined || patient.id === null) {
-                    return;
-                }
-                patientPendingDelete = patient;
-                const name = patient.nombreCompleto || 'sin nombre';
-                deleteModalMessage.textContent = 'Estás a punto de eliminar al paciente "' + name + '". Esta acción no se puede deshacer.';
-                deleteModalBackdrop.hidden = false;
-                deleteConfirmButton.disabled = false;
-                deleteCancelButton.disabled = false;
-            };
-
-            const closeDeleteModal = function () {
-                patientPendingDelete = null;
-                deleteModalBackdrop.hidden = true;
-            };
-
-            const deletePatient = async function () {
-                if (!patientPendingDelete) {
-                    return;
-                }
-                deleteConfirmButton.disabled = true;
-                deleteCancelButton.disabled = true;
-                statusMessage.textContent = 'Eliminando paciente...';
-                statusMessage.classList.remove('error');
-                try {
-                    const url = apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientPendingDelete.id);
-                    const response = await fetch(url, {
-                        method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ usuarioId: therapistId, perfil: 'TERAPEUTA' })
-                    });
-                    if (!response.ok) {
-                        throw new Error('Error ' + response.status + ' al eliminar el paciente.');
-                    }
-                    closeDeleteModal();
-                    statusMessage.textContent = 'Paciente eliminado correctamente.';
-                    statusMessage.classList.remove('error');
-                    fetchPatients();
-                } catch (error) {
-                    statusMessage.textContent = error.message || 'No fue posible eliminar al paciente.';
-                    statusMessage.classList.add('error');
-                    deleteConfirmButton.disabled = false;
-                    deleteCancelButton.disabled = false;
-                }
-            };
+            };       
 
             const fetchPatients = async function () {
                 statusMessage.textContent = 'Cargando pacientes...';
@@ -538,39 +317,7 @@
                     renderPatients([]);
                 }
             };
-
-            newPatientButton.addEventListener('click', openCreateModal);
-            createCancelButton.addEventListener('click', closeCreateModal);
-            createForm.addEventListener('submit', submitCreateForm);
-            createModalBackdrop.addEventListener('click', function (event) {
-                if (event.target === createModalBackdrop) {
-                    closeCreateModal();
-                }
-            });
-
-            deleteCancelButton.addEventListener('click', function () {
-                deleteConfirmButton.disabled = false;
-                deleteCancelButton.disabled = false;
-                closeDeleteModal();
-            });
-            deleteConfirmButton.addEventListener('click', deletePatient);
-            deleteModalBackdrop.addEventListener('click', function (event) {
-                if (event.target === deleteModalBackdrop) {
-                    closeDeleteModal();
-                }
-            });
-
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape') {
-                    if (!createModalBackdrop.hidden) {
-                        closeCreateModal();
-                    }
-                    if (!deleteModalBackdrop.hidden) {
-                        closeDeleteModal();
-                    }
-                }
-            });
-
+       
             refreshButton.addEventListener('click', fetchPatients);
             logoutButton.addEventListener('click', function () {
                 sessionStorage.removeItem(USER_ID_KEY);
