@@ -12,6 +12,12 @@ En este repositorio se encuentra el sistema de expedientes clínicos de la Facul
 
 - >[Documento de la presentación](docs/presentacion/ExpedientesClinicos.pdf)
 
+## Video en inglés - Presentación final 
+
+
+>  [![Video](docs/Slide1.jpg)](https://www.youtube.com/watch?v=SVDcQjcpg2c "VideoPOO")
+
+
 ## 🎯 Objetivos del proyecto 
 
 Desarrollar un sistema para la gestión de **expedientes clínicos digitales**, enfocado en el control de **sesiones psicológicas**. Este sistema debe permitir registrar, consultar y actualizar información de los pacientes, así como la de sus respectivas sesiones.
