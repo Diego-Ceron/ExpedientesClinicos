@@ -86,7 +86,7 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
 ### 📊 Priorización
 - >[Método de prioridad](docs/priorizacion/metodos_prioridad.md)
 
-- >[Requisitos/Historias de Usuario](docs/priorizacion/requisitos/requisitos.md)
+- >[Requisitos/Historias de Usuario](docs/priorizacion/requisitos.md)
 
 - >[Análisis de factibilidad](docs/priorizacion/analisis_factibilidad.md)
 
@@ -113,3 +113,5 @@ A continuación se describe brevemente qué contiene cada carpeta principal y su
 - >[Primer entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Primer-entrega)
 
 - >[Segunda entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Segunda-entrega)
+
+- >[Tercera entrega](https://github.com/Diego-Ceron/ExpedientesClinicos/tree/Tercera-entrega)
