@@ -42,11 +42,18 @@
         <section class="card" aria-live="polite">
             <form id="login-form" autocomplete="off">
                 <h2>Iniciar sesión</h2>
-                <input id="therapist-id" name="therapist-id" type="text" required placeholder="Ingresa tu ID">
-                <label class="account-toggle" for="admin-toggle">
-                    <input id="admin-toggle" type="checkbox" name="admin"> Sesión como administrador
-                </label>
-                <button type="submit">Ingresar</button>
+                <label for="login-email">Correo electrónico</label>
+                <input id="login-email" name="email" type="text" required placeholder="correo@ejemplo.com">
+                <div class="account-toggle" style="margin-top:-6px">Se enviará un código de verificación a tu correo</div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <button id="request-code-btn" type="button">Enviar código</button>
+                    <span id="request-hint" style="font-size:0.85rem; color:#98A1BC;"></span>
+                </div>
+                <div id="code-step" style="display:none; margin-top:10px;">
+                    <label for="login-code">Código de verificación</label>
+                    <input id="login-code" name="code" type="text" placeholder="123456" inputmode="numeric">
+                    <button id="verify-code-btn" type="button">Verificar y entrar</button>
+                </div>
             </form>
             <p id="login-status"></p>
         </section>
@@ -65,9 +72,13 @@
             }
 
             const loginForm = document.getElementById('login-form');
-            const therapistIdInput = document.getElementById('therapist-id');
             const loginStatus = document.getElementById('login-status');
-            const adminToggle = document.getElementById('admin-toggle');
+            const emailInput = document.getElementById('login-email');
+            const codeInput = document.getElementById('login-code');
+            const requestBtn = document.getElementById('request-code-btn');
+            const verifyBtn = document.getElementById('verify-code-btn');
+            const codeStep = document.getElementById('code-step');
+            const requestHint = document.getElementById('request-hint');
 
             let storedId = sessionStorage.getItem(USER_ID_KEY);
             let storedRole = sessionStorage.getItem(ROLE_KEY);
@@ -88,33 +99,71 @@
                 return;
             }
 
-            loginForm.addEventListener('submit', function (event) {
-                event.preventDefault();
-                const rawId = therapistIdInput.value.trim();
-
-                if (!rawId) {
-                    loginStatus.textContent = 'Ingresa un ID válido para continuar.';
-                    loginStatus.classList.remove('success');
-                    return;
-                }
-
-                const numericId = Number(rawId);
-                if (!Number.isInteger(numericId) || numericId <= 0) {
-                    loginStatus.textContent = 'El ID debe ser un número entero positivo.';
-                    loginStatus.classList.remove('success');
-                    return;
-                }
-
-                const role = adminToggle.checked ? 'ADMINISTRADOR' : 'TERAPEUTA';
-                sessionStorage.setItem(USER_ID_KEY, String(numericId));
-                sessionStorage.setItem(ROLE_KEY, role);
-                sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
-                if (role === 'TERAPEUTA') {
-                    sessionStorage.setItem(LEGACY_THERAPIST_KEY, String(numericId));
-                }
+            requestBtn.addEventListener('click', async function() {
+                const correo = (emailInput.value || '').trim();
                 loginStatus.textContent = '';
                 loginStatus.classList.remove('success');
-                window.location.href = role === 'ADMINISTRADOR' ? 'panel_admin.html' : 'pacientes.html';
+                if (!correo) {
+                    loginStatus.textContent = 'Ingresa un correo válido.';
+                    return;
+                }
+                const apiBase = sessionStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
+                try {
+                    const resp = await fetch(apiBase + '/api/auth/request-code', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ correo })
+                    });
+                    if (!resp.ok) {
+                        if (resp.status === 404) {
+                            loginStatus.textContent = 'Correo no registrado.';
+                        } else {
+                            loginStatus.textContent = 'No fue posible enviar el código.';
+                        }
+                        return;
+                    }
+                    codeStep.style.display = 'block';
+                    requestHint.textContent = 'Código enviado. Revisa tu correo.';
+                    loginStatus.textContent = '';
+                    loginStatus.classList.add('success');
+                } catch (e) {
+                    loginStatus.textContent = 'Error de red solicitando el código.';
+                }
+            });
+
+            verifyBtn.addEventListener('click', async function() {
+                const correo = (emailInput.value || '').trim();
+                const codigo = (codeInput.value || '').trim();
+                loginStatus.textContent = '';
+                loginStatus.classList.remove('success');
+                if (!correo || !codigo) {
+                    loginStatus.textContent = 'Escribe tu correo y el código recibido.';
+                    return;
+                }
+                const apiBase = sessionStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
+                try {
+                    const resp = await fetch(apiBase + '/api/auth/verify-code', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ correo, codigo })
+                    });
+                    if (!resp.ok) {
+                        loginStatus.textContent = resp.status === 404 ? 'Código inválido o expirado.' : 'No fue posible verificar el código.';
+                        return;
+                    }
+                    const data = await resp.json();
+                    const role = data.rol || 'TERAPEUTA';
+                    const userId = String(data.usuarioId);
+                    sessionStorage.setItem(USER_ID_KEY, userId);
+                    sessionStorage.setItem(ROLE_KEY, role);
+                    sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
+                    if (role === 'TERAPEUTA') {
+                        sessionStorage.setItem(LEGACY_THERAPIST_KEY, userId);
+                    }
+                    window.location.href = role === 'ADMINISTRADOR' ? 'panel_admin.html' : 'pacientes.html';
+                } catch (e) {
+                    loginStatus.textContent = 'Error de red verificando el código.';
+                }
             });
         }());
     </script>
