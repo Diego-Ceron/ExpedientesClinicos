@@ -70,6 +70,8 @@
         button.button-danger:hover { background-color: #b91c1c; }
         #back-button { background-color: var(--color-beige); color: var(--color-navy); }
         #back-button:hover { background-color: #cfc2b1; }
+        .button-muted { background-color: #e5e7eb !important; color: #9aa0b4 !important; border-color: #d1d5db !important; }
+        .button-muted:hover { background-color: #e5e7eb !important; }
         .card-footer { display: flex; justify-content: flex-end; padding: 0 28px 28px; }
         .footer-actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
         #context-info { margin: 0 28px 12px; color: var(--color-navy-light); font-size: 0.95rem; }
@@ -128,9 +130,7 @@
                 <section class="panel" aria-labelledby="basic-title">
                     <div class="panel-header">
                         <h3 id="basic-title">Información básica</h3>
-                        <div class="panel-actions-inline">
-                            <button id="edit-patient-button" type="button" class="button-secondary">Editar</button>
-                        </div>
+                        
                     </div>
                     <dl class="detail-list">
                         <div>
@@ -172,7 +172,8 @@
                         <h3 id="sessions-title">Sesiones registradas</h3>
                         <div class="panel-actions-inline">
                             <button id="refresh-button" type="button" class="button-secondary">Actualizar</button>
-                            <button id="add-session-button" type="button" class="button-outline">Agregar sesión</button>
+                            <button id="add-session-button" type="button" class="button-outline">Añadir</button>
+                            <button id="print-session-button" type="button" class="button-outline">Imprimir</button>
                         </div>
                     </div>
                     <ul id="sessions-list" class="session-grid"></ul>
@@ -200,24 +201,11 @@
                     </div>
                 </div>
             </section>
-            <div class="card-footer">
-                <div class="footer-actions">
-                    <button id="delete-patient-button" type="button" class="button-danger">Eliminar paciente</button>
-                </div>
-            </div>
+            
         </section>
     </main>
 
-    <div id="delete-modal-backdrop" class="modal-backdrop" hidden>
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
-            <h3 id="delete-modal-title">Eliminar paciente</h3>
-            <p id="delete-modal-message">Confirma si deseas eliminar el expediente del paciente.</p>
-            <div class="modal-actions">
-                <button id="delete-cancel-button" type="button" class="button-secondary">Cancelar</button>
-                <button id="delete-confirm-button" type="button" class="button-danger">Eliminar</button>
-            </div>
-        </div>
-    </div>
+    
 
     <div id="session-modal-backdrop" class="modal-backdrop" hidden>
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="session-modal-title">
@@ -263,6 +251,22 @@
         </div>
     </div>
 
+    <div id="print-modal-backdrop" class="modal-backdrop" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="print-modal-title">
+            <h3 id="print-modal-title">Imprimir sesión</h3>
+            <form id="print-form">
+                <label class="form-field" for="print-session-select">
+                    Selecciona la sesión
+                    <select id="print-session-select" required></select>
+                </label>
+                <div class="modal-actions">
+                    <button id="print-cancel-button" type="button" class="button-secondary">Cancelar</button>
+                    <button id="print-submit-button" type="submit">Aceptar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         (function () {
             const DEFAULT_API_URL = "https://expedientesclinicos.onrender.com";
@@ -296,15 +300,10 @@
             };
             const refreshButton = document.getElementById('refresh-button');
             const addSessionButton = document.getElementById('add-session-button');
+            const printSessionButton = document.getElementById('print-session-button');
             const backButton = document.getElementById('back-button');
             const backExpedienteButton = document.getElementById('back-expediente-button');
-            const editPatientButton = document.getElementById('edit-patient-button');
-            const deletePatientButton = document.getElementById('delete-patient-button');
-
-            const deleteModalBackdrop = document.getElementById('delete-modal-backdrop');
-            const deleteModalMessage = document.getElementById('delete-modal-message');
-            const deleteCancelButton = document.getElementById('delete-cancel-button');
-            const deleteConfirmButton = document.getElementById('delete-confirm-button');
+            
 
             const sessionModalBackdrop = document.getElementById('session-modal-backdrop');
             const sessionForm = document.getElementById('session-form');
@@ -320,11 +319,16 @@
             const sessionDescripcionInput = document.getElementById('session-descripcion');
             const sessionObservacionesInput = document.getElementById('session-observaciones');
 
+            const printModalBackdrop = document.getElementById('print-modal-backdrop');
+            const printForm = document.getElementById('print-form');
+            const printSessionSelect = document.getElementById('print-session-select');
+            const printCancelButton = document.getElementById('print-cancel-button');
+            const printSubmitButton = document.getElementById('print-submit-button');
+
             let currentPatient = null;
-            let isEditingPatient = false;
             let editingSession = null;
             let currentSessions = [];
-            const fieldEditors = {};
+            
 
             const SERVICE_OPTIONS = [
                 { value: 'TERAPIA_INDIVIDUAL', label: 'Psicoterapia' },
@@ -368,14 +372,7 @@
                 return acc;
             }, {});
 
-            const editableFieldConfig = {
-                celular: { type: 'text', required: true, placeholder: 'Ingresa celular', label: 'Celular' },
-                email: { type: 'email', placeholder: 'correo@ejemplo.com', label: 'Email' },
-                servicio: { type: 'select', options: SERVICE_OPTIONS, rawKey: 'tipoServicio', label: 'Servicio' },
-                proximaSesion: { type: 'date', rawKey: 'fechaProximaSesion', label: 'Próxima sesión' },
-                edad: { type: 'number', min: 0, placeholder: 'Ej. 30', label: 'Edad' },
-                sexo: { type: 'select', options: SEX_OPTIONS, label: 'Sexo' }
-            };
+            
 
             const populateSelect = function (select, options) {
                 select.innerHTML = '';
@@ -525,231 +522,7 @@
                 setDetailFieldText('sexo', formatSexo(currentPatient.sexo));
             };
 
-            const createEditorForField = function (key, config) {
-                const field = detailFields[key];
-                if (!field) {
-                    return;
-                }
-                field.innerHTML = '';
-                const rawKey = config.rawKey || key;
-                const rawValue = currentPatient ? currentPatient[rawKey] : null;
-                let editor;
-                if (config.type === 'select') {
-                    editor = document.createElement('select');
-                    populateSelect(editor, config.options);
-                    if (rawValue !== null && rawValue !== undefined && rawValue !== '') {
-                        editor.value = rawValue;
-                    }
-                } else if (config.type === 'date') {
-                    editor = document.createElement('input');
-                    editor.type = 'date';
-                    if (rawValue) {
-                        editor.value = rawValue;
-                    }
-                } else if (config.type === 'number') {
-                    editor = document.createElement('input');
-                    editor.type = 'number';
-                    if (config.min !== undefined) {
-                        editor.min = String(config.min);
-                    }
-                    editor.value = rawValue !== null && rawValue !== undefined ? rawValue : '';
-                } else {
-                    editor = document.createElement('input');
-                    editor.type = config.type || 'text';
-                    if (rawValue) {
-                        editor.value = rawValue;
-                    }
-                }
-                if (config.placeholder) {
-                    editor.placeholder = config.placeholder;
-                }
-                if (config.required) {
-                    editor.required = true;
-                }
-                editor.setAttribute('data-field', rawKey);
-                field.appendChild(editor);
-                fieldEditors[key] = { element: editor, config: config };
-            };
-
-            const enterPatientEditMode = function () {
-                if (isEditingPatient || !currentPatient) {
-                    return;
-                }
-                Object.keys(editableFieldConfig).forEach(function (key) {
-                    createEditorForField(key, editableFieldConfig[key]);
-                });
-                isEditingPatient = true;
-                editPatientButton.textContent = 'Guardar';
-                statusBanner.textContent = 'Modo edicion activado. Guarda los cambios para persistirlos.';
-                statusBanner.classList.remove('error');
-            };
-
-            const resetEditors = function () {
-                Object.keys(fieldEditors).forEach(function (key) {
-                    delete fieldEditors[key];
-                });
-            };
-
-            const exitPatientEditMode = function () {
-                if (!isEditingPatient) {
-                    return;
-                }
-                isEditingPatient = false;
-                editPatientButton.textContent = 'Editar';
-                resetEditors();
-                updatePatientDetailView();
-            };
-
-            const collectPatientUpdateValues = function () {
-                const updates = {};
-                let hasChanges = false;
-                const keys = Object.keys(fieldEditors);
-                for (let i = 0; i < keys.length; i += 1) {
-                    const key = keys[i];
-                    const entry = fieldEditors[key];
-                    const editor = entry.element;
-                    const config = entry.config;
-                    const rawKey = config.rawKey || key;
-                    let value;
-                    if (config.type === 'number') {
-                        const parsed = editor.value === '' ? null : Number(editor.value);
-                        if (parsed !== null && Number.isNaN(parsed)) {
-                            throw new Error('El campo ' + (config.label || rawKey) + ' debe ser numerico.');
-                        }
-                        value = parsed;
-                    } else if (config.type === 'date') {
-                        value = editor.value ? editor.value : null;
-                    } else {
-                        const raw = editor.value || '';
-                        value = raw.trim();
-                        if (value.length === 0) {
-                            value = null;
-                        }
-                    }
-
-                    if (config.required && (value === null || value === undefined)) {
-                        throw new Error('El campo ' + (config.label || rawKey) + ' es obligatorio.');
-                    }
-
-                    updates[rawKey] = value;
-
-                    const currentValue = currentPatient ? currentPatient[rawKey] : null;
-                    const normalizedCurrent = currentValue === undefined ? null : currentValue;
-                    const normalizedValue = value === undefined ? null : value;
-                    if (!hasChanges && normalizedCurrent !== normalizedValue) {
-                        hasChanges = true;
-                    }
-                }
-                return { updates: updates, hasChanges: hasChanges };
-            };
-
-            const buildPatientUpdatePayload = function (overrides) {
-                const base = currentPatient || {};
-                return {
-                    solicitante: { usuarioId: therapistId, perfil: 'TERAPEUTA' },
-                    nombreCompleto: base.nombreCompleto || '',
-                    celular: overrides.celular !== undefined ? overrides.celular : base.celular || '',
-                    email: overrides.email !== undefined ? overrides.email : base.email,
-                    tipoServicio: overrides.tipoServicio !== undefined ? overrides.tipoServicio : base.tipoServicio,
-                    estado: base.estado,
-                    sexo: overrides.sexo !== undefined ? overrides.sexo : base.sexo,
-                    edad: overrides.edad !== undefined ? overrides.edad : base.edad,
-                    fechaRegistro: base.fechaRegistro,
-                    fechaProximaSesion: overrides.fechaProximaSesion !== undefined ? overrides.fechaProximaSesion : base.fechaProximaSesion,
-                    terapeutaId: (base.terapeutaAsignado && base.terapeutaAsignado.id) ? base.terapeutaAsignado.id : therapistId
-                };
-            };
-
-            const savePatientUpdates = async function () {
-                try {
-                    const result = collectPatientUpdateValues();
-                    if (!result.hasChanges) {
-                        statusBanner.textContent = 'No se detectaron cambios para guardar.';
-                        statusBanner.classList.remove('error');
-                        exitPatientEditMode();
-                        return;
-                    }
-
-                    statusBanner.textContent = 'Guardando informacion del paciente...';
-                    statusBanner.classList.remove('error');
-
-                    const payload = buildPatientUpdatePayload(result.updates);
-                    const url = apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId);
-                    const response = await fetch(url, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) {
-                        throw new Error('Error ' + response.status + ' al actualizar el paciente.');
-                    }
-                    const updated = await response.json();
-                    currentPatient = updated;
-                    exitPatientEditMode();
-                    renderPatient(updated);
-                    statusBanner.textContent = 'Paciente actualizado correctamente.';
-                    statusBanner.classList.remove('error');
-                } catch (error) {
-                    statusBanner.textContent = error.message || 'No fue posible actualizar el paciente.';
-                    statusBanner.classList.add('error');
-                }
-            };
-
-            const openDeleteModal = function () {
-                if (isEditingPatient) {
-                    statusBanner.textContent = 'Guarda o cancela los cambios antes de eliminar al paciente.';
-                    statusBanner.classList.add('error');
-                    return;
-                }
-                if (!currentPatient) {
-                    statusBanner.textContent = 'No hay un paciente cargado para eliminar.';
-                    statusBanner.classList.add('error');
-                    return;
-                }
-                const name = currentPatient.nombreCompleto || 'sin nombre';
-                deleteModalMessage.textContent = 'Estás a punto de eliminar el expediente de "' + name + '". Esta acción no se puede deshacer.';
-                deleteConfirmButton.disabled = false;
-                deleteCancelButton.disabled = false;
-                deleteModalBackdrop.hidden = false;
-            };
-
-            const closeDeleteModal = function () {
-                deleteModalBackdrop.hidden = true;
-                deleteConfirmButton.disabled = false;
-                deleteCancelButton.disabled = false;
-            };
-
-            const deletePatientRecord = async function () {
-                if (!currentPatient) {
-                    return;
-                }
-                deleteConfirmButton.disabled = true;
-                deleteCancelButton.disabled = true;
-                statusBanner.textContent = 'Eliminando paciente...';
-                statusBanner.classList.remove('error');
-                try {
-                    const url = apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId);
-                    const response = await fetch(url, {
-                        method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ usuarioId: therapistId, perfil: 'TERAPEUTA' })
-                    });
-                    if (!response.ok) {
-                        throw new Error('Error ' + response.status + ' al eliminar el paciente.');
-                    }
-                    closeDeleteModal();
-                    statusBanner.textContent = 'Paciente eliminado correctamente. Regresando a la lista...';
-                    statusBanner.classList.remove('error');
-                    setTimeout(function () {
-                        window.location.href = 'pacientes.html';
-                    }, 900);
-                } catch (error) {
-                    statusBanner.textContent = error.message || 'No fue posible eliminar el paciente.';
-                    statusBanner.classList.add('error');
-                    deleteConfirmButton.disabled = false;
-                    deleteCancelButton.disabled = false;
-                }
-            };
+            
 
             const computeNextSessionNumber = function () {
                 if (!currentSessions.length) {
@@ -911,6 +684,15 @@
                 patientStatus.textContent = statusInfo.text;
                 patientStatus.className = 'status-chip ' + statusInfo.className;
 
+                // Si el paciente está archivado, atenuar acciones de edición y mostrar aviso al intentar usarlas
+                if (patient.estado === 'ARCHIVADO') {
+                    addSessionButton.classList.add('button-muted');
+                    addSessionButton.onclick = function () {
+                        statusBanner.textContent = 'El paciente se encuentra archivado; no es posible registrar o editar sesiones.';
+                        statusBanner.classList.remove('error');
+                    };
+                }
+
                 if (patient.terapeutaAsignado && patient.terapeutaAsignado.nombre) {
                     const terapeuta = patient.terapeutaAsignado;
                     const texto = terapeuta.nombre + (terapeuta.especialidad ? ' - ' + terapeuta.especialidad : '');
@@ -919,9 +701,7 @@
                     setDetailFieldText('terapeuta', '--');
                 }
 
-                if (!isEditingPatient) {
-                    updatePatientDetailView();
-                }
+                updatePatientDetailView();
             };
 
             const renderSessions = function (sessions) {
@@ -985,26 +765,71 @@
                     editButton.type = 'button';
                     editButton.className = 'button-outline';
                     editButton.textContent = 'Editar';
-                    editButton.addEventListener('click', function (event) {
-                        event.stopPropagation();
-                        openSessionModal('edit', session);
-                    });
-
-                    const printButton = document.createElement('button');
-                    printButton.type = 'button';
-                    printButton.className = 'button-secondary';
-                    printButton.textContent = 'Imprimir';
-                    printButton.addEventListener('click', function (event) {
-                        event.stopPropagation();
-                        imprimirSesion(session);
-                    });
+                    if (currentPatient && currentPatient.estado === 'ARCHIVADO') {
+                        editButton.classList.add('button-muted');
+                        editButton.addEventListener('click', function (event) {
+                            event.stopPropagation();
+                            statusBanner.textContent = 'El paciente se encuentra archivado; no es posible editar sesiones.';
+                            statusBanner.classList.remove('error');
+                        });
+                    } else {
+                        editButton.addEventListener('click', function (event) {
+                            event.stopPropagation();
+                            openSessionModal('edit', session);
+                        });
+                    }
 
                     actions.appendChild(editButton);
-                    actions.appendChild(printButton);
                     li.appendChild(actions);
                     fragment.appendChild(li);
                 });
                 sessionsList.appendChild(fragment);
+            };
+            const openPrintModal = function () {
+                printSessionSelect.innerHTML = '';
+                if (!currentSessions || currentSessions.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = 'No hay sesiones para imprimir';
+                    printSessionSelect.appendChild(opt);
+                    printSubmitButton.disabled = true;
+                } else {
+                    const sorted = currentSessions.slice().sort(function (a, b) {
+                        return (a.numeroSesion || 0) - (b.numeroSesion || 0);
+                    });
+                    sorted.forEach(function (s) {
+                        const opt = document.createElement('option');
+                        opt.value = String(s.id);
+                        const numero = s.numeroSesion !== null && s.numeroSesion !== undefined ? s.numeroSesion : '?';
+                        const fechaTxt = s.fecha ? (' - ' + formatDate(s.fecha)) : '';
+                        opt.textContent = 'Sesión ' + numero + fechaTxt;
+                        printSessionSelect.appendChild(opt);
+                    });
+                    printSubmitButton.disabled = false;
+                }
+                printModalBackdrop.hidden = false;
+                setTimeout(function () { printSessionSelect.focus(); }, 0);
+            };
+
+            const closePrintModal = function () {
+                printModalBackdrop.hidden = true;
+                printSubmitButton.disabled = false;
+            };
+
+            const submitPrintForm = function (event) {
+                event.preventDefault();
+                const selectedId = printSessionSelect.value;
+                if (!selectedId) {
+                    return;
+                }
+                const session = currentSessions.find(function (s) { return String(s.id) === selectedId; });
+                closePrintModal();
+                if (session) {
+                    imprimirSesion(session);
+                } else {
+                    statusBanner.textContent = 'No se encontró la sesión seleccionada.';
+                    statusBanner.classList.add('error');
+                }
             };
 
             const renderStats = function (sessions) {
@@ -1063,28 +888,18 @@
                 }
             };
 
-            editPatientButton.addEventListener('click', function () {
-                if (isEditingPatient) {
-                    savePatientUpdates();
-                } else {
-                    enterPatientEditMode();
-                }
-            });
-
-            deletePatientButton.addEventListener('click', openDeleteModal);
-            deleteCancelButton.addEventListener('click', function () {
-                closeDeleteModal();
-            });
-            deleteConfirmButton.addEventListener('click', deletePatientRecord);
-            deleteModalBackdrop.addEventListener('click', function (event) {
-                if (event.target === deleteModalBackdrop) {
-                    closeDeleteModal();
-                }
-            });
+            
 
             addSessionButton.addEventListener('click', function () {
                 openSessionModal('create');
             });
+
+
+            printSessionButton.addEventListener('click', function () {
+                openPrintModal();
+            });
+
+
 
             sessionCancelButton.addEventListener('click', function () {
                 closeSessionModal();
@@ -1092,9 +907,20 @@
 
             sessionForm.addEventListener('submit', submitSessionForm);
 
+            printCancelButton.addEventListener('click', function () {
+                closePrintModal();
+            });
+            printForm.addEventListener('submit', submitPrintForm);
+
             sessionModalBackdrop.addEventListener('click', function (event) {
                 if (event.target === sessionModalBackdrop) {
                     closeSessionModal();
+                }
+            });
+
+            printModalBackdrop.addEventListener('click', function (event) {
+                if (event.target === printModalBackdrop) {
+                    closePrintModal();
                 }
             });
 
@@ -1102,24 +928,14 @@
                 if (event.key === 'Escape') {
                     if (!sessionModalBackdrop.hidden) {
                         closeSessionModal();
-                    } else if (!deleteModalBackdrop.hidden) {
-                        closeDeleteModal();
-                    } else if (isEditingPatient) {
-                        exitPatientEditMode();
-                        statusBanner.textContent = 'Edicion cancelada. No se guardaron cambios.';
-                        statusBanner.classList.remove('error');
+                    }
+                    if (!printModalBackdrop.hidden) {
+                        closePrintModal();
                     }
                 }
             });
 
-            refreshButton.addEventListener('click', function () {
-                if (isEditingPatient) {
-                    statusBanner.textContent = 'Guarda o cancela los cambios antes de actualizar la informacion.';
-                    statusBanner.classList.add('error');
-                    return;
-                }
-                loadData();
-            });
+            refreshButton.addEventListener('click', function () { loadData(); });
             backButton.addEventListener('click', function () {
                 window.location.href = 'pacientes.html';
             });
