@@ -387,14 +387,22 @@
             populateSelect(sessionTipoSelect, SESSION_TYPE_OPTIONS);
             populateSelect(sessionAsistenciaSelect, ATTENDANCE_OPTIONS);
 
+            const params = new URLSearchParams(window.location.search);
+            const patientParam = params.get('pacienteId');
+            const patientId = patientParam ? Number(patientParam) : NaN;
+            const therapistOriginParam = params.get('terapeutaId');
+            const therapistOriginId = therapistOriginParam ? Number(therapistOriginParam) : NaN;
+
             const role = sessionStorage.getItem(ROLE_KEY);
-            if (role !== 'TERAPEUTA') {
+            const isTherapist = role === 'TERAPEUTA';
+            const isAdmin = role === 'ADMINISTRADOR';
+            if (!isTherapist && !isAdmin) {
                 window.location.href = 'index.html';
                 return;
             }
 
             let therapistIdRaw = sessionStorage.getItem(USER_ID_KEY);
-            if (!therapistIdRaw) {
+            if (!therapistIdRaw && isTherapist) {
                 const legacyId = sessionStorage.getItem(LEGACY_THERAPIST_KEY);
                 if (legacyId) {
                     therapistIdRaw = legacyId;
@@ -407,9 +415,9 @@
                 return;
             }
 
-            const therapistId = Number(therapistIdRaw);
-            if (Number.isNaN(therapistId)) {
-                statusBanner.textContent = 'El ID de terapeuta almacenado no es válido. Inicia sesión nuevamente.';
+            const viewerId = Number(therapistIdRaw);
+            if (Number.isNaN(viewerId)) {
+                statusBanner.textContent = 'El identificador almacenado no es válido. Inicia sesión nuevamente.';
                 statusBanner.classList.add('error');
                 sessionStorage.removeItem(USER_ID_KEY);
                 sessionStorage.removeItem(ROLE_KEY);
@@ -417,9 +425,8 @@
                 return;
             }
 
-            const params = new URLSearchParams(window.location.search);
-            const patientParam = params.get('pacienteId');
-            const patientId = patientParam ? Number(patientParam) : NaN;
+            const perfil = isAdmin ? 'ADMINISTRADOR' : 'TERAPEUTA';
+            const therapistId = viewerId;
 
             if (Number.isNaN(patientId)) {
                 statusBanner.textContent = 'Selecciona un paciente desde la lista de pacientes para ver sus sesiones.';
@@ -429,7 +436,20 @@
             }
 
             const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
-            contextInfo.textContent = '';
+            if (contextInfo) {
+                contextInfo.textContent = isAdmin ? 'Vista de administrador. Solo disponible en modo lectura.' : '';
+                contextInfo.hidden = !isAdmin;
+            }
+
+            if (isAdmin) {
+                if (addSessionButton) {
+                    addSessionButton.hidden = true;
+                    addSessionButton.disabled = true;
+                }
+                if (sessionSubmitButton) {
+                    sessionSubmitButton.disabled = true;
+                }
+            }
 
             const formatService = function (service) {
                 if (!service) return 'Sin tipo';
@@ -561,6 +581,16 @@
             };
 
             const openSessionModal = function (mode, session) {
+                if (isAdmin) {
+                    statusBanner.textContent = 'Los administradores solo pueden consultar las sesiones registradas.';
+                    statusBanner.classList.remove('error');
+                    return;
+                }
+                if (currentPatient && currentPatient.estado === 'ARCHIVADO') {
+                    statusBanner.textContent = 'El paciente está archivado; reactívalo para registrar o editar sesiones.';
+                    statusBanner.classList.remove('error');
+                    return;
+                }
                 editingSession = mode === 'edit' ? session : null;
                 sessionModalTitle.textContent = mode === 'edit' ? 'Editar sesion' : 'Registrar sesion';
                 sessionSubmitButton.textContent = mode === 'edit' ? 'Guardar cambios' : 'Registrar';
@@ -574,12 +604,18 @@
 
             const closeSessionModal = function () {
                 sessionModalBackdrop.hidden = true;
-                sessionSubmitButton.disabled = false;
+                sessionSubmitButton.disabled = isAdmin;
                 editingSession = null;
                 resetSessionForm();
             };
 
             const buildSessionPayload = function () {
+                if (isAdmin) {
+                    throw new Error('Los administradores no pueden registrar o editar sesiones.');
+                }
+                if (currentPatient && currentPatient.estado === 'ARCHIVADO') {
+                    throw new Error('El paciente está archivado; reactívalo para registrar sesiones.');
+                }
                 const numeroSesion = Number(sessionNumeroInput.value);
                 if (!numeroSesion || Number.isNaN(numeroSesion) || numeroSesion < 1) {
                     throw new Error('El número de sesión debe ser mayor o igual a 1.');
@@ -602,7 +638,7 @@
                 const observaciones = sessionObservacionesInput.value.trim();
 
                 return {
-                    solicitante: { usuarioId: therapistId, perfil: 'TERAPEUTA' },
+                    solicitante: { usuarioId: therapistId, perfil: perfil },
                     terapeutaId: therapistId,
                     numeroSesion: numeroSesion,
                     tipoSesion: tipoSesion,
@@ -618,6 +654,11 @@
             const submitSessionForm = async function (event) {
                 event.preventDefault();
                 try {
+                    if (isAdmin) {
+                        statusBanner.textContent = 'Los administradores no pueden registrar ni editar sesiones.';
+                        statusBanner.classList.remove('error');
+                        return;
+                    }
                     const payload = buildSessionPayload();
                     sessionSubmitButton.disabled = true;
                     const baseUrl = apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId) + '/sesiones';
@@ -656,7 +697,7 @@
                     statusBanner.classList.remove('error');
                     const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId) + '/sesiones/' + encodeURIComponent(session.id) + '/pdf');
                     url.searchParams.set('usuarioId', therapistId);
-                    url.searchParams.set('perfil', 'TERAPEUTA');
+                    url.searchParams.set('perfil', perfil);
                     const response = await fetch(url.toString());
                     if (!response.ok) {
                         throw new Error('Error ' + response.status + ' al generar el PDF de la sesion.');
@@ -683,14 +724,10 @@
                 const statusInfo = formatPatientStatus(patient.estado);
                 patientStatus.textContent = statusInfo.text;
                 patientStatus.className = 'status-chip ' + statusInfo.className;
-
-                // Si el paciente está archivado, atenuar acciones de edición y mostrar aviso al intentar usarlas
-                if (patient.estado === 'ARCHIVADO') {
-                    addSessionButton.classList.add('button-muted');
-                    addSessionButton.onclick = function () {
-                        statusBanner.textContent = 'El paciente se encuentra archivado; no es posible registrar o editar sesiones.';
-                        statusBanner.classList.remove('error');
-                    };
+                if (!isAdmin && addSessionButton) {
+                    const archived = patient.estado === 'ARCHIVADO';
+                    addSessionButton.hidden = archived;
+                    addSessionButton.disabled = archived;
                 }
 
                 if (patient.terapeutaAsignado && patient.terapeutaAsignado.nombre) {
@@ -758,29 +795,22 @@
 
                     li.appendChild(header);
                     li.appendChild(body);
-                    const actions = document.createElement('div');
-                    actions.className = 'session-actions';
+                    if (!isAdmin && currentPatient && currentPatient.estado !== 'ARCHIVADO') {
+                        const actions = document.createElement('div');
+                        actions.className = 'session-actions';
 
-                    const editButton = document.createElement('button');
-                    editButton.type = 'button';
-                    editButton.className = 'button-outline';
-                    editButton.textContent = 'Editar';
-                    if (currentPatient && currentPatient.estado === 'ARCHIVADO') {
-                        editButton.classList.add('button-muted');
-                        editButton.addEventListener('click', function (event) {
-                            event.stopPropagation();
-                            statusBanner.textContent = 'El paciente se encuentra archivado; no es posible editar sesiones.';
-                            statusBanner.classList.remove('error');
-                        });
-                    } else {
+                        const editButton = document.createElement('button');
+                        editButton.type = 'button';
+                        editButton.className = 'button-outline';
+                        editButton.textContent = 'Editar';
                         editButton.addEventListener('click', function (event) {
                             event.stopPropagation();
                             openSessionModal('edit', session);
                         });
-                    }
 
-                    actions.appendChild(editButton);
-                    li.appendChild(actions);
+                        actions.appendChild(editButton);
+                        li.appendChild(actions);
+                    }
                     fragment.appendChild(li);
                 });
                 sessionsList.appendChild(fragment);
@@ -847,7 +877,7 @@
             const fetchPatient = async function () {
                 const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId));
                 url.searchParams.set('usuarioId', therapistId);
-                url.searchParams.set('perfil', 'TERAPEUTA');
+                url.searchParams.set('perfil', perfil);
                 const response = await fetch(url.toString());
                 if (!response.ok) {
                     throw new Error('Error ' + response.status + ' al obtener el paciente.');
@@ -858,7 +888,7 @@
             const fetchSessions = async function () {
                 const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(patientId) + '/sesiones');
                 url.searchParams.set('usuarioId', therapistId);
-                url.searchParams.set('perfil', 'TERAPEUTA');
+                url.searchParams.set('perfil', perfil);
                 const response = await fetch(url.toString());
                 if (!response.ok) {
                     throw new Error('Error ' + response.status + ' al obtener las sesiones.');
@@ -937,11 +967,23 @@
 
             refreshButton.addEventListener('click', function () { loadData(); });
             backButton.addEventListener('click', function () {
+                if (isAdmin) {
+                    if (!Number.isNaN(therapistOriginId)) {
+                        window.location.href = 'terapeuta.html?terapeutaId=' + encodeURIComponent(therapistOriginId);
+                        return;
+                    }
+                    window.location.href = 'panel_admin.html';
+                    return;
+                }
                 window.location.href = 'pacientes.html';
             });
             backExpedienteButton.addEventListener('click', function () {
                 if (!Number.isNaN(patientId)) {
-                    window.location.href = 'expediente.html?pacienteId=' + encodeURIComponent(patientId);
+                    let target = 'expediente.html?pacienteId=' + encodeURIComponent(patientId);
+                    if (isAdmin && !Number.isNaN(therapistOriginId)) {
+                        target += '&terapeutaId=' + encodeURIComponent(therapistOriginId);
+                    }
+                    window.location.href = target;
                 }
             });
 

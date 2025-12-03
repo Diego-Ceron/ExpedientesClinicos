@@ -8,6 +8,7 @@ import com.expedientesclinicos.dto.paciente.TerapeutaSummary;
 import com.expedientesclinicos.exception.AccessDeniedException;
 import com.expedientesclinicos.exception.DomainException;
 import com.expedientesclinicos.exception.ResourceNotFoundException;
+import com.expedientesclinicos.model.paciente.EstadoExpediente;
 import com.expedientesclinicos.model.paciente.Paciente;
 import com.expedientesclinicos.model.paciente.Terapeuta;
 import com.expedientesclinicos.repository.paciente.PacienteRepository;
@@ -33,12 +34,7 @@ public class PacienteService {
 
     public PacienteResponse crearPaciente(PacienteCreateRequest request) {
         validarSolicitante(request.getSolicitante());
-        Terapeuta terapeuta = buscarTerapeuta(request.getTerapeutaId());
-
-        if (!request.getSolicitante().esAdministrador()
-                && !Objects.equals(request.getSolicitante().getUsuarioId(), terapeuta.getId())) {
-            throw new AccessDeniedException("Un terapeuta solo puede registrar pacientes propios");
-        }
+        Terapeuta terapeuta = obtenerTerapeutaOpcional(request);
 
         Paciente paciente = new Paciente();
         mapearDatosPaciente(request, paciente, terapeuta);
@@ -53,11 +49,7 @@ public class PacienteService {
 
         validarAccesoPaciente(paciente, request.getSolicitante());
 
-        Terapeuta terapeuta = buscarTerapeuta(request.getTerapeutaId());
-        if (!request.getSolicitante().esAdministrador()
-                && !Objects.equals(request.getSolicitante().getUsuarioId(), terapeuta.getId())) {
-            throw new AccessDeniedException("Un terapeuta solo puede reasignar pacientes a sí mismo");
-        }
+        Terapeuta terapeuta = obtenerTerapeutaOpcional(request);
 
         mapearDatosPaciente(request, paciente, terapeuta);
         return mapearRespuesta(paciente);
@@ -90,6 +82,30 @@ public class PacienteService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<PacienteResponse> listarTodos(ModificadorRequest solicitante) {
+        validarSolicitante(solicitante);
+        if (!solicitante.esAdministrador()) {
+            throw new AccessDeniedException("Solo un administrador puede consultar todos los pacientes");
+        }
+        return pacienteRepository.findAll()
+                .stream()
+                .map(this::mapearRespuesta)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<PacienteResponse> listarSinTerapeuta(ModificadorRequest solicitante) {
+        validarSolicitante(solicitante);
+        if (!solicitante.esAdministrador()) {
+            throw new AccessDeniedException("Solo un administrador puede consultar pacientes sin terapeuta");
+        }
+        return pacienteRepository.findByTerapeutaAsignadoIsNull()
+                .stream()
+                .map(this::mapearRespuesta)
+                .collect(Collectors.toList());
+    }
+
     private void mapearDatosPaciente(PacienteCreateRequest request, Paciente paciente, Terapeuta terapeuta) {
         paciente.setNombreCompleto(request.getNombreCompleto());
         paciente.setCelular(request.getCelular());
@@ -101,6 +117,21 @@ public class PacienteService {
         paciente.setFechaRegistro(request.getFechaRegistro());
         paciente.setFechaProximaSesion(request.getFechaProximaSesion());
         paciente.setTerapeutaAsignado(terapeuta);
+    }
+
+    private Terapeuta obtenerTerapeutaOpcional(PacienteCreateRequest request) {
+        Long terapeutaId = request.getTerapeutaId();
+        if (terapeutaId == null) {
+            validarPacienteEnEsperaSinTerapeuta(request);
+            return null;
+        }
+
+        Terapeuta terapeuta = buscarTerapeuta(terapeutaId);
+        if (!request.getSolicitante().esAdministrador()
+                && !Objects.equals(request.getSolicitante().getUsuarioId(), terapeuta.getId())) {
+            throw new AccessDeniedException("Un terapeuta solo puede registrar o reasignar pacientes propios");
+        }
+        return terapeuta;
     }
 
     private Paciente buscarPaciente(Long pacienteId) {
@@ -126,6 +157,15 @@ public class PacienteService {
     private void validarSolicitante(ModificadorRequest solicitante) {
         if (solicitante == null || solicitante.getUsuarioId() == null || solicitante.getPerfil() == null) {
             throw new DomainException("Debe indicar el solicitante que realiza la operación");
+        }
+    }
+
+    private void validarPacienteEnEsperaSinTerapeuta(PacienteCreateRequest request) {
+        if (!request.getSolicitante().esAdministrador()) {
+            throw new AccessDeniedException("Solo un administrador puede crear o dejar a un paciente en espera sin terapeuta asignado");
+        }
+        if (request.getEstado() != EstadoExpediente.EN_ESPERA) {
+            throw new DomainException("Un paciente sin terapeuta debe permanecer en estado EN_ESPERA");
         }
     }
 

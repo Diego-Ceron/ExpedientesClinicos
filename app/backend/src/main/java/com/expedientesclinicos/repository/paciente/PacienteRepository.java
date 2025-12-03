@@ -11,4 +11,6 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
     List<Paciente> findByTerapeutaAsignadoId(Long terapeutaId);
 
     Optional<Paciente> findByIdAndTerapeutaAsignadoId(Long pacienteId, Long terapeutaId);
+
+    List<Paciente> findByTerapeutaAsignadoIsNull();
 }

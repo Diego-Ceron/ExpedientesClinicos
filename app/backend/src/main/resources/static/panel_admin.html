@@ -21,37 +21,76 @@
         main { max-width: 960px; margin: 32px auto; padding: 0 16px 48px; }
         .card { background-color: #fff; border-radius: 16px; box-shadow: 0 12px 28px var(--shadow-strong); overflow: hidden; border: 1px solid rgba(152, 161, 188, 0.25); }
         .card-header { padding: 24px 28px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
-        .card-header h2 { margin: 0; font-size: 1.4rem; }
-        .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .card-title { position: relative; display: inline-flex; flex-direction: column; }
+        .card-title-button { background: none; border: none; color: var(--color-text); font: inherit; font-size: 1.4rem; font-weight: 600; cursor: pointer; padding: 2px 0; display: inline-flex; align-items: center; gap: 8px; }
+        .card-title-button::after { content: '▾'; font-size: 0.75em; color: var(--color-navy-light); }
+        .card-title-button:focus { outline: 2px solid var(--color-navy); outline-offset: 2px; }
+        .card-title-button:hover { color: var(--color-navy-light); }
+        .card-title-menu { position: absolute; top: 120%; left: 0; background-color: #fff; border: 1px solid rgba(152, 161, 188, 0.35); border-radius: 10px; box-shadow: 0 18px 32px rgba(85, 88, 121, 0.18); padding: 6px; min-width: 180px; z-index: 10; }
+        .card-title-menu[hidden] { display: none; }
+        .card-title-menu button { width: 100%; background: none; border: none; text-align: left; padding: 10px 12px; border-radius: 8px; font-size: 0.95rem; color: var(--color-text); cursor: pointer; }
+        .card-title-menu button:hover,
+        .card-title-menu button[aria-selected="true"] { background-color: rgba(152, 161, 188, 0.18); }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         .actions button { border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: background-color 0.2s ease, transform 0.2s ease; }
         #new-therapist-button,
         #refresh-button { background-color: var(--color-navy); color: #fff; }
         #new-therapist-button:hover,
         #refresh-button:hover { background-color: #404561; }
+        #filter-button { background-color: var(--color-beige); color: var(--color-navy); }
+        #filter-button:hover { background-color: #cfc2b1; }
         #logout-button { background-color: var(--color-beige); color: var(--color-navy); }
         #logout-button:hover { background-color: #cfc2b1; }
         .actions button:active { transform: scale(0.98); }
         #admin-info { margin: 0 28px 4px; font-size: 0.95rem; color: var(--color-navy-light); }
-        #status-message { margin: 0 28px 16px; color: var(--color-navy); font-weight: 600; min-height: 24px; }
+        #status-message { margin: 0 28px 12px; color: var(--color-navy); font-weight: 600; min-height: 24px; }
         #status-message.error { color: #c62828; }
+        #filter-summary { margin: 0 28px 12px; font-size: 0.9rem; color: var(--color-navy-light); }
+        #filter-summary[hidden] { display: none; }
+        .filter-modal-backdrop { position: fixed; inset: 0; background-color: rgba(85, 88, 121, 0.56); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
+        .filter-modal-backdrop[hidden] { display: none; }
+        .filter-modal { background-color: #fff; border-radius: 12px; box-shadow: 0 18px 32px rgba(85, 88, 121, 0.24); max-width: 320px; width: 100%; padding: 22px 24px; border: 1px solid rgba(152, 161, 188, 0.3); }
+        .filter-modal h3 { margin: 0 0 12px; font-size: 1.2rem; color: var(--color-text); }
+        .filter-modal label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--color-text); font-size: 0.95rem; }
+        .filter-modal select { border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; }
+        .filter-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+        .filter-actions button { border-radius: 8px; padding: 8px 14px; font-size: 0.9rem; }
         #therapist-list { list-style: none; margin: 0; padding: 0; }
         .therapist-row { display: flex; justify-content: space-between; gap: 16px; padding: 18px 28px; border-top: 1px solid rgba(152, 161, 188, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .therapist-row:first-of-type { border-top: none; }
         .therapist-row:hover { background-color: rgba(152, 161, 188, 0.16); }
         .therapist-row:focus { background-color: rgba(152, 161, 188, 0.24); outline: 2px solid var(--color-navy); outline-offset: 2px; }
         .therapist-row:active { transform: scale(0.99); }
-        .therapist-row:first-of-type { border-top: none; }
         .therapist-info { display: flex; flex-direction: column; gap: 4px; }
         .therapist-name { font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
         .therapist-detail { font-size: 0.95rem; color: var(--color-navy-light); }
         .empty-state { margin: 0 28px 28px; padding: 20px; border-radius: 12px; background-color: rgba(244, 235, 211, 0.85); color: var(--color-navy); }
+        #patient-list { list-style: none; margin: 0; padding: 0; }
+        .patient-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 20px 28px; border-top: 1px solid rgba(152, 161, 188, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .patient-row:first-of-type { border-top: none; }
+        .patient-row:hover { background-color: rgba(152, 161, 188, 0.16); }
+        .patient-row:focus { background-color: rgba(152, 161, 188, 0.24); outline: 2px solid var(--color-navy); outline-offset: 2px; }
+        .patient-row:active { transform: scale(0.99); }
+        .patient-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .patient-name { font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
+        .patient-meta { font-size: 0.95rem; color: var(--color-navy-light); }
+        .patient-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
+        .assign-button { background-color: var(--color-beige); color: var(--color-navy); border: none; border-radius: 8px; padding: 8px 14px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .assign-button:hover { background-color: #cfc2b1; }
+        .assign-button:active { transform: scale(0.98); }
+        .status-chip { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px; font-weight: 600; font-size: 0.85rem; border: 1px solid transparent; background-color: rgba(152, 161, 188, 0.18); color: var(--color-navy); }
+        .status-chip.estado-activo { background-color: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .status-chip.estado-en-espera { background-color: rgba(152, 161, 188, 0.22); color: var(--color-navy); border-color: rgba(152, 161, 188, 0.3); }
+        .status-chip.estado-archivado { background-color: #fef3c7; color: #92400e; border-color: #fde68a; }
         .modal-backdrop { position: fixed; inset: 0; background-color: rgba(85, 88, 121, 0.56); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
         .modal-backdrop[hidden] { display: none; }
-        .modal { background-color: #fff; border-radius: 12px; box-shadow: 0 18px 38px rgba(85, 88, 121, 0.24); max-width: 420px; width: 100%; padding: 24px 26px; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(152, 161, 188, 0.3); }
+        .modal { background-color: #fff; border-radius: 12px; box-shadow: 0 18px 38px rgba(85, 88, 121, 0.24); max-width: 460px; width: 100%; padding: 24px 26px; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(152, 161, 188, 0.3); }
         .modal h3 { margin: 0 0 16px; font-size: 1.2rem; }
         .modal form { display: grid; gap: 12px; }
         label.form-field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--color-text); font-size: 0.95rem; }
         .modal input[type="text"],
-        .modal input[type="email"] { border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; }
+        .modal input[type="email"],
+        .modal select { border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
         .modal-actions button { border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 0.95rem; }
         .button-secondary { background-color: var(--color-beige); color: var(--color-navy); }
@@ -59,10 +98,13 @@
         .modal button[type="submit"] { background-color: var(--color-navy); color: #fff; border: none; }
         .modal button[type="submit"]:hover { background-color: #404561; }
         .modal-status { margin: 0; font-size: 0.9rem; color: #c62828; min-height: 20px; }
-        @media (max-width: 600px) {
+        .assign-body-copy { margin: 0; font-size: 0.95rem; color: var(--color-navy-light); }
+        @media (max-width: 720px) {
             .card-header { flex-direction: column; align-items: flex-start; }
             .actions { width: 100%; justify-content: flex-start; }
             .therapist-row { flex-direction: column; align-items: flex-start; }
+            .patient-row { grid-template-columns: 1fr; }
+            .patient-actions { width: 100%; justify-content: flex-start; }
         }
     </style>
 </head>
@@ -73,8 +115,15 @@
     <main>
         <section class="card" aria-live="polite">
             <div class="card-header">
-                <h2>Terapeutas</h2>
+                <div class="card-title">
+                    <button id="view-toggle-button" type="button" class="card-title-button" aria-haspopup="listbox" aria-expanded="false">Terapeutas</button>
+                    <div id="view-menu" class="card-title-menu" role="listbox" hidden>
+                        <button type="button" data-view="therapists" role="option" aria-selected="true">Terapeutas</button>
+                        <button type="button" data-view="patients" role="option" aria-selected="false">Pacientes</button>
+                    </div>
+                </div>
                 <div class="actions">
+                    <button id="filter-button" type="button" class="button-secondary" hidden>Filtrar</button>
                     <button id="new-therapist-button" type="button">Nuevo</button>
                     <button id="refresh-button" type="button">Actualizar</button>
                     <button id="logout-button" type="button">Cerrar sesión</button>
@@ -82,10 +131,30 @@
             </div>
             <p id="admin-info"></p>
             <p id="status-message"></p>
+            <p id="filter-summary" hidden></p>
             <ul id="therapist-list"></ul>
+            <ul id="patient-list" hidden></ul>
             <p id="empty-state" class="empty-state" hidden>No hay terapeutas registrados todavía.</p>
+            <p id="patient-empty-state" class="empty-state" hidden>No hay pacientes registrados.</p>
         </section>
     </main>
+
+    <div id="filter-modal-backdrop" class="filter-modal-backdrop" hidden>
+        <div class="filter-modal" role="dialog" aria-modal="true" aria-labelledby="filter-modal-title">
+            <h3 id="filter-modal-title">Filtrar pacientes</h3>
+            <label for="filter-state">Estado del expediente</label>
+            <select id="filter-state">
+                <option value="ALL">Todos</option>
+                <option value="ACTIVO">Activos</option>
+                <option value="EN_ESPERA">En espera</option>
+                <option value="ARCHIVADO">Archivados</option>
+            </select>
+            <div class="filter-actions">
+                <button id="filter-clear-button" type="button" class="button-secondary">Limpiar</button>
+                <button id="filter-apply-button" type="button">Aplicar</button>
+            </div>
+        </div>
+    </div>
 
     <div id="create-modal-backdrop" class="modal-backdrop" hidden>
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
@@ -120,6 +189,24 @@
         </div>
     </div>
 
+    <div id="assign-modal-backdrop" class="modal-backdrop" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="assign-modal-title">
+            <h3 id="assign-modal-title">Asignar terapeuta</h3>
+            <form id="assign-form">
+                <p id="assign-modal-text" class="assign-body-copy"></p>
+                <label class="form-field" for="assign-therapist-select">
+                    Asignar a
+                    <select id="assign-therapist-select" required></select>
+                </label>
+                <p id="assign-modal-status" class="modal-status"></p>
+                <div class="modal-actions">
+                    <button id="assign-cancel-button" type="button" class="button-secondary">Cancelar</button>
+                    <button id="assign-submit-button" type="submit">Asignar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         (function () {
             const DEFAULT_API_URL = "https://expedientesclinicos.onrender.com";
@@ -128,19 +215,42 @@
             const ROLE_KEY = 'expedientesclinicos.role';
             const LEGACY_THERAPIST_KEY = 'expedientesclinicos.therapistId';
 
+            const VIEW_TYPES = { THERAPISTS: 'therapists', PATIENTS: 'patients' };
+            const VIEW_LABELS = { therapists: 'Terapeutas', patients: 'Pacientes' };
+            const PATIENT_STATUS_LABELS = { ACTIVO: 'Activo', EN_ESPERA: 'En espera', ARCHIVADO: 'Archivado' };
+            const PATIENT_STATUS_CLASSES = { ACTIVO: 'estado-activo', EN_ESPERA: 'estado-en-espera', ARCHIVADO: 'estado-archivado' };
+
             const adminInfo = document.getElementById('admin-info');
             const statusMessage = document.getElementById('status-message');
             const therapistList = document.getElementById('therapist-list');
+            const patientList = document.getElementById('patient-list');
             const emptyState = document.getElementById('empty-state');
+            const patientEmptyState = document.getElementById('patient-empty-state');
             const refreshButton = document.getElementById('refresh-button');
             const logoutButton = document.getElementById('logout-button');
             const newTherapistButton = document.getElementById('new-therapist-button');
+            const filterButton = document.getElementById('filter-button');
+            const filterModalBackdrop = document.getElementById('filter-modal-backdrop');
+            const filterStateSelect = document.getElementById('filter-state');
+            const filterApplyButton = document.getElementById('filter-apply-button');
+            const filterClearButton = document.getElementById('filter-clear-button');
+            const filterSummary = document.getElementById('filter-summary');
+            const viewToggleButton = document.getElementById('view-toggle-button');
+            const viewMenu = document.getElementById('view-menu');
 
             const createModalBackdrop = document.getElementById('create-modal-backdrop');
             const createForm = document.getElementById('create-form');
             const createCancelButton = document.getElementById('create-cancel-button');
             const createSubmitButton = document.getElementById('create-submit-button');
             const createModalStatus = document.getElementById('create-modal-status');
+
+            const assignModalBackdrop = document.getElementById('assign-modal-backdrop');
+            const assignForm = document.getElementById('assign-form');
+            const assignTherapistSelect = document.getElementById('assign-therapist-select');
+            const assignModalText = document.getElementById('assign-modal-text');
+            const assignModalStatus = document.getElementById('assign-modal-status');
+            const assignCancelButton = document.getElementById('assign-cancel-button');
+            const assignSubmitButton = document.getElementById('assign-submit-button');
 
             const role = sessionStorage.getItem(ROLE_KEY);
             if (role !== 'ADMINISTRADOR') {
@@ -167,19 +277,304 @@
 
             const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
 
-            const renderTherapists = function (therapists) {
-                therapistList.innerHTML = '';
+            let currentView = VIEW_TYPES.THERAPISTS;
+            let cachedTherapists = [];
+            let allPatients = [];
+            let patientsLoaded = false;
+            let patientFilterState = 'ALL';
+            let selectedPatient = null;
+            let viewMenuOpen = false;
+
+            const fetchUnassignedPatients = async function (seenIds) {
+                try {
+                    const url = new URL(apiBaseUrl + '/api/pacientes/sin-terapeuta');
+                    url.searchParams.set('usuarioId', adminId);
+                    url.searchParams.set('perfil', 'ADMINISTRADOR');
+                    const response = await fetch(url.toString());
+                    if (!response.ok) {
+                        console.warn('No se pudieron obtener pacientes sin terapeuta, estado', response.status);
+                        return [];
+                    }
+                    const payload = await response.json();
+                    if (!Array.isArray(payload)) {
+                        return [];
+                    }
+                    const filtered = [];
+                    const localSeen = seenIds || new Set();
+                    payload.forEach(function (patient) {
+                        if (!patient || patient.id === undefined || patient.id === null) {
+                            return;
+                        }
+                        if (localSeen.has(patient.id)) {
+                            return;
+                        }
+                        localSeen.add(patient.id);
+                        filtered.push(patient);
+                    });
+                    filtered.sort(function (a, b) {
+                        const left = (a && a.nombreCompleto ? a.nombreCompleto : '').toLowerCase();
+                        const right = (b && b.nombreCompleto ? b.nombreCompleto : '').toLowerCase();
+                        if (left < right) return -1;
+                        if (left > right) return 1;
+                        return 0;
+                    });
+                    return filtered;
+                } catch (error) {
+                    console.warn('Fallo al recuperar pacientes sin terapeuta:', error);
+                    return [];
+                }
+            };
+
+            const fetchTherapistsSilently = async function () {
+                try {
+                    const response = await fetch(apiBaseUrl + '/api/terapeutas');
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al obtener los terapeutas.');
+                    }
+                    const payload = await response.json();
+                    cachedTherapists = Array.isArray(payload) ? payload : [];
+                } catch (error) {
+                    console.error('Fallo al recuperar terapeutas para el respaldo:', error);
+                    cachedTherapists = [];
+                }
+                return cachedTherapists;
+            };
+
+            const fetchPatientsByTherapists = async function () {
+                const therapists = cachedTherapists.length ? cachedTherapists : await fetchTherapistsSilently();
                 if (!therapists.length) {
-                    emptyState.hidden = false;
+                    return fetchUnassignedPatients();
+                }
+                const aggregated = [];
+                const seen = new Set();
+                for (let i = 0; i < therapists.length; i += 1) {
+                    const therapist = therapists[i];
+                    if (!therapist || therapist.id === undefined || therapist.id === null) {
+                        continue;
+                    }
+                    try {
+                        const url = new URL(apiBaseUrl + '/api/pacientes/terapeutas/' + encodeURIComponent(therapist.id));
+                        url.searchParams.set('usuarioId', adminId);
+                        url.searchParams.set('perfil', 'ADMINISTRADOR');
+                        const response = await fetch(url.toString());
+                        if (!response.ok) {
+                            console.warn('No se pudieron obtener pacientes del terapeuta', therapist.id, response.status);
+                            continue;
+                        }
+                        const subset = await response.json();
+                        if (!Array.isArray(subset)) {
+                            continue;
+                        }
+                        subset.forEach(function (patient) {
+                            if (!patient || patient.id === undefined || patient.id === null) {
+                                return;
+                            }
+                            if (seen.has(patient.id)) {
+                                return;
+                            }
+                            seen.add(patient.id);
+                            aggregated.push(patient);
+                        });
+                    } catch (error) {
+                        console.warn('Fallo al obtener pacientes del terapeuta', therapist.id, error);
+                    }
+                }
+                aggregated.sort(function (a, b) {
+                    const left = (a && a.nombreCompleto ? a.nombreCompleto : '').toLowerCase();
+                    const right = (b && b.nombreCompleto ? b.nombreCompleto : '').toLowerCase();
+                    if (left < right) return -1;
+                    if (left > right) return 1;
+                    return 0;
+                });
+                const unassigned = await fetchUnassignedPatients(seen);
+                return aggregated.concat(unassigned);
+            };
+
+            const mergeUnassignedPatients = async function (patients) {
+                const baseList = Array.isArray(patients) ? patients.slice() : [];
+                const seen = new Set();
+                baseList.forEach(function (patient) {
+                    if (patient && patient.id !== undefined && patient.id !== null) {
+                        seen.add(patient.id);
+                    }
+                });
+                const extras = await fetchUnassignedPatients(seen);
+                if (!extras.length) {
+                    return baseList;
+                }
+                return baseList.concat(extras);
+            };
+
+            const getViewLabel = function (view) {
+                return VIEW_LABELS[view] || VIEW_LABELS[VIEW_TYPES.THERAPISTS];
+            };
+
+            const updateViewButtonLabel = function () {
+                viewToggleButton.textContent = getViewLabel(currentView);
+                const buttons = viewMenu.querySelectorAll('button[data-view]');
+                buttons.forEach(function (button) {
+                    const view = button.dataset.view;
+                    const isSelected = view === currentView;
+                    button.setAttribute('aria-selected', String(isSelected));
+                });
+            };
+
+            const openViewMenu = function () {
+                viewMenu.hidden = false;
+                viewToggleButton.setAttribute('aria-expanded', 'true');
+                viewMenuOpen = true;
+            };
+
+            const closeViewMenu = function () {
+                viewMenu.hidden = true;
+                viewToggleButton.setAttribute('aria-expanded', 'false');
+                viewMenuOpen = false;
+            };
+
+            viewToggleButton.addEventListener('click', function () {
+                if (viewMenuOpen) {
+                    closeViewMenu();
+                } else {
+                    openViewMenu();
+                }
+            });
+
+            viewMenu.addEventListener('click', function (event) {
+                if (!(event.target instanceof HTMLElement)) {
                     return;
                 }
-                emptyState.hidden = true;
+                const nextView = event.target.dataset.view;
+                if (!nextView) {
+                    return;
+                }
+                switchView(nextView);
+                closeViewMenu();
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!viewMenuOpen) {
+                    return;
+                }
+                if (viewMenu.contains(event.target) || viewToggleButton.contains(event.target)) {
+                    return;
+                }
+                closeViewMenu();
+            });
+
+            const VIEW_FILTER_LABELS = {
+                ALL: 'Todos',
+                ACTIVO: 'Activos',
+                EN_ESPERA: 'En espera',
+                ARCHIVADO: 'Archivados'
+            };
+
+            const getDisplayState = function (patient) {
+                if (!patient) {
+                    return 'EN_ESPERA';
+                }
+                if (!patient.terapeutaAsignado || !patient.terapeutaAsignado.id) {
+                    return 'EN_ESPERA';
+                }
+                return patient.estado || 'ACTIVO';
+            };
+
+            const getStatusInfo = function (state) {
+                const key = state || 'EN_ESPERA';
+                return {
+                    text: PATIENT_STATUS_LABELS[key] || key,
+                    className: PATIENT_STATUS_CLASSES[key] || ''
+                };
+            };
+
+            const updateFilterButtonLabel = function () {
+                if (currentView !== VIEW_TYPES.PATIENTS) {
+                    return;
+                }
+                const label = VIEW_FILTER_LABELS[patientFilterState] || 'Todos';
+                filterButton.textContent = patientFilterState === 'ALL' ? 'Filtrar' : 'Filtrar: ' + label;
+            };
+
+            const updateFilterSummary = function (visibleCount) {
+                if (currentView !== VIEW_TYPES.PATIENTS || patientFilterState === 'ALL') {
+                    filterSummary.hidden = true;
+                    filterSummary.textContent = '';
+                    return;
+                }
+                const label = VIEW_FILTER_LABELS[patientFilterState] || patientFilterState;
+                filterSummary.hidden = false;
+                filterSummary.textContent = 'Filtro aplicado: ' + label + ' (' + visibleCount + ' pacientes).';
+            };
+
+            const closeFilterModal = function () {
+                if (filterModalBackdrop) {
+                    filterModalBackdrop.hidden = true;
+                }
+            };
+
+            const openFilterModal = function () {
+                if (!filterModalBackdrop || currentView !== VIEW_TYPES.PATIENTS) {
+                    return;
+                }
+                if (filterStateSelect) {
+                    filterStateSelect.value = patientFilterState;
+                }
+                filterModalBackdrop.hidden = false;
+                if (filterStateSelect) {
+                    try {
+                        filterStateSelect.focus({ preventScroll: true });
+                    } catch (error) {
+                        filterStateSelect.focus();
+                    }
+                }
+            };
+
+            const updateListVisibility = function () {
+                const showingTherapists = currentView === VIEW_TYPES.THERAPISTS;
+                therapistList.hidden = !showingTherapists;
+                patientList.hidden = showingTherapists;
+                if (showingTherapists) {
+                    patientEmptyState.hidden = true;
+                    filterSummary.hidden = true;
+                    closeFilterModal();
+                    updateEmptyStateForTherapists();
+                } else {
+                    emptyState.hidden = true;
+                    updateEmptyStateForPatients();
+                    updateFilterButtonLabel();
+                }
+                filterButton.hidden = showingTherapists;
+                newTherapistButton.hidden = !showingTherapists;
+            };
+
+            const updateEmptyStateForTherapists = function () {
+                if (currentView !== VIEW_TYPES.THERAPISTS) {
+                    emptyState.hidden = true;
+                    return;
+                }
+                emptyState.hidden = therapistList.children.length !== 0;
+            };
+
+            const updateEmptyStateForPatients = function () {
+                if (currentView !== VIEW_TYPES.PATIENTS) {
+                    patientEmptyState.hidden = true;
+                    return;
+                }
+                patientEmptyState.hidden = patientList.children.length !== 0;
+            };
+
+            const renderTherapists = function (therapists) {
+                therapistList.innerHTML = '';
+                if (!Array.isArray(therapists) || !therapists.length) {
+                    updateEmptyStateForTherapists();
+                    return;
+                }
                 const fragment = document.createDocumentFragment();
                 therapists.forEach(function (therapist) {
                     const li = document.createElement('li');
                     li.className = 'therapist-row';
                     li.setAttribute('role', 'button');
                     li.setAttribute('tabindex', '0');
+
                     const info = document.createElement('div');
                     info.className = 'therapist-info';
                     const name = document.createElement('span');
@@ -187,8 +582,7 @@
                     name.textContent = therapist.nombre || 'Terapeuta sin nombre';
                     const detail = document.createElement('span');
                     detail.className = 'therapist-detail';
-                    const especialidad = therapist.especialidad ? therapist.especialidad : 'Sin especialidad';
-                    detail.textContent = especialidad;
+                    detail.textContent = therapist.especialidad ? therapist.especialidad : 'Sin especialidad';
                     info.appendChild(name);
                     info.appendChild(detail);
                     li.appendChild(info);
@@ -204,9 +598,101 @@
                             goToDetail();
                         }
                     });
+
                     fragment.appendChild(li);
                 });
                 therapistList.appendChild(fragment);
+                updateEmptyStateForTherapists();
+            };
+
+            const renderPatients = function (patients) {
+                patientList.innerHTML = '';
+                if (!Array.isArray(patients) || !patients.length) {
+                    updateEmptyStateForPatients();
+                    updateFilterSummary(0);
+                    return;
+                }
+                const fragment = document.createDocumentFragment();
+                patients.forEach(function (patient) {
+                    const li = document.createElement('li');
+                    li.className = 'patient-row';
+                    li.setAttribute('role', 'button');
+                    li.setAttribute('tabindex', '0');
+
+                    const info = document.createElement('div');
+                    info.className = 'patient-info';
+                    const name = document.createElement('span');
+                    name.className = 'patient-name';
+                    name.textContent = patient.nombreCompleto || 'Paciente sin nombre';
+                    info.appendChild(name);
+
+                    const therapistName = patient.terapeutaAsignado && patient.terapeutaAsignado.nombre ? patient.terapeutaAsignado.nombre : null;
+                    const therapistLabel = document.createElement('span');
+                    therapistLabel.className = 'patient-meta';
+                    therapistLabel.textContent = therapistName ? therapistName : 'No asignado';
+                    info.appendChild(therapistLabel);
+
+                    if (patient.fechaRegistro) {
+                        const registered = document.createElement('span');
+                        registered.className = 'patient-meta';
+                        registered.textContent = 'Registrado: ' + patient.fechaRegistro;
+                        info.appendChild(registered);
+                    }
+
+                    li.appendChild(info);
+
+                    const actions = document.createElement('div');
+                    actions.className = 'patient-actions';
+
+                    const displayState = getDisplayState(patient);
+                    const statusInfo = getStatusInfo(displayState);
+                    const status = document.createElement('span');
+                    status.className = 'status-chip' + (statusInfo.className ? ' ' + statusInfo.className : '');
+                    status.textContent = statusInfo.text;
+                    actions.appendChild(status);
+
+                    if (displayState === 'EN_ESPERA') {
+                        const assignButton = document.createElement('button');
+                        assignButton.type = 'button';
+                        assignButton.className = 'assign-button';
+                        assignButton.textContent = 'Asignar terapeuta';
+                        assignButton.addEventListener('click', function (event) {
+                            event.stopPropagation();
+                            openAssignModal(patient);
+                        });
+                        actions.appendChild(assignButton);
+                    }
+
+                    li.appendChild(actions);
+
+                    const navigate = function (event) {
+                        if (displayState === 'EN_ESPERA') {
+                            if (event) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                            }
+                            openAssignModal(patient);
+                            return;
+                        }
+                        if (patient.id === undefined || patient.id === null) {
+                            return;
+                        }
+                        window.location.href = 'expediente.html?pacienteId=' + encodeURIComponent(patient.id);
+                    };
+
+                    li.addEventListener('click', navigate);
+                    li.addEventListener('keydown', function (event) {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            navigate(event);
+                        }
+                    });
+
+                    fragment.appendChild(li);
+                });
+                patientList.appendChild(fragment);
+                updateEmptyStateForPatients();
+                updateFilterSummary(patients.length);
             };
 
             const loadTherapists = async function () {
@@ -218,29 +704,81 @@
                         throw new Error('Error ' + response.status + ' al obtener los terapeutas.');
                     }
                     const payload = await response.json();
-                    const data = Array.isArray(payload) ? payload : [];
-                    renderTherapists(data);
+                    cachedTherapists = Array.isArray(payload) ? payload : [];
+                    renderTherapists(cachedTherapists);
                     const timeStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    statusMessage.textContent = 'Lista actualizada (' + timeStamp + ').';
+                    if (currentView === VIEW_TYPES.THERAPISTS) {
+                        statusMessage.textContent = 'Terapeutas actualizados (' + timeStamp + ').';
+                    }
                 } catch (error) {
                     statusMessage.textContent = error.message || 'No fue posible cargar los terapeutas.';
                     statusMessage.classList.add('error');
+                    cachedTherapists = [];
                     renderTherapists([]);
                 }
             };
 
-            const openCreateModal = function () {
-                createForm.reset();
-                createModalStatus.textContent = '';
-                createModalBackdrop.hidden = false;
-                setTimeout(function () {
-                    document.getElementById('create-nombre').focus();
-                }, 0);
+            const loadPatientsFromFallback = async function () {
+                statusMessage.textContent = '';
+                statusMessage.classList.remove('error');
+                const fallbackPatients = await fetchPatientsByTherapists();
+                allPatients = fallbackPatients;
+                patientsLoaded = true;
+                if (!fallbackPatients.length) {
+                    statusMessage.textContent = 'No se pudo obtener la lista completa de pacientes.';
+                    statusMessage.classList.add('error');
+                    renderPatients([]);
+                    return;
+                }
+                statusMessage.textContent = '';
+                statusMessage.classList.remove('error');
+                applyPatientFilter(patientFilterState, { silent: true });
             };
 
-            const closeCreateModal = function () {
-                createModalBackdrop.hidden = true;
-                createModalStatus.textContent = '';
+            const loadPatients = async function () {
+                statusMessage.textContent = 'Cargando pacientes...';
+                statusMessage.classList.remove('error');
+                try {
+                    const url = new URL(apiBaseUrl + '/api/pacientes');
+                    url.searchParams.set('usuarioId', adminId);
+                    url.searchParams.set('perfil', 'ADMINISTRADOR');
+                    const response = await fetch(url.toString());
+                    if (!response.ok) {
+                        if (response.status === 404 || response.status === 405) {
+                            await loadPatientsFromFallback();
+                            return;
+                        }
+                        throw new Error('Error ' + response.status + ' al obtener los pacientes.');
+                    }
+                    const payload = await response.json();
+                    const basePatients = Array.isArray(payload) ? payload : [];
+                    allPatients = await mergeUnassignedPatients(basePatients);
+                    patientsLoaded = true;
+                    applyPatientFilter(patientFilterState, { silent: true });
+                    const timeStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (currentView === VIEW_TYPES.PATIENTS) {
+                        statusMessage.textContent = 'Pacientes actualizados (' + timeStamp + ').';
+                    }
+                } catch (error) {
+                    console.error(error);
+                    statusMessage.textContent = error.message || 'No fue posible cargar los pacientes.';
+                    statusMessage.classList.add('error');
+                    patientsLoaded = false;
+                    allPatients = [];
+                    renderPatients([]);
+                }
+            };
+
+            const applyPatientFilter = function (nextState, options) {
+                patientFilterState = nextState;
+                const dataset = nextState === 'ALL' ? allPatients.slice() : allPatients.filter(function (patient) {
+                    return getDisplayState(patient) === nextState;
+                });
+                renderPatients(dataset);
+                updateFilterButtonLabel();
+                if (!options || !options.silent) {
+                    closeFilterModal();
+                }
             };
 
             const buildCreatePayload = function () {
@@ -288,6 +826,223 @@
                 }
             };
 
+            const buildPatientUpdatePayload = function (patient, therapistId) {
+                if (!patient || patient.id === undefined || patient.id === null) {
+                    throw new Error('Paciente no válido.');
+                }
+                if (!patient.fechaRegistro) {
+                    throw new Error('El paciente no tiene fecha de registro registrada.');
+                }
+                if (!patient.nombreCompleto || !patient.celular || !patient.tipoServicio || !patient.sexo) {
+                    throw new Error('El paciente tiene datos incompletos para la actualización.');
+                }
+                return {
+                    solicitante: {
+                        usuarioId: adminId,
+                        perfil: 'ADMINISTRADOR'
+                    },
+                    nombreCompleto: patient.nombreCompleto,
+                    celular: patient.celular,
+                    email: patient.email,
+                    tipoServicio: patient.tipoServicio,
+                    estado: 'ACTIVO',
+                    sexo: patient.sexo,
+                    edad: patient.edad,
+                    fechaRegistro: patient.fechaRegistro,
+                    fechaProximaSesion: patient.fechaProximaSesion,
+                    terapeutaId: therapistId
+                };
+            };
+
+            const updatePatientCache = function (updatedPatient) {
+                if (!updatedPatient || updatedPatient.id === undefined || updatedPatient.id === null) {
+                    return;
+                }
+                const index = allPatients.findIndex(function (patient) {
+                    return patient.id === updatedPatient.id;
+                });
+                if (index >= 0) {
+                    allPatients[index] = updatedPatient;
+                } else {
+                    allPatients.push(updatedPatient);
+                }
+            };
+
+            const populateAssignSelect = function (selectedId) {
+                assignTherapistSelect.innerHTML = '';
+                cachedTherapists.forEach(function (therapist) {
+                    const option = document.createElement('option');
+                    option.value = therapist.id;
+                    option.textContent = therapist.nombre || 'Terapeuta sin nombre';
+                    if (selectedId && Number(selectedId) === Number(therapist.id)) {
+                        option.selected = true;
+                    }
+                    assignTherapistSelect.appendChild(option);
+                });
+            };
+
+            const openAssignModal = async function (patient) {
+                selectedPatient = patient;
+                assignModalBackdrop.hidden = false;
+                assignModalStatus.textContent = 'Cargando terapeutas disponibles...';
+                assignSubmitButton.disabled = true;
+
+                if (!cachedTherapists.length) {
+                    await fetchTherapistsSilently();
+                }
+
+                populateAssignSelect(patient.terapeutaAsignado ? patient.terapeutaAsignado.id : null);
+
+                if (!assignTherapistSelect.options.length) {
+                    assignModalStatus.textContent = 'No hay terapeutas disponibles. Agrega uno antes de asignar.';
+                    assignSubmitButton.disabled = true;
+                } else {
+                    assignModalStatus.textContent = '';
+                    assignSubmitButton.disabled = false;
+                }
+
+                assignModalText.textContent = 'Asignar a "' + (patient.nombreCompleto || 'Paciente sin nombre') + '"';
+                setTimeout(function () {
+                    assignTherapistSelect.focus();
+                }, 0);
+            };
+
+            const closeAssignModal = function () {
+                assignModalBackdrop.hidden = true;
+                assignModalStatus.textContent = '';
+                assignSubmitButton.disabled = false;
+                selectedPatient = null;
+            };
+
+            const submitAssignForm = async function (event) {
+                event.preventDefault();
+                if (!selectedPatient) {
+                    closeAssignModal();
+                    return;
+                }
+                if (!assignTherapistSelect.options.length) {
+                    assignModalStatus.textContent = 'No hay terapeutas disponibles para asignar.';
+                    return;
+                }
+                const therapistId = Number(assignTherapistSelect.value);
+                if (Number.isNaN(therapistId)) {
+                    assignModalStatus.textContent = 'Selecciona un terapeuta válido.';
+                    return;
+                }
+                try {
+                    const payload = buildPatientUpdatePayload(selectedPatient, therapistId);
+                    assignSubmitButton.disabled = true;
+                    assignModalStatus.textContent = 'Asignando terapeuta...';
+                    const response = await fetch(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(selectedPatient.id), {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error ' + response.status + ' al asignar al terapeuta.');
+                    }
+                    const updatedPatient = await response.json();
+                    updatePatientCache(updatedPatient);
+                    closeAssignModal();
+                    statusMessage.textContent = 'Paciente asignado correctamente.';
+                    statusMessage.classList.remove('error');
+                    applyPatientFilter(patientFilterState, { silent: true });
+                    loadTherapists();
+                } catch (error) {
+                    assignModalStatus.textContent = error.message || 'No fue posible asignar al terapeuta.';
+                    assignSubmitButton.disabled = false;
+                }
+            };
+
+            const switchView = function (nextView) {
+                if (!VIEW_LABELS[nextView] || currentView === nextView) {
+                    return;
+                }
+                currentView = nextView;
+                updateViewButtonLabel();
+                updateListVisibility();
+                if (currentView === VIEW_TYPES.THERAPISTS) {
+                    if (!cachedTherapists.length) {
+                        loadTherapists();
+                    } else {
+                        renderTherapists(cachedTherapists);
+                    }
+                } else {
+                    if (patientsLoaded) {
+                        applyPatientFilter(patientFilterState, { silent: true });
+                    } else {
+                        loadPatients();
+                    }
+                }
+            };
+
+            const openCreateModal = function () {
+                createForm.reset();
+                createModalStatus.textContent = '';
+                createModalBackdrop.hidden = false;
+                setTimeout(function () {
+                    document.getElementById('create-nombre').focus();
+                }, 0);
+            };
+
+            const closeCreateModal = function () {
+                createModalBackdrop.hidden = true;
+                createModalStatus.textContent = '';
+            };
+
+            filterButton.addEventListener('click', function () {
+                if (currentView !== VIEW_TYPES.PATIENTS) {
+                    return;
+                }
+                if (filterModalBackdrop.hidden) {
+                    openFilterModal();
+                } else {
+                    closeFilterModal();
+                }
+            });
+
+            filterApplyButton.addEventListener('click', function () {
+                applyPatientFilter(filterStateSelect.value);
+            });
+
+            filterStateSelect.addEventListener('change', function () {
+                // Optional immediate feedback when selecting via keyboard
+                applyPatientFilter(filterStateSelect.value, { silent: true });
+                updateFilterButtonLabel();
+            });
+
+            filterClearButton.addEventListener('click', function () {
+                if (patientFilterState === 'ALL') {
+                    closeFilterModal();
+                    return;
+                }
+                filterStateSelect.value = 'ALL';
+                applyPatientFilter('ALL');
+            });
+
+            if (filterModalBackdrop) {
+                filterModalBackdrop.addEventListener('click', function (event) {
+                    if (event.target === filterModalBackdrop) {
+                        closeFilterModal();
+                    }
+                });
+            }
+
+            refreshButton.addEventListener('click', function () {
+                if (currentView === VIEW_TYPES.THERAPISTS) {
+                    loadTherapists();
+                } else {
+                    loadPatients();
+                }
+            });
+
+            logoutButton.addEventListener('click', function () {
+                sessionStorage.removeItem(USER_ID_KEY);
+                sessionStorage.removeItem(ROLE_KEY);
+                sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
+                window.location.href = 'index.html';
+            });
+
             newTherapistButton.addEventListener('click', openCreateModal);
             createCancelButton.addEventListener('click', closeCreateModal);
             createForm.addEventListener('submit', submitCreateForm);
@@ -298,21 +1053,36 @@
                 }
             });
 
-            document.addEventListener('keydown', function (event) {
-                if (event.key === 'Escape' && !createModalBackdrop.hidden) {
-                    closeCreateModal();
+            assignCancelButton.addEventListener('click', closeAssignModal);
+            assignForm.addEventListener('submit', submitAssignForm);
+            assignModalBackdrop.addEventListener('click', function (event) {
+                if (event.target === assignModalBackdrop) {
+                    closeAssignModal();
                 }
             });
 
-            refreshButton.addEventListener('click', loadTherapists);
-
-            logoutButton.addEventListener('click', function () {
-                sessionStorage.removeItem(USER_ID_KEY);
-                sessionStorage.removeItem(ROLE_KEY);
-                sessionStorage.removeItem(LEGACY_THERAPIST_KEY);
-                window.location.href = 'index.html';
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    if (!assignModalBackdrop.hidden) {
+                        closeAssignModal();
+                        return;
+                    }
+                    if (!createModalBackdrop.hidden) {
+                        closeCreateModal();
+                        return;
+                    }
+                    if (viewMenuOpen) {
+                        closeViewMenu();
+                        return;
+                    }
+                    if (filterModalBackdrop && !filterModalBackdrop.hidden) {
+                        closeFilterModal();
+                    }
+                }
             });
 
+            updateViewButtonLabel();
+            updateListVisibility();
             loadTherapists();
         })();
     </script>

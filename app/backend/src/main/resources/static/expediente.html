@@ -25,16 +25,35 @@
         .card-header h2 { margin:0; font-size:1.6rem; }
         .card-header p { margin:4px 0 0; color: var(--color-navy-light); }
         .card-actions { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-        .status-chip { display:inline-flex; align-items:center; padding:6px 12px; border-radius:999px; background-color:rgba(152,161,188,.22); color:var(--color-navy); font-weight:600; font-size:.9rem; }
-        .status-chip.estado-en-espera { background-color: rgba(222,211,196,.6); color:#8a775f; }
-        .status-chip.estado-archivado { background-color: rgba(244,235,211,.7); color:#8f7d63; }
-        .status-chip.estado-activo { background-color: rgba(85,88,121,.18); color: var(--color-navy); }
+        .status-control { position: relative; display: inline-flex; }
+        .status-chip { display:inline-flex; align-items:center; padding:6px 14px; border-radius:999px; font-weight:600; font-size:.9rem; border:1px solid transparent; transition: background-color .2s ease, transform .2s ease; background-color:rgba(152,161,188,.18); color:var(--color-navy); }
+        .status-chip.estado-activo { background-color:#dcfce7; color:#166534; border-color:#bbf7d0; }
+        .status-chip.estado-archivado { background-color:#fef3c7; color:#92400e; border-color:#fde68a; }
+        .status-chip.estado-en-espera { background-color:rgba(152,161,188,.22); color:var(--color-navy); border-color:rgba(152,161,188,.3); }
+        .status-chip.interactive { cursor:pointer; }
+        .status-chip.interactive:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(85,88,121,.18); }
+        .status-chip:disabled { cursor:default; opacity:1; }
+        .status-menu { position:absolute; top:calc(100% + 6px); left:0; background:#fff; border:1px solid rgba(152,161,188,.28); border-radius:12px; box-shadow:0 14px 32px rgba(85,88,121,.22); padding:10px; display:grid; gap:8px; min-width:168px; z-index:40; }
+        .status-menu[hidden] { display:none !important; }
+        .status-menu[data-disabled="true"] { opacity:0.6; pointer-events:none; }
+        .status-option { border:none; border-radius:10px; padding:10px 14px; font-weight:600; font-size:.95rem; text-align:left; cursor:pointer; transition: transform .2s ease, box-shadow .2s ease; }
+        .status-option:focus-visible { outline:2px solid var(--color-navy); outline-offset:2px; }
+        .status-option:hover { transform:translateY(-1px); box-shadow:0 6px 14px rgba(85,88,121,.18); }
+        .status-option.status-option-activo { background-color:#dcfce7; color:#166534; }
+        .status-option.status-option-archivado { background-color:#fef3c7; color:#92400e; }
+        .status-option.selected { box-shadow: inset 0 0 0 2px rgba(0,0,0,0.08); }
         .status-banner { margin:0 28px 16px; padding:10px 14px; border-radius:8px; background-color:rgba(152,161,188,.15); color:var(--color-navy); font-weight:600; min-height:24px; }
         .status-banner.error { background-color:#fdecea; color:#b3261e; }
         .panel { margin:0 28px 28px; background:#fff; border:1px solid rgba(152,161,188,.25); border-radius:12px; padding:20px 24px; box-shadow:0 4px 14px var(--shadow-soft); }
+        .panel-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+        .panel-actions-inline { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
         dl.detail-list { display:grid; gap:12px; font-size:.95rem; }
         dl.detail-list dt { font-weight:600; }
         dl.detail-list dd { margin:4px 0 0; color: var(--color-navy-light); }
+        dl.detail-list input,
+        dl.detail-list select { width:100%; border:1px solid rgba(152,161,188,.6); border-radius:8px; padding:8px 12px; font-size:.95rem; font-family:inherit; color:var(--color-text); background-color:#fff; }
+        dl.detail-list input:focus,
+        dl.detail-list select:focus { outline:2px solid var(--color-navy); outline-offset:2px; }
         .nav-buttons { display:flex; gap:12px; flex-wrap:wrap; margin:0 28px 28px; }
         button { border:none; border-radius:8px; padding:10px 18px; cursor:pointer; font-weight:600; font-size:.95rem; background: var(--color-navy); color:#fff; transition: background-color .2s ease, transform .2s ease; }
         button:hover { background-color:#404561; }
@@ -64,7 +83,13 @@
                 <p id="patient-service">Tipo de servicio</p>
             </div>
             <div class="card-actions">
-                <span id="patient-status" class="status-chip" hidden>Estado</span>
+                <div id="status-control" class="status-control">
+                    <button id="patient-status" type="button" class="status-chip" hidden aria-haspopup="listbox" aria-expanded="false">Estado</button>
+                    <div id="status-menu" class="status-menu" role="listbox" hidden>
+                        <button type="button" role="option" class="status-option status-option-activo" data-status="ACTIVO">Activo</button>
+                        <button type="button" role="option" class="status-option status-option-archivado" data-status="ARCHIVADO">Archivado</button>
+                    </div>
+                </div>
                 <button id="back-button" type="button" class="button-secondary">Volver a pacientes</button>
             </div>
         </div>
@@ -76,8 +101,16 @@
             <button id="go-consentimiento" type="button" class="button-outline">Consentimiento</button>
         </div>
         <section class="panel" aria-labelledby="detail-title">
-            <h3 id="detail-title">Información básica</h3>
+            <div class="panel-header">
+                <h3 id="detail-title">Información básica</h3>
+                <div class="panel-actions-inline">
+                    <button id="edit-info-button" type="button" class="button-secondary" hidden>Editar</button>
+                    <button id="cancel-info-button" type="button" class="button-secondary" hidden>Cancelar</button>
+                </div>
+            </div>
             <dl class="detail-list">
+                <div><dt>Nombre completo</dt><dd id="detail-nombre">--</dd></div>
+                <div><dt>Tipo de servicio</dt><dd id="detail-servicio">--</dd></div>
                 <div><dt>Celular</dt><dd id="detail-celular">--</dd></div>
                 <div><dt>Email</dt><dd id="detail-email">--</dd></div>
                 <div><dt>Terapeuta asignado</dt><dd id="detail-terapeuta">--</dd></div>
@@ -105,8 +138,16 @@
     const goSesiones = document.getElementById('go-sesiones');
     const goEntrevista = document.getElementById('go-entrevista');
     const goConsentimiento = document.getElementById('go-consentimiento');
+    const contextInfo = document.getElementById('context-info');
+    const statusControl = document.getElementById('status-control');
+    const statusMenu = document.getElementById('status-menu');
+    const statusMenuButtons = statusMenu ? Array.from(statusMenu.querySelectorAll('[data-status]')) : [];
+    const editInfoButton = document.getElementById('edit-info-button');
+    const cancelInfoButton = document.getElementById('cancel-info-button');
 
     const detail = {
+        nombre: document.getElementById('detail-nombre'),
+        servicio: document.getElementById('detail-servicio'),
         celular: document.getElementById('detail-celular'),
         email: document.getElementById('detail-email'),
         terapeuta: document.getElementById('detail-terapeuta'),
@@ -119,30 +160,42 @@
     const params = new URLSearchParams(window.location.search);
     const pacienteParam = params.get('pacienteId');
     const pacienteId = pacienteParam ? Number(pacienteParam) : NaN;
+    const terapeutaOrigenParam = params.get('terapeutaId');
+    const terapeutaOrigenId = terapeutaOrigenParam ? Number(terapeutaOrigenParam) : NaN;
+    const autoEditParam = params.get('editar');
+    const shouldAutoEdit = autoEditParam === '1' || autoEditParam === 'true';
+    let pendingAutoEdit = false;
 
     const role = sessionStorage.getItem(ROLE_KEY);
-    if (role !== 'TERAPEUTA') {
+    const isTherapist = role === 'TERAPEUTA';
+    const isAdmin = role === 'ADMINISTRADOR';
+    if (!isTherapist && !isAdmin) {
         window.location.href = 'index.html';
         return;
     }
-    let therapistIdRaw = sessionStorage.getItem(USER_ID_KEY);
-    if (!therapistIdRaw) {
+
+    let viewerIdRaw = sessionStorage.getItem(USER_ID_KEY);
+    if (!viewerIdRaw && isTherapist) {
         const legacyId = sessionStorage.getItem(LEGACY_THERAPIST_KEY);
         if (legacyId) {
-            therapistIdRaw = legacyId;
+            viewerIdRaw = legacyId;
             sessionStorage.setItem(USER_ID_KEY, legacyId);
         }
     }
-    if (!therapistIdRaw) {
+    if (!viewerIdRaw) {
         window.location.href = 'index.html';
         return;
     }
-    const therapistId = Number(therapistIdRaw);
-    if (Number.isNaN(therapistId)) {
-        statusBanner.textContent = 'ID de terapeuta inválido.';
+
+    const viewerId = Number(viewerIdRaw);
+    if (Number.isNaN(viewerId)) {
+        statusBanner.textContent = 'El identificador del usuario en sesión no es válido.';
         statusBanner.classList.add('error');
         return;
     }
+
+    const perfil = isAdmin ? 'ADMINISTRADOR' : 'TERAPEUTA';
+    pendingAutoEdit = shouldAutoEdit && isAdmin;
 
     if (Number.isNaN(pacienteId)) {
         statusBanner.textContent = 'Selecciona un paciente desde la lista.';
@@ -150,68 +203,710 @@
     }
 
     const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
+    const SERVICE_OPTIONS = [
+        { value: 'TERAPIA_INDIVIDUAL', label: 'Psicoterapia' },
+        { value: 'TERAPIA_FAMILIAR', label: 'Terapia familiar' },
+        { value: 'TERAPIA_PAREJA', label: 'Terapia de pareja' },
+        { value: 'TERAPIA_GRUPAL', label: 'Terapia grupal' },
+        { value: 'EVALUACION_PSICOLOGICA', label: 'Psicodiagnóstico' },
+        { value: 'INTERVENCION_CRISIS', label: 'Intervención en crisis' }
+    ];
+    const SERVICE_LABELS = SERVICE_OPTIONS.reduce(function (acc, option) {
+        acc[option.value] = option.label;
+        return acc;
+    }, {});
+    const SEX_OPTIONS = [
+        { value: 'FEMENINO', label: 'Femenino' },
+        { value: 'MASCULINO', label: 'Masculino' },
+        { value: 'NO_BINARIO', label: 'No binario' },
+        { value: 'PREFIERE_NO_DECIR', label: 'Prefiere no decir' }
+    ];
+    const SEX_LABELS = SEX_OPTIONS.reduce(function (acc, option) {
+        acc[option.value] = option.label;
+        return acc;
+    }, {});
+    const STATUS_OPTIONS = [
+        { value: 'ACTIVO', label: 'Activo', className: 'estado-activo' },
+        { value: 'EN_ESPERA', label: 'En espera', className: 'estado-en-espera' },
+        { value: 'ARCHIVADO', label: 'Archivado', className: 'estado-archivado' }
+    ];
+    const STATUS_MAP = STATUS_OPTIONS.reduce(function (acc, option) {
+        acc[option.value] = { text: option.label, className: option.className };
+        return acc;
+    }, {});
 
-    const SERVICE_LABELS = {
-        TERAPIA_INDIVIDUAL:'Psicoterapia', TERAPIA_FAMILIAR:'Terapia familiar', TERAPIA_PAREJA:'Terapia de pareja',
-        TERAPIA_GRUPAL:'Terapia grupal', EVALUACION_PSICOLOGICA:'Psicodiagnóstico', INTERVENCION_CRISIS:'Intervención en crisis'
+    const ADMIN_STATUS_VALUES = ['ACTIVO', 'ARCHIVADO'];
+    let currentPatient = null;
+    let statusMenuOpen = false;
+    let statusUpdateInProgress = false;
+    let isEditingInfo = false;
+    let infoUpdateInProgress = false;
+    const fieldEditors = {};
+
+    const isPatientArchived = function () {
+        return Boolean(currentPatient && currentPatient.estado === 'ARCHIVADO');
     };
-    const SEX_LABELS = { FEMENINO:'Femenino', MASCULINO:'Masculino', NO_BINARIO:'No binario', PREFIERE_NO_DECIR:'Prefiere no decir' };
-    const STATUS_MAP = {
-        ACTIVO:{text:'Activo', className:'estado-activo'},
-        EN_ESPERA:{text:'En espera', className:'estado-en-espera'},
-        ARCHIVADO:{text:'Archivado', className:'estado-archivado'}
+
+    if (contextInfo) {
+        contextInfo.textContent = '';
+        contextInfo.hidden = true;
+    }
+
+    const refreshStatusButtonState = function () {
+        if (!patientStatus) {
+            return;
+        }
+        const enabled = isAdmin && !statusUpdateInProgress && !infoUpdateInProgress && !isEditingInfo && !Number.isNaN(pacienteId) && Boolean(currentPatient);
+        patientStatus.disabled = !enabled;
+        patientStatus.classList.toggle('interactive', enabled);
     };
 
-    function fmtService(s){ return SERVICE_LABELS[s] || (s||'').replace(/_/g,' ').toLowerCase() || 'Sin tipo'; }
-    function fmtSexo(s){ return SEX_LABELS[s] || s || '--'; }
-    function fmtDate(v){ if(!v) return '--'; try { const d = new Date(v+'T00:00:00'); return new Intl.DateTimeFormat('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d);} catch(e){ return v; } }
+    const refreshEditControls = function () {
+        if (!editInfoButton) {
+            return;
+        }
+        if (!isAdmin || Number.isNaN(pacienteId)) {
+            editInfoButton.hidden = true;
+            if (cancelInfoButton) {
+                cancelInfoButton.hidden = true;
+            }
+            return;
+        }
+        if (!isEditingInfo && isPatientArchived()) {
+            editInfoButton.hidden = true;
+            editInfoButton.disabled = true;
+            if (cancelInfoButton) {
+                cancelInfoButton.hidden = true;
+                cancelInfoButton.disabled = false;
+            }
+            return;
+        }
+        editInfoButton.hidden = false;
+        if (isEditingInfo) {
+            editInfoButton.textContent = infoUpdateInProgress ? 'Guardando...' : 'Guardar cambios';
+            editInfoButton.disabled = infoUpdateInProgress;
+            if (cancelInfoButton) {
+                cancelInfoButton.hidden = false;
+                cancelInfoButton.disabled = infoUpdateInProgress;
+            }
+        } else {
+            editInfoButton.textContent = 'Editar';
+            editInfoButton.disabled = infoUpdateInProgress || statusUpdateInProgress || !currentPatient;
+            if (cancelInfoButton) {
+                cancelInfoButton.hidden = true;
+                cancelInfoButton.disabled = false;
+            }
+        }
+    };
 
-    async function fetchPatient(){
-        if (Number.isNaN(pacienteId)) return null;
+    const EDITABLE_FIELD_CONFIG = {
+        nombreCompleto: { element: detail.nombre, label: 'Nombre completo', type: 'text', required: true },
+        tipoServicio: { element: detail.servicio, label: 'Tipo de servicio', type: 'select', required: true, options: SERVICE_OPTIONS },
+        celular: { element: detail.celular, label: 'Celular', type: 'text', required: true },
+        email: { element: detail.email, label: 'Correo electrónico', type: 'email', required: false },
+        fechaProximaSesion: { element: detail.proximaSesion, label: 'Próxima sesión', type: 'date', required: false },
+        edad: { element: detail.edad, label: 'Edad', type: 'number', required: false, attributes: { min: 0 } },
+        sexo: { element: detail.sexo, label: 'Sexo', type: 'select', required: true, options: SEX_OPTIONS }
+    };
+    const EDITABLE_FIELD_KEYS = Object.keys(EDITABLE_FIELD_CONFIG);
+
+    const resetFieldEditors = function () {
+        Object.keys(fieldEditors).forEach(function (key) {
+            delete fieldEditors[key];
+        });
+    };
+
+    const createEditorForField = function (fieldKey) {
+        if (!isAdmin || !currentPatient) {
+            return;
+        }
+        const config = EDITABLE_FIELD_CONFIG[fieldKey];
+        if (!config || !config.element) {
+            return;
+        }
+        const container = config.element;
+        container.innerHTML = '';
+
+        let input;
+        if (config.type === 'select') {
+            input = document.createElement('select');
+            const options = Array.isArray(config.options) ? config.options : [];
+            options.forEach(function (option) {
+                const opt = document.createElement('option');
+                opt.value = option.value;
+                opt.textContent = option.label;
+                input.appendChild(opt);
+            });
+            const currentValue = currentPatient[fieldKey];
+            input.value = currentValue || '';
+        } else {
+            input = document.createElement('input');
+            input.type = config.type || 'text';
+            const rawValue = currentPatient[fieldKey];
+            if (config.type === 'number') {
+                input.value = rawValue !== undefined && rawValue !== null ? String(rawValue) : '';
+            } else if (config.type === 'date') {
+                input.value = rawValue || '';
+            } else if (rawValue !== undefined && rawValue !== null) {
+                input.value = String(rawValue).trim();
+            } else {
+                input.value = '';
+            }
+        }
+
+        if (config.attributes) {
+            Object.keys(config.attributes).forEach(function (attr) {
+                input.setAttribute(attr, String(config.attributes[attr]));
+            });
+        }
+        input.required = Boolean(config.required);
+        input.setAttribute('data-field', fieldKey);
+        container.appendChild(input);
+        fieldEditors[fieldKey] = { element: input, required: Boolean(config.required), label: config.label };
+    };
+
+    const normalizeValueForComparison = function (key, value) {
+        if (value === undefined || value === null) {
+            return null;
+        }
+        if (key === 'edad') {
+            const numeric = Number(value);
+            return Number.isNaN(numeric) ? null : numeric;
+        }
+        if (key === 'fechaProximaSesion') {
+            return value || null;
+        }
+        if (key === 'email') {
+            const trimmed = String(value).trim();
+            return trimmed ? trimmed : null;
+        }
+        if (key === 'nombreCompleto' || key === 'celular') {
+            return String(value).trim();
+        }
+        if (key === 'tipoServicio' || key === 'sexo') {
+            return String(value);
+        }
+        return value;
+    };
+
+    const collectEditValues = function () {
+        const updates = {};
+        let hasChanges = false;
+        EDITABLE_FIELD_KEYS.forEach(function (key) {
+            const editor = fieldEditors[key];
+            if (!editor) {
+                return;
+            }
+            let value = editor.element.value;
+            if (typeof value === 'string') {
+                value = value.trim();
+            }
+            if (!value && editor.required) {
+                throw new Error('El campo ' + editor.label + ' es obligatorio.');
+            }
+
+            let processed;
+            switch (key) {
+                case 'email':
+                    processed = value ? value : null;
+                    break;
+                case 'edad':
+                    if (value === '' || value === null) {
+                        processed = null;
+                    } else {
+                        const numeric = Number(value);
+                        if (Number.isNaN(numeric) || numeric < 0) {
+                            throw new Error('Ingresa una edad válida (mayor o igual a 0).');
+                        }
+                        processed = numeric;
+                    }
+                    break;
+                case 'fechaProximaSesion':
+                    processed = value || null;
+                    break;
+                default:
+                    processed = value;
+                    break;
+            }
+            updates[key] = processed;
+
+            const currentNormalized = normalizeValueForComparison(key, currentPatient ? currentPatient[key] : null);
+            const newNormalized = normalizeValueForComparison(key, processed);
+            if (!hasChanges && newNormalized !== currentNormalized) {
+                hasChanges = true;
+            }
+        });
+        return { updates: updates, hasChanges: hasChanges };
+    };
+
+    const enterEditMode = function () {
+        if (!isAdmin || !currentPatient || isEditingInfo || infoUpdateInProgress || statusUpdateInProgress) {
+            return;
+        }
+        if (isPatientArchived()) {
+            statusBanner.textContent = 'El expediente está archivado; reactívalo para editar la información.';
+            statusBanner.classList.remove('error');
+            return;
+        }
+        isEditingInfo = true;
+        setStatusMenuDisabled(true);
+        closeStatusMenu();
+        resetFieldEditors();
+        EDITABLE_FIELD_KEYS.forEach(function (key) {
+            createEditorForField(key);
+        });
+        const primaryEditor = fieldEditors.nombreCompleto && fieldEditors.nombreCompleto.element;
+        if (primaryEditor && typeof primaryEditor.focus === 'function') {
+            setTimeout(function () { primaryEditor.focus(); primaryEditor.select && primaryEditor.select(); }, 0);
+        }
+        statusBanner.textContent = 'Modo edición activado. Ajusta la información básica y guarda los cambios.';
+        statusBanner.classList.remove('error');
+        refreshStatusButtonState();
+        refreshEditControls();
+    };
+
+    const cancelEditMode = function () {
+        if (!isEditingInfo || infoUpdateInProgress) {
+            return;
+        }
+        isEditingInfo = false;
+        resetFieldEditors();
+        setStatusMenuDisabled(false);
+        renderPatient(currentPatient);
+        statusBanner.textContent = 'Edición cancelada. No se guardaron cambios.';
+        statusBanner.classList.remove('error');
+    };
+
+    const updatePatientInfo = async function () {
+        if (!isAdmin || !currentPatient || !isEditingInfo || infoUpdateInProgress) {
+            return;
+        }
+        if (isPatientArchived()) {
+            statusBanner.textContent = 'El expediente está archivado; reactívalo para editar la información.';
+            statusBanner.classList.remove('error');
+            return;
+        }
+        try {
+            const result = collectEditValues();
+            if (!result.hasChanges) {
+                isEditingInfo = false;
+                resetFieldEditors();
+                setStatusMenuDisabled(false);
+                renderPatient(currentPatient);
+                statusBanner.textContent = 'No se detectaron cambios para guardar.';
+                statusBanner.classList.remove('error');
+                refreshStatusButtonState();
+                refreshEditControls();
+                return;
+            }
+            infoUpdateInProgress = true;
+            refreshStatusButtonState();
+            refreshEditControls();
+            statusBanner.textContent = 'Guardando información del paciente...';
+            statusBanner.classList.remove('error');
+            const payload = buildAdminUpdatePayload(result.updates);
+            const response = await fetch(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                throw new Error('Error ' + response.status + ' al actualizar la información del paciente.');
+            }
+            const updated = await response.json();
+            infoUpdateInProgress = false;
+            isEditingInfo = false;
+            resetFieldEditors();
+            setStatusMenuDisabled(false);
+            renderPatient(updated);
+            const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            statusBanner.textContent = 'Información básica actualizada (' + ts + ').';
+            statusBanner.classList.remove('error');
+            refreshStatusButtonState();
+            refreshEditControls();
+        } catch (error) {
+            infoUpdateInProgress = false;
+            statusBanner.textContent = error.message || 'No fue posible actualizar la información del paciente.';
+            statusBanner.classList.add('error');
+            refreshStatusButtonState();
+            refreshEditControls();
+        }
+    };
+
+    const updateStatusMenuSelection = function (status) {
+        if (!statusMenuButtons.length) {
+            return;
+        }
+        statusMenuButtons.forEach(function (button) {
+            const isSelected = button.getAttribute('data-status') === status;
+            button.classList.toggle('selected', isSelected);
+            if (isSelected) {
+                button.setAttribute('aria-selected', 'true');
+            } else {
+                button.removeAttribute('aria-selected');
+            }
+        });
+    };
+
+    const setStatusMenuDisabled = function (disabled) {
+        if (!statusMenu) {
+            return;
+        }
+        if (disabled) {
+            statusMenu.setAttribute('data-disabled', 'true');
+            statusMenu.setAttribute('aria-disabled', 'true');
+        } else {
+            statusMenu.removeAttribute('data-disabled');
+            statusMenu.setAttribute('aria-disabled', 'false');
+        }
+        statusMenuButtons.forEach(function (button) {
+            button.disabled = disabled;
+        });
+    };
+
+    const toggleStatusMenu = function (forceOpen) {
+        if (!statusMenu || !patientStatus) {
+            return;
+        }
+        const nextState = typeof forceOpen === 'boolean' ? forceOpen : !statusMenuOpen;
+        if (!isAdmin || statusUpdateInProgress) {
+            statusMenuOpen = false;
+            statusMenu.hidden = true;
+            patientStatus.setAttribute('aria-expanded', 'false');
+            return;
+        }
+        statusMenuOpen = nextState;
+        statusMenu.hidden = !nextState;
+        patientStatus.setAttribute('aria-expanded', String(nextState));
+        if (nextState) {
+            const targetStatus = currentPatient ? currentPatient.estado : null;
+            const focusTarget = statusMenuButtons.find(function (button) {
+                return button.getAttribute('data-status') === targetStatus;
+            }) || statusMenuButtons[0];
+            if (focusTarget) {
+                setTimeout(function () { focusTarget.focus(); }, 0);
+            }
+        }
+    };
+
+    const closeStatusMenu = function () {
+        if (!statusMenuOpen) {
+            return;
+        }
+        toggleStatusMenu(false);
+    };
+
+    refreshStatusButtonState();
+    updateStatusMenuSelection('');
+    refreshEditControls();
+
+    function fmtService(value) {
+        if (!value) {
+            return 'Sin tipo';
+        }
+        return SERVICE_LABELS[value] || value.replace(/_/g, ' ').toLowerCase();
+    }
+
+    function fmtSexo(value) {
+        if (!value) {
+            return '--';
+        }
+        return SEX_LABELS[value] || value;
+    }
+
+    function fmtDate(value) {
+        if (!value) {
+            return '--';
+        }
+        try {
+            const date = new Date(value + 'T00:00:00');
+            return new Intl.DateTimeFormat('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+        } catch (error) {
+            return value;
+        }
+    }
+
+    async function fetchPatient() {
+        if (Number.isNaN(pacienteId)) {
+            return null;
+        }
         const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId));
-        url.searchParams.set('usuarioId', therapistId);
-        url.searchParams.set('perfil', 'TERAPEUTA');
+        url.searchParams.set('usuarioId', viewerId);
+        url.searchParams.set('perfil', perfil);
         const resp = await fetch(url.toString());
-        if(!resp.ok) throw new Error('Error '+resp.status+' al obtener paciente');
+        if (!resp.ok) {
+            throw new Error('Error ' + resp.status + ' al obtener el paciente.');
+        }
         return resp.json();
     }
 
-    function renderPatient(p){
-        if(!p){ return; }
-        patientName.textContent = p.nombreCompleto || 'Paciente sin nombre';
-        patientService.textContent = fmtService(p.tipoServicio);
-        const st = STATUS_MAP[p.estado];
-        if(st){ patientStatus.textContent = st.text; patientStatus.className = 'status-chip '+st.className; patientStatus.hidden = false; }
-        detail.celular.textContent = p.celular || '--';
-        detail.email.textContent = p.email || '--';
-        detail.terapeuta.textContent = (p.terapeutaAsignado && p.terapeutaAsignado.nombre) ? p.terapeutaAsignado.nombre : '--';
-        detail.fechaRegistro.textContent = fmtDate(p.fechaRegistro);
-        detail.proximaSesion.textContent = fmtDate(p.fechaProximaSesion);
-        detail.edad.textContent = (p.edad!==null && p.edad!==undefined) ? p.edad + ' años' : '--';
-        detail.sexo.textContent = fmtSexo(p.sexo);
+    function renderPatient(patient) {
+        if (!patient) {
+            return;
+        }
+        if (isEditingInfo) {
+            isEditingInfo = false;
+            resetFieldEditors();
+            setStatusMenuDisabled(false);
+        }
+        currentPatient = patient;
+        patientName.textContent = patient.nombreCompleto || 'Paciente sin nombre';
+        patientService.textContent = fmtService(patient.tipoServicio);
+        const statusInfo = STATUS_MAP[patient.estado];
+        const statusText = statusInfo ? statusInfo.text : 'Sin estado';
+        const statusClass = 'status-chip' + (statusInfo && statusInfo.className ? ' ' + statusInfo.className : '');
+        patientStatus.textContent = statusText;
+        patientStatus.className = statusClass;
+        patientStatus.hidden = false;
+        patientStatus.setAttribute('data-current-status', patient.estado || '');
+        patientStatus.setAttribute('aria-label', 'Estado del expediente: ' + statusText);
+        if (detail.nombre) {
+            detail.nombre.textContent = patient.nombreCompleto || '--';
+        }
+        if (detail.servicio) {
+            detail.servicio.textContent = fmtService(patient.tipoServicio);
+        }
+        detail.celular.textContent = patient.celular || '--';
+        detail.email.textContent = patient.email || '--';
+        detail.terapeuta.textContent = (patient.terapeutaAsignado && patient.terapeutaAsignado.nombre) ? patient.terapeutaAsignado.nombre : '--';
+        detail.fechaRegistro.textContent = fmtDate(patient.fechaRegistro);
+        detail.proximaSesion.textContent = fmtDate(patient.fechaProximaSesion);
+        detail.edad.textContent = (patient.edad !== null && patient.edad !== undefined) ? patient.edad + ' años' : '--';
+        detail.sexo.textContent = fmtSexo(patient.sexo);
+        updateStatusMenuSelection(patient.estado);
+        refreshStatusButtonState();
+        refreshEditControls();
+        closeStatusMenu();
+        if (pendingAutoEdit && isAdmin) {
+            if (isPatientArchived()) {
+                statusBanner.textContent = 'El expediente está archivado; reactívalo para editar la información.';
+                statusBanner.classList.remove('error');
+            } else {
+                enterEditMode();
+            }
+            pendingAutoEdit = false;
+        }
     }
 
-    async function load(){
+    const buildAdminUpdatePayload = function (overrides) {
+        if (!currentPatient) {
+            throw new Error('No se ha cargado el expediente del paciente.');
+        }
+        const patch = overrides || {};
+        const nombreFuente = patch.nombreCompleto !== undefined ? patch.nombreCompleto : (currentPatient.nombreCompleto || '');
+        const celularFuente = patch.celular !== undefined ? patch.celular : (currentPatient.celular || '');
+        const nombre = (nombreFuente || '').trim();
+        const celular = (celularFuente || '').trim();
+        if (!nombre || !celular) {
+            throw new Error('El paciente no cuenta con datos esenciales para actualizar la información.');
+        }
+        const tipoServicio = patch.tipoServicio !== undefined ? patch.tipoServicio : currentPatient.tipoServicio;
+        const sexo = patch.sexo !== undefined ? patch.sexo : currentPatient.sexo;
+        const fechaRegistro = patch.fechaRegistro !== undefined ? patch.fechaRegistro : currentPatient.fechaRegistro;
+        if (!tipoServicio || !sexo || !fechaRegistro) {
+            throw new Error('Faltan datos obligatorios en el expediente para realizar la actualización.');
+        }
+        const terapeutaAsignado = patch.terapeutaId !== undefined ? patch.terapeutaId
+            : currentPatient.terapeutaAsignado && currentPatient.terapeutaAsignado.id;
+        if (terapeutaAsignado === null || terapeutaAsignado === undefined) {
+            throw new Error('El paciente no tiene un terapeuta asignado.');
+        }
+        const estado = patch.estado !== undefined ? patch.estado : currentPatient.estado;
+        const email = patch.email !== undefined ? patch.email : (currentPatient.email || null);
+        const edad = patch.edad !== undefined ? patch.edad : currentPatient.edad;
+        const fechaProximaSesion = patch.fechaProximaSesion !== undefined ? patch.fechaProximaSesion : (currentPatient.fechaProximaSesion || null);
+        return {
+            solicitante: { usuarioId: viewerId, perfil: perfil },
+            nombreCompleto: nombre,
+            celular: celular,
+            email: email,
+            tipoServicio: tipoServicio,
+            estado: estado,
+            sexo: sexo,
+            edad: edad,
+            fechaRegistro: fechaRegistro,
+            fechaProximaSesion: fechaProximaSesion,
+            terapeutaId: terapeutaAsignado
+        };
+    };
+
+    const updatePatientStatus = async function (newStatus) {
+        if (!isAdmin || !currentPatient || isEditingInfo || infoUpdateInProgress) {
+            return;
+        }
+        if (!ADMIN_STATUS_VALUES.includes(newStatus)) {
+            statusBanner.textContent = 'Selecciona un estado válido para continuar.';
+            statusBanner.classList.add('error');
+            return;
+        }
+        if (currentPatient.estado === newStatus) {
+            const statusInfo = STATUS_MAP[newStatus];
+            const message = statusInfo ? 'El expediente ya se encuentra en estado ' + statusInfo.text.toLowerCase() + '.' : 'No hay cambios pendientes por guardar.';
+            statusBanner.textContent = message;
+            statusBanner.classList.remove('error');
+            return;
+        }
+        statusUpdateInProgress = true;
+        refreshStatusButtonState();
+        refreshEditControls();
+        setStatusMenuDisabled(true);
+        statusBanner.textContent = 'Guardando estado del expediente...';
+        statusBanner.classList.remove('error');
+        try {
+            const payload = buildAdminUpdatePayload({ estado: newStatus });
+            const response = await fetch(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                throw new Error('Error ' + response.status + ' al actualizar el estado del expediente.');
+            }
+            const updated = await response.json();
+            closeStatusMenu();
+            renderPatient(updated);
+            const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            statusBanner.textContent = 'Estado actualizado correctamente (' + ts + ').';
+            statusBanner.classList.remove('error');
+        } catch (error) {
+            statusBanner.textContent = error.message || 'No fue posible actualizar el estado.';
+            statusBanner.classList.add('error');
+        } finally {
+            statusUpdateInProgress = false;
+            setStatusMenuDisabled(false);
+            refreshStatusButtonState();
+            updateStatusMenuSelection(currentPatient ? currentPatient.estado : '');
+            refreshEditControls();
+        }
+    };
+
+    if (patientStatus) {
+        patientStatus.addEventListener('click', function () {
+            if (!isAdmin || statusUpdateInProgress || infoUpdateInProgress || isEditingInfo) {
+                return;
+            }
+            toggleStatusMenu();
+        });
+    }
+
+    statusMenuButtons.forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (!isAdmin || statusUpdateInProgress || infoUpdateInProgress || isEditingInfo) {
+                return;
+            }
+            const newStatus = button.getAttribute('data-status');
+            closeStatusMenu();
+            updatePatientStatus(newStatus);
+        });
+    });
+
+    if (editInfoButton) {
+        editInfoButton.addEventListener('click', function () {
+            if (!isAdmin) {
+                return;
+            }
+            if (isEditingInfo) {
+                updatePatientInfo();
+            } else {
+                enterEditMode();
+            }
+        });
+    }
+
+    if (cancelInfoButton) {
+        cancelInfoButton.addEventListener('click', function () {
+            cancelEditMode();
+        });
+    }
+
+    document.addEventListener('click', function (event) {
+        if (!isAdmin || !statusControl) {
+            return;
+        }
+        if (statusMenuOpen && !statusControl.contains(event.target)) {
+            closeStatusMenu();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            if (statusMenuOpen) {
+                closeStatusMenu();
+                return;
+            }
+            if (isEditingInfo && !infoUpdateInProgress) {
+                cancelEditMode();
+            }
+        }
+    });
+
+    async function load() {
         statusBanner.textContent = 'Cargando expediente...';
         statusBanner.classList.remove('error');
         try {
             const patient = await fetchPatient();
-            if(patient){
+            if (patient) {
                 renderPatient(patient);
-                const ts = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                statusBanner.textContent = 'Expediente cargado ('+ts+').';
+                const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                statusBanner.textContent = 'Expediente cargado (' + ts + ').';
+            } else {
+                currentPatient = null;
+                refreshStatusButtonState();
+                refreshEditControls();
             }
-        } catch(err){
-            statusBanner.textContent = err.message || 'No fue posible cargar el expediente.';
+        } catch (error) {
+            currentPatient = null;
+            statusBanner.textContent = error.message || 'No fue posible cargar el expediente.';
             statusBanner.classList.add('error');
+            refreshStatusButtonState();
+            refreshEditControls();
         }
     }
 
-    backButton.addEventListener('click', () => { window.location.href = 'pacientes.html'; });
-    goSesiones.addEventListener('click', () => { if(!Number.isNaN(pacienteId)) window.location.href = 'sesiones.html?pacienteId=' + encodeURIComponent(pacienteId); });
-    goEntrevista.addEventListener('click', () => { if(!Number.isNaN(pacienteId)) window.location.href = 'entrevista.html?pacienteId=' + encodeURIComponent(pacienteId); });
-    goConsentimiento.addEventListener('click', () => { if(!Number.isNaN(pacienteId)) window.location.href = 'consentimiento.html?pacienteId=' + encodeURIComponent(pacienteId); });
+    const resolveNavigationTarget = function (page) {
+        if (Number.isNaN(pacienteId)) {
+            return null;
+        }
+        let target = page + '?pacienteId=' + encodeURIComponent(pacienteId);
+        if (isAdmin && !Number.isNaN(terapeutaOrigenId)) {
+            target += '&terapeutaId=' + encodeURIComponent(terapeutaOrigenId);
+        }
+        return target;
+    };
 
+    backButton.addEventListener('click', function () {
+        if (isAdmin) {
+            if (!Number.isNaN(terapeutaOrigenId)) {
+                window.location.href = 'terapeuta.html?terapeutaId=' + encodeURIComponent(terapeutaOrigenId);
+                return;
+            }
+            window.location.href = 'panel_admin.html';
+            return;
+        }
+        window.location.href = 'pacientes.html';
+    });
+
+    goSesiones.addEventListener('click', function () {
+        const target = resolveNavigationTarget('sesiones.html');
+        if (target) {
+            window.location.href = target;
+        }
+    });
+
+    goEntrevista.addEventListener('click', function () {
+        const target = resolveNavigationTarget('entrevista.html');
+        if (target) {
+            window.location.href = target;
+        }
+    });
+
+    goConsentimiento.addEventListener('click', function () {
+        const target = resolveNavigationTarget('consentimiento.html');
+        if (target) {
+            window.location.href = target;
+        }
+    });
     load();
 })();
 </script>

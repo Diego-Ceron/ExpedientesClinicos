@@ -56,6 +56,20 @@ public class PacienteController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping
+    @Operation(summary = "Listar pacientes", description = "Lista todos los pacientes disponibles para administradores")
+    public List<PacienteResponse> listar(@RequestParam Long usuarioId,
+                                         @RequestParam PerfilSolicitante perfil) {
+        return pacienteService.listarTodos(ModificadorRequest.of(usuarioId, perfil));
+    }
+
+    @GetMapping("/sin-terapeuta")
+    @Operation(summary = "Listar pacientes sin terapeuta", description = "Lista pacientes en espera sin terapeuta asignado")
+    public List<PacienteResponse> listarSinTerapeuta(@RequestParam Long usuarioId,
+                                                     @RequestParam PerfilSolicitante perfil) {
+        return pacienteService.listarSinTerapeuta(ModificadorRequest.of(usuarioId, perfil));
+    }
+
     @GetMapping("/{pacienteId}")
     @Operation(summary = "Obtener paciente", description = "Devuelve datos del paciente por ID")
     public PacienteResponse obtenerPorId(@PathVariable Long pacienteId,

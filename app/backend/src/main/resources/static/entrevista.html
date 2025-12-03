@@ -26,6 +26,9 @@
         .card-header p { margin:4px 0 0; color: var(--color-navy-light); }
         .card-actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
         .status-chip { display:inline-flex; align-items:center; padding:6px 12px; border-radius:999px; background-color: rgba(152,161,188,0.22); color: var(--color-navy); font-weight:600; font-size:0.9rem; }
+        .status-chip.estado-activo { background-color:#dcfce7; color:#166534; border:1px solid #bbf7d0; }
+        .status-chip.estado-en-espera { background-color: rgba(152,161,188,0.22); color: var(--color-navy); border:1px solid rgba(152,161,188,0.3); }
+        .status-chip.estado-archivado { background-color:#fef3c7; color:#92400e; border:1px solid #fde68a; }
         .status-banner { margin:0 28px 16px; padding:10px 14px; border-radius:8px; background-color: rgba(152,161,188,0.15); color: var(--color-navy); font-weight:600; min-height:24px; }
         .status-banner.error { background-color:#fdecea; color:#b3261e; }
         .panel { background-color:#fff; border:1px solid rgba(152,161,188,0.25); border-radius:12px; padding:20px 24px; box-shadow:0 4px 14px var(--shadow-soft); margin:0 28px 28px; }
@@ -97,6 +100,22 @@
     const USER_ID_KEY = 'expedientesclinicos.usuarioId';
     const LEGACY_THERAPIST_KEY = 'expedientesclinicos.therapistId';
 
+    let viewerId = null;
+    let perfil = 'TERAPEUTA';
+    let isAdmin = false;
+
+    const STATUS_MAP = {
+        ACTIVO: { text: 'Activo', className: 'estado-activo' },
+        EN_ESPERA: { text: 'En espera', className: 'estado-en-espera' },
+        ARCHIVADO: { text: 'Archivado', className: 'estado-archivado' }
+    };
+
+    let currentPatient = null;
+
+    const isPatientArchived = function () {
+        return Boolean(currentPatient && currentPatient.estado === 'ARCHIVADO');
+    };
+
     const backButton = document.getElementById('back-button');
     const backExpedienteButton = document.getElementById('back-expediente-button');
     const patientInfo = document.getElementById('patient-info');
@@ -117,7 +136,7 @@
             try {
                 const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId) + '/entrevista/pdf');
                 url.searchParams.set('usuarioId', therapistId);
-                url.searchParams.set('perfil', 'TERAPEUTA');
+                url.searchParams.set('perfil', perfil);
                 const resp = await fetch(url.toString());
                 if(!resp.ok){ throw new Error('Error ' + resp.status + ' al generar PDF'); }
                 const blob = await resp.blob();
@@ -131,19 +150,58 @@
             }
         });
     const saveButton = document.getElementById('save-button');
+    const INTERVIEW_FIELD_IDS = ['motivo-consulta', 'antecedentes', 'observaciones'];
+
+    const setFieldsReadOnly = function (readOnly) {
+        INTERVIEW_FIELD_IDS.forEach(function (id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.readOnly = readOnly;
+            }
+        });
+    };
+
+    let editMode = false;
+
+    const refreshEditButtonVisibility = function () {
+        if (!editButton || isAdmin) {
+            if (editButton) {
+                editButton.hidden = true;
+            }
+            if (saveButton) {
+                saveButton.hidden = true;
+            }
+            return;
+        }
+        if (isPatientArchived()) {
+            editButton.hidden = true;
+            if (saveButton) {
+                saveButton.hidden = true;
+            }
+        } else {
+            editButton.hidden = false;
+            if (saveButton) {
+                saveButton.hidden = !editMode;
+            }
+        }
+    };
 
     const params = new URLSearchParams(window.location.search);
     const pacienteIdParam = params.get('pacienteId');
     const pacienteId = pacienteIdParam ? Number(pacienteIdParam) : NaN;
+    const terapeutaOrigenParam = params.get('terapeutaId');
+    const terapeutaOrigenId = terapeutaOrigenParam ? Number(terapeutaOrigenParam) : NaN;
 
     const role = sessionStorage.getItem(ROLE_KEY);
-    if (role !== 'TERAPEUTA') {
+    const isTherapist = role === 'TERAPEUTA';
+    isAdmin = role === 'ADMINISTRADOR';
+    if (!isTherapist && !isAdmin) {
         window.location.href = 'index.html';
         return;
     }
 
     let therapistIdRaw = sessionStorage.getItem(USER_ID_KEY);
-    if (!therapistIdRaw) {
+    if (!therapistIdRaw && isTherapist) {
         const legacyId = sessionStorage.getItem(LEGACY_THERAPIST_KEY);
         if (legacyId) {
             therapistIdRaw = legacyId;
@@ -154,12 +212,53 @@
         window.location.href = 'index.html';
         return;
     }
-    const therapistId = Number(therapistIdRaw);
-    if (Number.isNaN(therapistId)) {
-        statusBanner.textContent = 'ID de terapeuta inválido. Inicia sesión nuevamente.';
+    viewerId = Number(therapistIdRaw);
+    if (Number.isNaN(viewerId)) {
+        statusBanner.textContent = 'La sesión actual no cuenta con un identificador válido.';
         statusBanner.classList.add('error');
         return;
     }
+    perfil = isAdmin ? 'ADMINISTRADOR' : 'TERAPEUTA';
+    const therapistId = viewerId;
+
+    const updatePatientContext = function (patient) {
+        currentPatient = patient || null;
+        if (patientInfo) {
+            if (patient && patient.nombreCompleto) {
+                const servicio = patient.tipoServicio ? ' · ' + patient.tipoServicio.replace(/_/g, ' ').toLowerCase() : '';
+                patientInfo.textContent = patient.nombreCompleto + servicio;
+            } else {
+                patientInfo.textContent = 'Paciente ID: ' + pacienteId;
+            }
+        }
+        if (patientStatus) {
+            if (patient && patient.estado) {
+                const statusData = STATUS_MAP[patient.estado] || { text: patient.estado, className: '' };
+                patientStatus.textContent = statusData.text;
+                patientStatus.className = 'status-chip' + (statusData.className ? ' ' + statusData.className : '');
+                patientStatus.hidden = false;
+            } else {
+                patientStatus.hidden = true;
+            }
+        }
+        refreshEditButtonVisibility();
+    };
+
+    const fetchPatient = async function () {
+        if (Number.isNaN(pacienteId)) {
+            return null;
+        }
+        const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId));
+        url.searchParams.set('usuarioId', therapistId);
+        url.searchParams.set('perfil', perfil);
+        const response = await fetch(url.toString());
+        if (!response.ok) {
+            throw new Error('Error ' + response.status + ' al obtener la información del paciente.');
+        }
+        const patient = await response.json();
+        updatePatientContext(patient);
+        return patient;
+    };
 
     if (Number.isNaN(pacienteId)) {
         statusBanner.textContent = 'Selecciona un paciente desde la lista para registrar entrevista.';
@@ -169,67 +268,116 @@
     }
 
     const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
-    contextInfo.textContent = '';
+    if (contextInfo) {
+        contextInfo.textContent = isAdmin ? 'Vista de administrador sin permisos de edición.' : '';
+        contextInfo.hidden = !isAdmin;
+    }
+
+    if (isAdmin) {
+        setFieldsReadOnly(true);
+        refreshEditButtonVisibility();
+    }
 
     backButton.addEventListener('click', function(){
+        if (isAdmin) {
+            if (!Number.isNaN(terapeutaOrigenId)) {
+                window.location.href = 'terapeuta.html?terapeutaId=' + encodeURIComponent(terapeutaOrigenId);
+                return;
+            }
+            window.location.href = 'panel_admin.html';
+            return;
+        }
         window.location.href = 'pacientes.html';
     });
 
+    const buildExpedienteUrl = function () {
+        if (Number.isNaN(pacienteId)) {
+            return null;
+        }
+        let target = 'expediente.html?pacienteId=' + encodeURIComponent(pacienteId);
+        if (isAdmin && !Number.isNaN(terapeutaOrigenId)) {
+            target += '&terapeutaId=' + encodeURIComponent(terapeutaOrigenId);
+        }
+        return target;
+    };
+
     backExpedienteButton.addEventListener('click', function(){
-        if (!Number.isNaN(pacienteId)) {
-            window.location.href = 'expediente.html?pacienteId=' + encodeURIComponent(pacienteId);
+        const target = buildExpedienteUrl();
+        if (target) {
+            window.location.href = target;
         }
     });
-
-    let editMode = false;
 
     function setEditMode(enabled){
         editMode = enabled;
-        saveButton.hidden = !enabled;
-        editButton.textContent = enabled ? 'Cancelar' : 'Editar';
-        // habilitar/deshabilitar campos
-        ['motivo-consulta','antecedentes','observaciones'].forEach(function(id){
-            const el = document.getElementById(id);
-            el.readOnly = !enabled;
-        });
+        if (saveButton) {
+            saveButton.hidden = !enabled;
+        }
+        if (editButton) {
+            editButton.textContent = enabled ? 'Cancelar' : 'Editar';
+        }
+        setFieldsReadOnly(!enabled);
+        refreshEditButtonVisibility();
     }
 
-    editButton.addEventListener('click', function(){
-        if (currentPatient && currentPatient.estado === 'ARCHIVADO') {
-            statusBanner.textContent = 'El paciente se encuentra archivado; no es posible editar la entrevista.';
-            statusBanner.classList.remove('error');
-            return;
-        }
-        setEditMode(!editMode);
-    });
+    if (editButton) {
+        editButton.addEventListener('click', function(){
+            if (isAdmin) {
+                statusBanner.textContent = 'Solo el terapeuta puede editar la entrevista.';
+                statusBanner.classList.add('error');
+                return;
+            }
+            if (isPatientArchived()) {
+                statusBanner.textContent = 'El paciente se encuentra archivado; no es posible editar la entrevista.';
+                statusBanner.classList.remove('error');
+                return;
+            }
+            setEditMode(!editMode);
+        });
+    }
 
     // Por defecto, no edición
     setEditMode(false);
 
     async function cargarEntrevista(){
-        if (Number.isNaN(pacienteId)) return;
-        try {
-            const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId) + '/entrevista');
-            url.searchParams.set('usuarioId', therapistId);
-            url.searchParams.set('perfil', 'TERAPEUTA');
-            const resp = await fetch(url.toString());
-            if (resp.ok) {
-                const data = await resp.json();
-                document.getElementById('motivo-consulta').value = data.motivoConsulta || '';
-                document.getElementById('antecedentes').value = data.antecedentes || '';
-                document.getElementById('observaciones').value = data.observaciones || '';
-                statusBanner.textContent = 'Entrevista cargada.';
-                statusBanner.classList.remove('error');
-                setEditMode(false);
-            }
-        } catch(err){ /* silencio: puede no existir */ }
+        if (Number.isNaN(pacienteId)) {
+            return 'invalid';
+        }
+        const url = new URL(apiBaseUrl + '/api/pacientes/' + encodeURIComponent(pacienteId) + '/entrevista');
+        url.searchParams.set('usuarioId', therapistId);
+        url.searchParams.set('perfil', perfil);
+        const response = await fetch(url.toString());
+        if (response.status === 404) {
+            document.getElementById('motivo-consulta').value = '';
+            document.getElementById('antecedentes').value = '';
+            document.getElementById('observaciones').value = '';
+            return 'empty';
+        }
+        if (!response.ok) {
+            throw new Error('Error ' + response.status + ' al obtener la entrevista.');
+        }
+        const data = await response.json();
+        document.getElementById('motivo-consulta').value = data.motivoConsulta || '';
+        document.getElementById('antecedentes').value = data.antecedentes || '';
+        document.getElementById('observaciones').value = data.observaciones || '';
+        return 'loaded';
     }
 
     form.addEventListener('submit', async function(e){
         e.preventDefault();
+        if (isAdmin) {
+            statusBanner.textContent = 'Solo el terapeuta puede guardar la entrevista.';
+            statusBanner.classList.add('error');
+            return;
+        }
         if (!editMode) {
             statusBanner.textContent = 'Activa edición para guardar cambios.';
             statusBanner.classList.add('error');
+            return;
+        }
+        if (isPatientArchived()) {
+            statusBanner.textContent = 'El paciente está archivado; reactívalo para actualizar la entrevista.';
+            statusBanner.classList.remove('error');
             return;
         }
         if (Number.isNaN(pacienteId)) {
@@ -240,7 +388,7 @@
         statusBanner.textContent = 'Guardando entrevista...';
         statusBanner.classList.remove('error');
         const payload = {
-            solicitante: { usuarioId: therapistId, perfil: 'TERAPEUTA' },
+            solicitante: { usuarioId: therapistId, perfil: perfil },
             motivoConsulta: document.getElementById('motivo-consulta').value.trim(),
             antecedentes: document.getElementById('antecedentes').value.trim() || null,
             observaciones: document.getElementById('observaciones').value.trim() || null
@@ -259,7 +407,32 @@
         }
     });
 
-    cargarEntrevista();
+    const loadPage = async function () {
+        if (Number.isNaN(pacienteId)) {
+            refreshEditButtonVisibility();
+            return;
+        }
+        statusBanner.textContent = 'Cargando entrevista...';
+        statusBanner.classList.remove('error');
+        try {
+            await fetchPatient();
+            const result = await cargarEntrevista();
+            setEditMode(false);
+            refreshEditButtonVisibility();
+            if (result === 'empty') {
+                statusBanner.textContent = 'Aún no hay entrevista registrada.';
+            } else {
+                statusBanner.textContent = 'Entrevista cargada.';
+            }
+            statusBanner.classList.remove('error');
+        } catch (error) {
+            statusBanner.textContent = error.message || 'No fue posible cargar la entrevista.';
+            statusBanner.classList.add('error');
+            refreshEditButtonVisibility();
+        }
+    };
+
+    loadPage();
 })();
 </script>
 </body>
