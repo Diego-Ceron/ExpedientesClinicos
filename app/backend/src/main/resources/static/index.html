@@ -7,31 +7,143 @@
     <style>
         :root {
             color-scheme: light;
-            --color-navy: #555879;
-            --color-navy-light: #98A1BC;
-            --color-beige: #DED3C4;
-            --color-cream: #F4EBD3;
-            --color-text: #2f2f3a;
-            --shadow-strong: rgba(85, 88, 121, 0.16);
+            --color-background-a: #03045e; /* Deep Twilight */
+            --color-background-b: #0077b6; /* Bright Teal Blue */
+            --color-background-falloff: #edf2f4; /* Softened base */
+            --color-background-glow: rgba(237, 242, 244, 0.52);
+            --color-card: #caf0f8;         /* Light Cyan */
+            --color-card-border: #90e0ef;  /* Frosted Blue */
+            --color-text: #03045e;         /* Deep Twilight */
+            --color-muted: rgba(3, 4, 94, 0.72);
+            --color-action: #0077b6;       /* Bright Teal Blue */
+            --color-action-hover: #03045e; /* Deep Twilight */
+            --shadow-strong: rgba(0, 180, 216, 0.32); /* Turquoise Surf */
+            --color-input-bg: #90e0ef;     /* Frosted Blue */
+            --color-input-border: #00b4d8; /* Turquoise Surf */
+            --color-success: #00b4d8;      /* Turquoise Surf */
+            --color-error: #b91c1c;        /* Complementary warm red */
         }
         *, *::before, *::after { box-sizing: border-box; }
-        body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background-color: var(--color-cream); color: var(--color-text); }
-        header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; }
-        header h1 { margin: 0; font-size: 1.6rem; }
-        main { display: flex; align-items: center; justify-content: center; padding: 48px 16px 64px; }
-        .card { background-color: #fff; border-radius: 16px; box-shadow: 0 12px 28px var(--shadow-strong); padding: 32px 36px; width: min(420px, 100%); border: 1px solid rgba(152, 161, 188, 0.25); }
-        .card h2 { margin: 0 0 16px; font-size: 1.4rem; text-align: center; }
-        form { display: grid; gap: 16px; }
-        label { font-size: 0.95rem; font-weight: 600; color: var(--color-text); display: grid; gap: 8px; }
-        input[type="text"] { border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 10px; padding: 12px; font-size: 1rem; background-color: #fff; color: var(--color-text); }
-        input[type="text"]:focus { outline: 2px solid var(--color-navy); }
-        button { border: none; border-radius: 10px; padding: 12px; font-weight: 600; font-size: 1rem; background-color: var(--color-navy); color: #fff; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
-        button:hover { background-color: #404561; }
-        button:active { transform: scale(0.98); }
-        .account-toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--color-navy-light); }
-        .account-toggle input { accent-color: var(--color-navy); }
-        #login-status { margin-top: 12px; font-size: 0.95rem; min-height: 20px; text-align: center; color: #c62828; }
-        #login-status.success { color: var(--color-navy); }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: var(--color-background-falloff);
+            background-image: radial-gradient(120% 140% at 50% -20%, var(--color-background-glow), rgba(237, 242, 244, 0.95) 62%, rgba(237, 242, 244, 0.98) 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+        }
+        header { display: none; }
+        main { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 32px 16px; }
+        .card {
+            background-color: var(--color-card);
+            border-radius: 26px;
+            box-shadow: 0 24px 60px var(--shadow-strong);
+            padding: 42px 48px;
+            width: min(420px, 100%);
+            border: 1px solid var(--color-card-border);
+            color: var(--color-text);
+        }
+        .card h2 {
+            margin: 0 0 24px;
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 0.02em;
+        }
+        form { display: grid; gap: 20px; }
+        .input-flow { display: grid; gap: 4px; }
+        .input-group { position: relative; display: flex; flex-direction: column; gap: 6px; }
+        .input-group input {
+            border: 1px solid var(--color-input-border);
+            border-radius: 14px;
+            padding: 18px 16px 10px;
+            font-size: 1rem;
+            background-color: var(--color-input-bg);
+            color: var(--color-text);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--color-action);
+            box-shadow: 0 0 0 4px rgba(0, 119, 182, 0.18);
+            background-color: #ffffff;
+        }
+        .input-group label {
+            position: absolute;
+            top: 14px;
+            left: 16px;
+            color: var(--color-muted);
+            font-size: 1rem;
+            pointer-events: none;
+            transition: transform 0.18s ease, font-size 0.18s ease, color 0.18s ease;
+        }
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label {
+            transform: translateY(-12px);
+            font-size: 0.75rem;
+            color: var(--color-action);
+        }
+        .helper-text {
+            font-size: 0.85rem;
+            color: var(--color-muted);
+            text-align: left;
+            padding: 0 16px;
+            margin: 4px 0 0;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+        }
+        #login-status { margin-top: 12px; font-size: 0.95rem; min-height: 20px; text-align: center; color: var(--color-error); }
+        #login-status.success { color: var(--color-success); }
+        #email-feedback { font-size: 0.85rem; color: var(--color-error); }
+        #email-feedback.success { color: var(--color-success); }
+        .collapsible {
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-4px);
+            pointer-events: none;
+            visibility: hidden;
+            overflow: hidden;
+            margin-top: 0;
+            transition: max-height 0.25s ease, opacity 0.2s ease, transform 0.2s ease, margin-top 0.2s ease;
+        }
+        .collapsible[data-visible="true"] {
+            max-height: 160px;
+            opacity: 1;
+            transform: translateY(-2px);
+            pointer-events: auto;
+            visibility: visible;
+            margin-top: -4px;
+        }
+        #code-container { display: grid; gap: 0; }
+        #code-feedback { font-size: 0.85rem; color: var(--color-error); }
+        #code-feedback.success { color: var(--color-success); }
+        #email-feedback:empty,
+        #code-feedback:empty {
+            visibility: hidden;
+        }
+        .button-row { margin-top: 16px; display: flex; justify-content: center; gap: 12px; }
+        .form-button {
+            border: none;
+            border-radius: 999px;
+            padding: 12px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: var(--color-action);
+            color: #fff;
+            box-shadow: 0 10px 26px rgba(0, 119, 182, 0.28);
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .form-button:hover {
+            background-color: var(--color-action-hover);
+            box-shadow: 0 12px 32px rgba(3, 4, 94, 0.32);
+        }
+        .form-button:active { transform: scale(0.98); }
+        .form-button[disabled] {
+            opacity: 0.65;
+            cursor: default;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
@@ -41,18 +153,24 @@
     <main>
         <section class="card" aria-live="polite">
             <form id="login-form" autocomplete="off">
-                <h2>Iniciar sesión</h2>
-                <label for="login-email">Correo electrónico</label>
-                <input id="login-email" name="email" type="text" required placeholder="correo@ejemplo.com">
-                <div class="account-toggle" style="margin-top:-6px">Se enviará un código de verificación a tu correo</div>
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <button id="request-code-btn" type="button">Enviar código</button>
-                    <span id="request-hint" style="font-size:0.85rem; color:#98A1BC;"></span>
+                <h2>Ingresar</h2>
+                <div class="input-flow">
+                    <div class="input-group">
+                        <input id="login-email" name="email" type="email" placeholder=" " required autocomplete="email">
+                        <label for="login-email">Correo electrónico</label>
+                    </div>
+                    <p id="email-feedback" class="helper-text"></p>
+                    <div id="code-container" class="collapsible" data-visible="false" aria-hidden="true">
+                        <div id="code-group" class="input-group">
+                            <input id="login-code" name="code" type="text" placeholder=" " inputmode="numeric" autocomplete="one-time-code">
+                            <label for="login-code">Código</label>
+                        </div>
+                        <p id="code-feedback" class="helper-text"></p>
+                    </div>
                 </div>
-                <div id="code-step" style="display:none; margin-top:10px;">
-                    <label for="login-code">Código de verificación</label>
-                    <input id="login-code" name="code" type="text" placeholder="123456" inputmode="numeric">
-                    <button id="verify-code-btn" type="button">Verificar y entrar</button>
+                <div class="button-row">
+                    <button id="send-code-button" type="button" class="form-button">Enviar código</button>
+                    <button id="verify-code-button" type="button" class="form-button" hidden aria-hidden="true">Confirmar código</button>
                 </div>
             </form>
             <p id="login-status"></p>
@@ -75,10 +193,39 @@
             const loginStatus = document.getElementById('login-status');
             const emailInput = document.getElementById('login-email');
             const codeInput = document.getElementById('login-code');
-            const requestBtn = document.getElementById('request-code-btn');
-            const verifyBtn = document.getElementById('verify-code-btn');
-            const codeStep = document.getElementById('code-step');
-            const requestHint = document.getElementById('request-hint');
+            const codeContainer = document.getElementById('code-container');
+            const emailFeedback = document.getElementById('email-feedback');
+            const codeFeedback = document.getElementById('code-feedback');
+            const sendButton = document.getElementById('send-code-button');
+            const verifyButton = document.getElementById('verify-code-button');
+            let awaitingCode = false;
+
+            codeInput.disabled = true;
+            const clearFeedback = function () {
+                loginStatus.textContent = '';
+                loginStatus.classList.remove('success');
+                emailFeedback.textContent = '';
+                emailFeedback.classList.remove('success');
+                codeFeedback.textContent = '';
+                codeFeedback.classList.remove('success');
+            };
+
+            const updateActionButtons = function () {
+                if (awaitingCode) {
+                    sendButton.hidden = true;
+                    sendButton.setAttribute('aria-hidden', 'true');
+                    sendButton.disabled = false;
+                    verifyButton.hidden = false;
+                    verifyButton.removeAttribute('aria-hidden');
+                } else {
+                    verifyButton.hidden = true;
+                    verifyButton.setAttribute('aria-hidden', 'true');
+                    verifyButton.disabled = false;
+                    sendButton.hidden = false;
+                    sendButton.removeAttribute('aria-hidden');
+                }
+            };
+            updateActionButtons();
 
             let storedId = sessionStorage.getItem(USER_ID_KEY);
             let storedRole = sessionStorage.getItem(ROLE_KEY);
@@ -99,15 +246,30 @@
                 return;
             }
 
-            requestBtn.addEventListener('click', async function() {
+            const resetCodeStep = function () {
+                awaitingCode = false;
+                codeContainer.dataset.visible = 'false';
+                codeContainer.setAttribute('aria-hidden', 'true');
+                codeInput.disabled = true;
+                codeInput.value = '';
+                codeFeedback.textContent = '';
+                codeFeedback.classList.remove('success');
+                updateActionButtons();
+            };
+
+            emailInput.addEventListener('input', function () {
+                clearFeedback();
+                resetCodeStep();
+            });
+            const requestCode = async function () {
                 const correo = (emailInput.value || '').trim();
-                loginStatus.textContent = '';
-                loginStatus.classList.remove('success');
+                clearFeedback();
                 if (!correo) {
-                    loginStatus.textContent = 'Ingresa un correo válido.';
+                    emailFeedback.textContent = 'Ingresa un correo válido.';
                     return;
                 }
                 const apiBase = sessionStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
+                sendButton.disabled = true;
                 try {
                     const resp = await fetch(apiBase + '/api/auth/request-code', {
                         method: 'POST',
@@ -116,31 +278,39 @@
                     });
                     if (!resp.ok) {
                         if (resp.status === 404) {
-                            loginStatus.textContent = 'Correo no registrado.';
+                            emailFeedback.textContent = 'Correo no registrado.';
+                            resetCodeStep();
                         } else {
                             loginStatus.textContent = 'No fue posible enviar el código.';
                         }
                         return;
                     }
-                    codeStep.style.display = 'block';
-                    requestHint.textContent = 'Código enviado. Revisa tu correo.';
-                    loginStatus.textContent = '';
-                    loginStatus.classList.add('success');
+                    awaitingCode = true;
+                    codeContainer.dataset.visible = 'true';
+                    codeContainer.setAttribute('aria-hidden', 'false');
+                    codeInput.disabled = false;
+                    emailFeedback.textContent = '';
+                    codeFeedback.textContent = 'Código enviado. Revisa tu correo.';
+                    codeFeedback.classList.add('success');
+                    updateActionButtons();
+                    codeInput.focus({ preventScroll: true });
                 } catch (e) {
                     loginStatus.textContent = 'Error de red solicitando el código.';
+                } finally {
+                    sendButton.disabled = false;
                 }
-            });
+            };
 
-            verifyBtn.addEventListener('click', async function() {
+            const verifyCode = async function () {
                 const correo = (emailInput.value || '').trim();
                 const codigo = (codeInput.value || '').trim();
-                loginStatus.textContent = '';
-                loginStatus.classList.remove('success');
+                clearFeedback();
                 if (!correo || !codigo) {
-                    loginStatus.textContent = 'Escribe tu correo y el código recibido.';
+                    codeFeedback.textContent = 'Escribe tu correo y el código recibido.';
                     return;
                 }
                 const apiBase = sessionStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
+                verifyButton.disabled = true;
                 try {
                     const resp = await fetch(apiBase + '/api/auth/verify-code', {
                         method: 'POST',
@@ -148,7 +318,11 @@
                         body: JSON.stringify({ correo, codigo })
                     });
                     if (!resp.ok) {
-                        loginStatus.textContent = resp.status === 404 ? 'Código inválido o expirado.' : 'No fue posible verificar el código.';
+                        if (resp.status === 404) {
+                            codeFeedback.textContent = 'Código inválido.';
+                        } else {
+                            loginStatus.textContent = 'No fue posible verificar el código.';
+                        }
                         return;
                     }
                     const data = await resp.json();
@@ -163,6 +337,21 @@
                     window.location.href = role === 'ADMINISTRADOR' ? 'panel_admin.html' : 'pacientes.html';
                 } catch (e) {
                     loginStatus.textContent = 'Error de red verificando el código.';
+                } finally {
+                    if (awaitingCode) {
+                        verifyButton.disabled = false;
+                    }
+                }
+            };
+
+            sendButton.addEventListener('click', requestCode);
+            verifyButton.addEventListener('click', verifyCode);
+            loginForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                if (awaitingCode) {
+                    verifyCode();
+                } else {
+                    requestCode();
                 }
             });
         }());

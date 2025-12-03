@@ -7,97 +7,128 @@
     <style>
         :root {
             color-scheme: light;
-            --color-navy: #555879;
-            --color-navy-light: #98A1BC;
-            --color-beige: #DED3C4;
-            --color-cream: #F4EBD3;
-            --color-text: #2f2f3a;
-            --shadow-strong: rgba(85, 88, 121, 0.18);
+            --color-navy: #03045e;
+            --color-navy-light: rgba(3, 4, 94, 0.72);
+            --color-beige: #90e0ef;
+            --color-cream: #caf0f8;
+            --color-accent: #0077b6;
+            --color-accent-soft: rgba(0, 180, 216, 0.16);
+            --color-border: #00b4d8;
+            --color-text: #03045e;
+            --shadow-strong: rgba(0, 180, 216, 0.24);
+            --color-danger: #b91c1c;
+            --color-background-falloff: #edf2f4;
+            --color-background-glow: rgba(237, 242, 244, 0.52);
+            --color-logout-hover: #ffe5e9;
+            --state-active-bg: #dcfce7;
+            --state-active-text: #166534;
+            --state-active-border: #bbf7d0;
+            --state-pending-bg: #e0f2fe;
+            --state-pending-text: #0369a1;
+            --state-pending-border: #bae6fd;
+            --state-archived-bg: #fef3c7;
+            --state-archived-text: #92400e;
+            --state-archived-border: #fde68a;
         }
         *, *::before, *::after { box-sizing: border-box; }
-        body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background-color: var(--color-cream); color: var(--color-text); }
-        header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: var(--color-background-falloff);
+            background-image: radial-gradient(120% 140% at 50% -20%, var(--color-background-glow), rgba(237, 242, 244, 0.95) 62%, rgba(237, 242, 244, 0.98) 100%);
+            color: var(--color-text);
+        }
+        header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); }
         header h1 { margin: 0; font-size: 1.5rem; }
         main { max-width: 960px; margin: 32px auto; padding: 0 16px 48px; }
-        .card { background-color: #fff; border-radius: 16px; box-shadow: 0 12px 28px var(--shadow-strong); overflow: hidden; border: 1px solid rgba(152, 161, 188, 0.25); }
+        .card { background-color: var(--color-cream); border-radius: 20px; box-shadow: 0 20px 44px var(--shadow-strong); overflow: hidden; border: 1px solid var(--color-border); backdrop-filter: blur(6px); }
         .card-header { padding: 24px 28px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
         .card-title { position: relative; display: inline-flex; flex-direction: column; }
         .card-title-button { background: none; border: none; color: var(--color-text); font: inherit; font-size: 1.4rem; font-weight: 600; cursor: pointer; padding: 2px 0; display: inline-flex; align-items: center; gap: 8px; }
         .card-title-button::after { content: '▾'; font-size: 0.75em; color: var(--color-navy-light); }
-        .card-title-button:focus { outline: 2px solid var(--color-navy); outline-offset: 2px; }
-        .card-title-button:hover { color: var(--color-navy-light); }
-        .card-title-menu { position: absolute; top: 120%; left: 0; background-color: #fff; border: 1px solid rgba(152, 161, 188, 0.35); border-radius: 10px; box-shadow: 0 18px 32px rgba(85, 88, 121, 0.18); padding: 6px; min-width: 180px; z-index: 10; }
+        .card-title-button:focus { outline: 2px solid var(--color-border); outline-offset: 2px; }
+        .card-title-button:hover { color: var(--color-accent); }
+        .card-title-menu { position: absolute; top: 120%; left: 0; background-color: var(--color-cream); border: 1px solid var(--color-border); border-radius: 12px; box-shadow: 0 18px 32px var(--shadow-strong); padding: 6px; min-width: 180px; z-index: 10; }
         .card-title-menu[hidden] { display: none; }
         .card-title-menu button { width: 100%; background: none; border: none; text-align: left; padding: 10px 12px; border-radius: 8px; font-size: 0.95rem; color: var(--color-text); cursor: pointer; }
         .card-title-menu button:hover,
-        .card-title-menu button[aria-selected="true"] { background-color: rgba(152, 161, 188, 0.18); }
+        .card-title-menu button[aria-selected="true"] { background-color: var(--color-accent-soft); }
         .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-        .actions button { border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .actions > button { border: none; border-radius: 999px; padding: 10px 20px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; background-color: var(--color-accent); color: #fff; box-shadow: 0 10px 22px rgba(0, 119, 182, 0.26); }
+        .actions > button:hover { background-color: var(--color-navy); box-shadow: 0 12px 28px rgba(3, 4, 94, 0.28); }
         #new-therapist-button,
-        #refresh-button { background-color: var(--color-navy); color: #fff; }
-        #new-therapist-button:hover,
-        #refresh-button:hover { background-color: #404561; }
-        #filter-button { background-color: var(--color-beige); color: var(--color-navy); }
-        #filter-button:hover { background-color: #cfc2b1; }
-        #logout-button { background-color: var(--color-beige); color: var(--color-navy); }
-        #logout-button:hover { background-color: #cfc2b1; }
-        .actions button:active { transform: scale(0.98); }
+        #refresh-button { background-color: var(--color-accent); }
+        #logout-button { background-color: var(--color-beige); color: var(--color-navy); box-shadow: none; }
+        #logout-button:hover { background-color: var(--color-logout-hover); color: var(--color-danger); }
+        .actions > button:active { transform: scale(0.98); }
         #admin-info { margin: 0 28px 4px; font-size: 0.95rem; color: var(--color-navy-light); }
-        #status-message { margin: 0 28px 12px; color: var(--color-navy); font-weight: 600; min-height: 24px; }
-        #status-message.error { color: #c62828; }
+        #status-message { margin: 0 28px 12px; color: var(--color-accent); font-weight: 600; min-height: 24px; }
+        #status-message.error { color: var(--color-danger); }
         #filter-summary { margin: 0 28px 12px; font-size: 0.9rem; color: var(--color-navy-light); }
         #filter-summary[hidden] { display: none; }
-        .filter-modal-backdrop { position: fixed; inset: 0; background-color: rgba(85, 88, 121, 0.56); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
-        .filter-modal-backdrop[hidden] { display: none; }
-        .filter-modal { background-color: #fff; border-radius: 12px; box-shadow: 0 18px 32px rgba(85, 88, 121, 0.24); max-width: 320px; width: 100%; padding: 22px 24px; border: 1px solid rgba(152, 161, 188, 0.3); }
-        .filter-modal h3 { margin: 0 0 12px; font-size: 1.2rem; color: var(--color-text); }
-        .filter-modal label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--color-text); font-size: 0.95rem; }
-        .filter-modal select { border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; }
-        .filter-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
-        .filter-actions button { border-radius: 8px; padding: 8px 14px; font-size: 0.9rem; }
+        .status-control { position: relative; display: inline-flex; }
+        .status-control .status-chip { border: 1px solid var(--state-active-border); background-color: var(--state-active-bg); color: var(--state-active-text); box-shadow: none; padding: 6px 16px; font-size: 0.95rem; font-weight: 600; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .status-control .status-chip.interactive { cursor: pointer; }
+        .status-control .status-chip.interactive:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0, 119, 182, 0.22); }
+        .status-control .status-chip.estado-en-espera { background-color: var(--state-pending-bg); color: var(--state-pending-text); border-color: var(--state-pending-border); }
+        .status-control .status-chip.estado-archivado { background-color: var(--state-archived-bg); color: var(--state-archived-text); border-color: var(--state-archived-border); }
+        .status-control .status-chip.filter-all { background-color: #e3f7ff; color: #005c99; border-color: rgba(0, 119, 182, 0.32); }
+        .status-control .status-chip.filter-espera { background-color: #eceff3; color: #485366; border-color: #d3d7de; }
+        .status-menu { position: absolute; top: calc(100% + 6px); left: 0; background-color: var(--color-cream); border: 1px solid var(--color-border); border-radius: 14px; box-shadow: 0 18px 36px var(--shadow-strong); padding: 10px; display: grid; gap: 8px; min-width: 168px; z-index: 40; backdrop-filter: blur(4px); }
+        .status-menu[hidden] { display: none !important; }
+        .status-option { border: none; border-radius: 12px; padding: 10px 14px; font-weight: 600; font-size: 0.95rem; text-align: left; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
+        .status-option:focus-visible { outline: 2px solid var(--color-border); outline-offset: 2px; }
+        .status-option:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0, 119, 182, 0.18); }
+        .status-option.status-option-all { background-color: rgba(144, 224, 239, 0.32); color: var(--color-accent); }
+        .status-option.status-option-activo { background-color: var(--state-active-bg); color: var(--state-active-text); }
+        .status-option.status-option-en-espera { background-color: var(--state-pending-bg); color: var(--state-pending-text); }
+        .status-option.status-option-archivado { background-color: var(--state-archived-bg); color: var(--state-archived-text); }
+        .status-option.selected { box-shadow: inset 0 0 0 2px rgba(0, 119, 182, 0.25); }
         #therapist-list { list-style: none; margin: 0; padding: 0; }
-        .therapist-row { display: flex; justify-content: space-between; gap: 16px; padding: 18px 28px; border-top: 1px solid rgba(152, 161, 188, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .therapist-row { display: flex; justify-content: space-between; gap: 16px; padding: 18px 28px; border-top: 1px solid rgba(0, 180, 216, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
         .therapist-row:first-of-type { border-top: none; }
-        .therapist-row:hover { background-color: rgba(152, 161, 188, 0.16); }
-        .therapist-row:focus { background-color: rgba(152, 161, 188, 0.24); outline: 2px solid var(--color-navy); outline-offset: 2px; }
+        .therapist-row:hover { background-color: var(--color-accent-soft); }
+        .therapist-row:focus { background-color: rgba(0, 180, 216, 0.26); outline: 2px solid var(--color-border); outline-offset: 2px; }
         .therapist-row:active { transform: scale(0.99); }
         .therapist-info { display: flex; flex-direction: column; gap: 4px; }
         .therapist-name { font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
         .therapist-detail { font-size: 0.95rem; color: var(--color-navy-light); }
-        .empty-state { margin: 0 28px 28px; padding: 20px; border-radius: 12px; background-color: rgba(244, 235, 211, 0.85); color: var(--color-navy); }
+        .empty-state { margin: 0 28px 28px; padding: 20px; border-radius: 16px; background-color: rgba(144, 224, 239, 0.46); color: var(--color-navy); }
         #patient-list { list-style: none; margin: 0; padding: 0; }
-        .patient-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 20px 28px; border-top: 1px solid rgba(152, 161, 188, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .patient-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 20px 28px; border-top: 1px solid rgba(0, 180, 216, 0.25); align-items: center; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
         .patient-row:first-of-type { border-top: none; }
-        .patient-row:hover { background-color: rgba(152, 161, 188, 0.16); }
-        .patient-row:focus { background-color: rgba(152, 161, 188, 0.24); outline: 2px solid var(--color-navy); outline-offset: 2px; }
+        .patient-row:hover { background-color: var(--color-accent-soft); }
+        .patient-row:focus { background-color: rgba(0, 180, 216, 0.26); outline: 2px solid var(--color-border); outline-offset: 2px; }
         .patient-row:active { transform: scale(0.99); }
         .patient-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
         .patient-name { font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
         .patient-meta { font-size: 0.95rem; color: var(--color-navy-light); }
         .patient-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
-        .assign-button { background-color: var(--color-beige); color: var(--color-navy); border: none; border-radius: 8px; padding: 8px 14px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
-        .assign-button:hover { background-color: #cfc2b1; }
+        .assign-button { background-color: var(--color-accent); color: #fff; border: none; border-radius: 999px; padding: 8px 18px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 10px 20px rgba(0, 119, 182, 0.2); }
+        .assign-button:hover { background-color: var(--color-navy); box-shadow: 0 12px 26px rgba(3, 4, 94, 0.26); }
         .assign-button:active { transform: scale(0.98); }
-        .status-chip { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px; font-weight: 600; font-size: 0.85rem; border: 1px solid transparent; background-color: rgba(152, 161, 188, 0.18); color: var(--color-navy); }
-        .status-chip.estado-activo { background-color: #dcfce7; color: #166534; border-color: #bbf7d0; }
-        .status-chip.estado-en-espera { background-color: rgba(152, 161, 188, 0.22); color: var(--color-navy); border-color: rgba(152, 161, 188, 0.3); }
-        .status-chip.estado-archivado { background-color: #fef3c7; color: #92400e; border-color: #fde68a; }
-        .modal-backdrop { position: fixed; inset: 0; background-color: rgba(85, 88, 121, 0.56); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
+        .status-chip { display: inline-flex; align-items: center; padding: 4px 14px; border-radius: 999px; font-weight: 600; font-size: 0.85rem; border: 1px solid var(--state-active-border); background-color: var(--state-active-bg); color: var(--state-active-text); }
+        .status-chip.estado-activo { background-color: var(--state-active-bg); color: var(--state-active-text); border-color: var(--state-active-border); }
+        .status-chip.estado-en-espera { background-color: var(--state-pending-bg); color: var(--state-pending-text); border-color: var(--state-pending-border); }
+        .status-chip.estado-archivado { background-color: var(--state-archived-bg); color: var(--state-archived-text); border-color: var(--state-archived-border); }
+        .modal-backdrop { position: fixed; inset: 0; background-color: rgba(3, 4, 94, 0.52); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
         .modal-backdrop[hidden] { display: none; }
-        .modal { background-color: #fff; border-radius: 12px; box-shadow: 0 18px 38px rgba(85, 88, 121, 0.24); max-width: 460px; width: 100%; padding: 24px 26px; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(152, 161, 188, 0.3); }
-        .modal h3 { margin: 0 0 16px; font-size: 1.2rem; }
+        .modal { background-color: var(--color-cream); border-radius: 16px; box-shadow: 0 20px 44px var(--shadow-strong); max-width: 460px; width: 100%; padding: 24px 26px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--color-border); }
+        .modal h3 { margin: 0 0 16px; font-size: 1.2rem; color: var(--color-text); }
         .modal form { display: grid; gap: 12px; }
         label.form-field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--color-text); font-size: 0.95rem; }
         .modal input[type="text"],
         .modal input[type="email"],
-        .modal select { border: 1px solid rgba(152, 161, 188, 0.6); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; }
+        .modal select { border: 1px solid var(--color-border); border-radius: 10px; padding: 10px 12px; font-size: 0.95rem; background-color: #fff; color: var(--color-text); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+        .modal input:focus,
+        .modal select:focus { outline: 2px solid var(--color-accent); outline-offset: 1px; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
-        .modal-actions button { border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 0.95rem; }
-        .button-secondary { background-color: var(--color-beige); color: var(--color-navy); }
-        .button-secondary:hover { background-color: #cfc2b1; }
-        .modal button[type="submit"] { background-color: var(--color-navy); color: #fff; border: none; }
-        .modal button[type="submit"]:hover { background-color: #404561; }
-        .modal-status { margin: 0; font-size: 0.9rem; color: #c62828; min-height: 20px; }
+        .modal-actions button { border-radius: 999px; padding: 10px 18px; font-weight: 600; font-size: 0.95rem; border: none; }
+        .button-secondary { background-color: var(--color-beige); color: var(--color-navy); box-shadow: none; }
+        .button-secondary:hover { background-color: var(--color-cream); }
+        .modal button[type="submit"] { background-color: var(--color-accent); color: #fff; box-shadow: 0 10px 22px rgba(0, 119, 182, 0.24); }
+        .modal button[type="submit"]:hover { background-color: var(--color-navy); box-shadow: 0 12px 28px rgba(3, 4, 94, 0.26); }
+        .modal-status { margin: 0; font-size: 0.9rem; color: var(--color-danger); min-height: 20px; }
         .assign-body-copy { margin: 0; font-size: 0.95rem; color: var(--color-navy-light); }
         @media (max-width: 720px) {
             .card-header { flex-direction: column; align-items: flex-start; }
@@ -123,10 +154,18 @@
                     </div>
                 </div>
                 <div class="actions">
-                    <button id="filter-button" type="button" class="button-secondary" hidden>Filtrar</button>
+                    <div id="filter-control" class="status-control" hidden>
+                        <button id="filter-button" type="button" class="status-chip interactive" aria-haspopup="listbox" aria-expanded="false">Todos</button>
+                        <div id="filter-menu" class="status-menu" role="listbox" hidden>
+                            <button type="button" class="status-option status-option-all selected" data-filter="ALL" role="option" aria-selected="true">Todos</button>
+                            <button type="button" class="status-option status-option-activo" data-filter="ACTIVO" role="option">Activos</button>
+                            <button type="button" class="status-option status-option-en-espera" data-filter="EN_ESPERA" role="option">En espera</button>
+                            <button type="button" class="status-option status-option-archivado" data-filter="ARCHIVADO" role="option">Archivados</button>
+                        </div>
+                    </div>
                     <button id="new-therapist-button" type="button">Nuevo</button>
                     <button id="refresh-button" type="button">Actualizar</button>
-                    <button id="logout-button" type="button">Cerrar sesión</button>
+                    <button id="logout-button" type="button">Salir</button>
                 </div>
             </div>
             <p id="admin-info"></p>
@@ -138,24 +177,6 @@
             <p id="patient-empty-state" class="empty-state" hidden>No hay pacientes registrados.</p>
         </section>
     </main>
-
-    <div id="filter-modal-backdrop" class="filter-modal-backdrop" hidden>
-        <div class="filter-modal" role="dialog" aria-modal="true" aria-labelledby="filter-modal-title">
-            <h3 id="filter-modal-title">Filtrar pacientes</h3>
-            <label for="filter-state">Estado del expediente</label>
-            <select id="filter-state">
-                <option value="ALL">Todos</option>
-                <option value="ACTIVO">Activos</option>
-                <option value="EN_ESPERA">En espera</option>
-                <option value="ARCHIVADO">Archivados</option>
-            </select>
-            <div class="filter-actions">
-                <button id="filter-clear-button" type="button" class="button-secondary">Limpiar</button>
-                <button id="filter-apply-button" type="button">Aplicar</button>
-            </div>
-        </div>
-    </div>
-
     <div id="create-modal-backdrop" class="modal-backdrop" hidden>
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
             <h3 id="create-modal-title">Agregar terapeuta</h3>
@@ -229,11 +250,10 @@
             const refreshButton = document.getElementById('refresh-button');
             const logoutButton = document.getElementById('logout-button');
             const newTherapistButton = document.getElementById('new-therapist-button');
+            const filterControl = document.getElementById('filter-control');
             const filterButton = document.getElementById('filter-button');
-            const filterModalBackdrop = document.getElementById('filter-modal-backdrop');
-            const filterStateSelect = document.getElementById('filter-state');
-            const filterApplyButton = document.getElementById('filter-apply-button');
-            const filterClearButton = document.getElementById('filter-clear-button');
+            const filterMenu = document.getElementById('filter-menu');
+            const filterMenuButtons = filterMenu ? Array.from(filterMenu.querySelectorAll('[data-filter]')) : [];
             const filterSummary = document.getElementById('filter-summary');
             const viewToggleButton = document.getElementById('view-toggle-button');
             const viewMenu = document.getElementById('view-menu');
@@ -277,13 +297,20 @@
 
             const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
 
+            const viewParams = new URLSearchParams(window.location.search);
+
             let currentView = VIEW_TYPES.THERAPISTS;
             let cachedTherapists = [];
             let allPatients = [];
             let patientsLoaded = false;
             let patientFilterState = 'ALL';
+            let filterMenuOpen = false;
             let selectedPatient = null;
             let viewMenuOpen = false;
+
+            if (viewParams.get('view') === VIEW_TYPES.PATIENTS) {
+                currentView = VIEW_TYPES.PATIENTS;
+            }
 
             const fetchUnassignedPatients = async function (seenIds) {
                 try {
@@ -468,6 +495,13 @@
                 ARCHIVADO: 'Archivados'
             };
 
+            const FILTER_CLASS_MAP = {
+                ALL: 'filter-all',
+                ACTIVO: 'estado-activo',
+                EN_ESPERA: 'filter-espera',
+                ARCHIVADO: 'estado-archivado'
+            };
+
             const getDisplayState = function (patient) {
                 if (!patient) {
                     return 'EN_ESPERA';
@@ -486,12 +520,33 @@
                 };
             };
 
+            const updateFilterMenuSelection = function (state) {
+                if (!filterMenuButtons.length) {
+                    return;
+                }
+                filterMenuButtons.forEach(function (button) {
+                    const isSelected = button.getAttribute('data-filter') === state;
+                    button.classList.toggle('selected', isSelected);
+                    if (isSelected) {
+                        button.setAttribute('aria-selected', 'true');
+                    } else {
+                        button.removeAttribute('aria-selected');
+                    }
+                });
+            };
+
             const updateFilterButtonLabel = function () {
-                if (currentView !== VIEW_TYPES.PATIENTS) {
+                if (currentView !== VIEW_TYPES.PATIENTS || !filterButton) {
                     return;
                 }
                 const label = VIEW_FILTER_LABELS[patientFilterState] || 'Todos';
-                filterButton.textContent = patientFilterState === 'ALL' ? 'Filtrar' : 'Filtrar: ' + label;
+                const className = FILTER_CLASS_MAP[patientFilterState] || '';
+                filterButton.textContent = label;
+                filterButton.className = 'status-chip interactive' + (className ? ' ' + className : '');
+                filterButton.setAttribute('data-current-filter', patientFilterState);
+                filterButton.setAttribute('aria-label', 'Filtrar pacientes: ' + label);
+                filterButton.setAttribute('aria-expanded', String(filterMenuOpen));
+                updateFilterMenuSelection(patientFilterState);
             };
 
             const updateFilterSummary = function (visibleCount) {
@@ -505,26 +560,43 @@
                 filterSummary.textContent = 'Filtro aplicado: ' + label + ' (' + visibleCount + ' pacientes).';
             };
 
-            const closeFilterModal = function () {
-                if (filterModalBackdrop) {
-                    filterModalBackdrop.hidden = true;
+            const openFilterMenu = function () {
+                if (!filterMenu || !filterButton || currentView !== VIEW_TYPES.PATIENTS) {
+                    return;
+                }
+                filterMenuOpen = true;
+                filterMenu.hidden = false;
+                filterButton.setAttribute('aria-expanded', 'true');
+                const current = filterMenuButtons.find(function (button) {
+                    return button.getAttribute('data-filter') === patientFilterState;
+                }) || filterMenuButtons[0];
+                if (current) {
+                    setTimeout(function () { current.focus(); }, 0);
                 }
             };
 
-            const openFilterModal = function () {
-                if (!filterModalBackdrop || currentView !== VIEW_TYPES.PATIENTS) {
+            const closeFilterMenu = function (options) {
+                if (!filterMenuOpen) {
                     return;
                 }
-                if (filterStateSelect) {
-                    filterStateSelect.value = patientFilterState;
+                filterMenuOpen = false;
+                if (filterMenu) {
+                    filterMenu.hidden = true;
                 }
-                filterModalBackdrop.hidden = false;
-                if (filterStateSelect) {
-                    try {
-                        filterStateSelect.focus({ preventScroll: true });
-                    } catch (error) {
-                        filterStateSelect.focus();
+                if (filterButton) {
+                    filterButton.setAttribute('aria-expanded', 'false');
+                    const shouldFocus = !options || options.focus !== false;
+                    if (shouldFocus) {
+                        filterButton.focus();
                     }
+                }
+            };
+
+            const toggleFilterMenu = function () {
+                if (filterMenuOpen) {
+                    closeFilterMenu();
+                } else {
+                    openFilterMenu();
                 }
             };
 
@@ -535,14 +607,23 @@
                 if (showingTherapists) {
                     patientEmptyState.hidden = true;
                     filterSummary.hidden = true;
-                    closeFilterModal();
+                    closeFilterMenu({ focus: false });
                     updateEmptyStateForTherapists();
                 } else {
                     emptyState.hidden = true;
                     updateEmptyStateForPatients();
                     updateFilterButtonLabel();
                 }
-                filterButton.hidden = showingTherapists;
+                if (filterControl) {
+                    filterControl.hidden = showingTherapists;
+                    filterControl.style.display = showingTherapists ? 'none' : 'inline-flex';
+                    if (showingTherapists) {
+                        filterControl.setAttribute('aria-hidden', 'true');
+                        closeFilterMenu({ focus: false });
+                    } else {
+                        filterControl.removeAttribute('aria-hidden');
+                    }
+                }
                 newTherapistButton.hidden = !showingTherapists;
             };
 
@@ -629,7 +710,7 @@
                     const therapistName = patient.terapeutaAsignado && patient.terapeutaAsignado.nombre ? patient.terapeutaAsignado.nombre : null;
                     const therapistLabel = document.createElement('span');
                     therapistLabel.className = 'patient-meta';
-                    therapistLabel.textContent = therapistName ? therapistName : 'No asignado';
+                    therapistLabel.textContent = 'Terapeuta asignado: ' + (therapistName ? therapistName : 'No asignado');
                     info.appendChild(therapistLabel);
 
                     if (patient.fechaRegistro) {
@@ -777,7 +858,7 @@
                 renderPatients(dataset);
                 updateFilterButtonLabel();
                 if (!options || !options.silent) {
-                    closeFilterModal();
+                    closeFilterMenu();
                 }
             };
 
@@ -990,43 +1071,45 @@
                 createModalStatus.textContent = '';
             };
 
-            filterButton.addEventListener('click', function () {
-                if (currentView !== VIEW_TYPES.PATIENTS) {
-                    return;
-                }
-                if (filterModalBackdrop.hidden) {
-                    openFilterModal();
-                } else {
-                    closeFilterModal();
-                }
-            });
-
-            filterApplyButton.addEventListener('click', function () {
-                applyPatientFilter(filterStateSelect.value);
-            });
-
-            filterStateSelect.addEventListener('change', function () {
-                // Optional immediate feedback when selecting via keyboard
-                applyPatientFilter(filterStateSelect.value, { silent: true });
-                updateFilterButtonLabel();
-            });
-
-            filterClearButton.addEventListener('click', function () {
-                if (patientFilterState === 'ALL') {
-                    closeFilterModal();
-                    return;
-                }
-                filterStateSelect.value = 'ALL';
-                applyPatientFilter('ALL');
-            });
-
-            if (filterModalBackdrop) {
-                filterModalBackdrop.addEventListener('click', function (event) {
-                    if (event.target === filterModalBackdrop) {
-                        closeFilterModal();
+            if (filterButton) {
+                filterButton.addEventListener('click', function () {
+                    if (currentView !== VIEW_TYPES.PATIENTS) {
+                        return;
                     }
+                    toggleFilterMenu();
                 });
             }
+
+            if (filterMenuButtons.length) {
+                filterMenuButtons.forEach(function (button) {
+                    button.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        if (currentView !== VIEW_TYPES.PATIENTS) {
+                            closeFilterMenu({ focus: false });
+                            return;
+                        }
+                        const value = button.getAttribute('data-filter');
+                        if (!value) {
+                            closeFilterMenu();
+                            return;
+                        }
+                        if (value === patientFilterState) {
+                            closeFilterMenu();
+                            return;
+                        }
+                        applyPatientFilter(value);
+                    });
+                });
+            }
+
+            document.addEventListener('click', function (event) {
+                if (!filterMenuOpen || !filterControl) {
+                    return;
+                }
+                if (!filterControl.contains(event.target)) {
+                    closeFilterMenu({ focus: false });
+                }
+            });
 
             refreshButton.addEventListener('click', function () {
                 if (currentView === VIEW_TYPES.THERAPISTS) {
@@ -1075,15 +1158,19 @@
                         closeViewMenu();
                         return;
                     }
-                    if (filterModalBackdrop && !filterModalBackdrop.hidden) {
-                        closeFilterModal();
+                    if (filterMenuOpen) {
+                        closeFilterMenu({ focus: false });
                     }
                 }
             });
 
             updateViewButtonLabel();
             updateListVisibility();
-            loadTherapists();
+            if (currentView === VIEW_TYPES.THERAPISTS) {
+                loadTherapists();
+            } else {
+                loadPatients();
+            }
         })();
     </script>
 </body>

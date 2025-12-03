@@ -7,99 +7,121 @@
     <style>
         :root {
             color-scheme: light;
-            --color-navy: #555879;
-            --color-navy-light: #98A1BC;
-            --color-beige: #DED3C4;
-            --color-cream: #F4EBD3;
-            --color-text: #2f2f3a;
-            --shadow-strong: rgba(85, 88, 121, 0.18);
-            --shadow-soft: rgba(85, 88, 121, 0.12);
+            --color-navy: #03045e;
+            --color-navy-light: rgba(3, 4, 94, 0.72);
+            --color-beige: #90e0ef;
+            --color-cream: #caf0f8;
+            --color-accent: #0077b6;
+            --color-accent-soft: rgba(0, 180, 216, 0.16);
+            --color-border: #00b4d8;
+            --color-text: #03045e;
+            --shadow-strong: rgba(0, 180, 216, 0.24);
+            --shadow-soft: rgba(0, 180, 216, 0.16);
+            --color-danger: #b91c1c;
+            --color-background-falloff: #edf2f4;
+            --color-background-glow: rgba(237, 242, 244, 0.52);
+            --state-active-bg: #dcfce7;
+            --state-active-text: #166534;
+            --state-active-border: #bbf7d0;
+            --state-pending-bg: #e0f2fe;
+            --state-pending-text: #0369a1;
+            --state-pending-border: #bae6fd;
+            --state-archived-bg: #fef3c7;
+            --state-archived-text: #92400e;
+            --state-archived-border: #fde68a;
         }
         * { box-sizing: border-box; }
-        body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background-color: var(--color-cream); color: var(--color-text); }
-        header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: var(--color-background-falloff);
+            background-image: radial-gradient(120% 140% at 50% -20%, var(--color-background-glow), rgba(237, 242, 244, 0.95) 62%, rgba(237, 242, 244, 0.98) 100%);
+            color: var(--color-text);
+        }
+        header { background-color: var(--color-navy); color: #fff; padding: 16px 24px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); }
         header h1 { margin: 0; font-size: 1.5rem; }
         main { max-width: 1024px; margin: 32px auto; padding: 0 16px 48px; }
-        .card { background-color: #fff; border-radius: 16px; box-shadow: 0 12px 28px var(--shadow-strong); overflow: hidden; border: 1px solid rgba(152, 161, 188, 0.25); }
+        .card { background-color: var(--color-cream); border-radius: 20px; box-shadow: 0 20px 44px var(--shadow-strong); overflow: hidden; border: 1px solid var(--color-border); backdrop-filter: blur(6px); }
         .card-header { padding: 24px 28px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; }
         .card-header h2 { margin: 0; font-size: 1.6rem; }
         .card-header p { margin: 4px 0 0; color: var(--color-navy-light); }
         .card-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        .status-chip { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 999px; background-color: rgba(152, 161, 188, 0.22); color: var(--color-navy); font-weight: 600; font-size: 0.9rem; }
-        .status-chip.estado-en-espera { background-color: rgba(222, 211, 196, 0.6); color: #8a775f; }
-        .status-chip.estado-archivado { background-color: rgba(244, 235, 211, 0.7); color: #8f7d63; }
-        .status-chip.estado-activo { background-color: rgba(85, 88, 121, 0.18); color: var(--color-navy); }
-        .status-banner { margin: 0 28px 16px; padding: 10px 14px; border-radius: 8px; background-color: rgba(152, 161, 188, 0.15); color: var(--color-navy); font-weight: 600; min-height: 24px; }
-        .status-banner.error { background-color: #fdecea; color: #b3261e; }
-        .detail-grid { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(360px, 1.8fr); gap: 20px; padding: 0 28px 28px; }
-        .panel { background-color: #fff; border: 1px solid rgba(152, 161, 188, 0.25); border-radius: 12px; padding: 20px 24px; box-shadow: 0 4px 14px var(--shadow-soft); }
-        .panel h3 { margin: 0 0 16px; font-size: 1.1rem; }
+        .status-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 999px; font-weight: 600; font-size: 0.9rem; border: 1px solid var(--state-active-border); background-color: var(--state-active-bg); color: var(--state-active-text); }
+        .status-chip.estado-activo { background-color: var(--state-active-bg); color: var(--state-active-text); border-color: var(--state-active-border); }
+        .status-chip.estado-en-espera { background-color: var(--state-pending-bg); color: var(--state-pending-text); border-color: var(--state-pending-border); }
+        .status-chip.estado-archivado { background-color: var(--state-archived-bg); color: var(--state-archived-text); border-color: var(--state-archived-border); }
+        .status-banner { margin: 0 28px 16px; padding: 12px 16px; border-radius: 12px; background-color: var(--color-accent-soft); color: var(--color-accent); font-weight: 600; min-height: 24px; }
+        .status-banner.error { background-color: rgba(185, 28, 28, 0.12); color: var(--color-danger); }
+        .detail-grid { display: flex; flex-direction: column; gap: 20px; padding: 0 28px 28px; }
+        .panel { background-color: rgba(255, 255, 255, 0.9); border: 1px solid var(--color-border); border-radius: 16px; padding: 22px 26px; box-shadow: 0 12px 30px var(--shadow-soft); backdrop-filter: blur(4px); }
+        .panel h3 { margin: 0 0 16px; font-size: 1.1rem; color: var(--color-text); }
         .panel-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
         .panel-header h3 { margin: 0; }
         .panel-actions-inline { display: flex; gap: 10px; flex-wrap: wrap; }
-        .detail-list { display: grid; gap: 12px; font-size: 0.95rem; }
-        .detail-list dt { font-weight: 600; color: var(--color-text); }
-        .detail-list dd { margin: 4px 0 0; color: var(--color-navy-light); }
-        .sessions-panel { grid-column: span 1; }
+        .sessions-panel { width: 100%; }
         .session-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-        .session-card { border: 1px solid rgba(222, 211, 196, 0.75); border-radius: 10px; padding: 16px 18px; background-color: rgba(244, 235, 211, 0.75); box-shadow: 0 3px 8px var(--shadow-soft); display: flex; flex-direction: column; gap: 12px; }
+        .session-card { border: 1px solid var(--color-border); border-radius: 14px; padding: 16px 18px; background-color: rgba(144, 224, 239, 0.3); box-shadow: 0 8px 22px rgba(0, 180, 216, 0.18); display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(4px); }
         .session-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .session-number { font-weight: 700; font-size: 1rem; color: var(--color-text); }
-        .session-status { font-weight: 600; font-size: 0.9rem; padding: 4px 10px; border-radius: 999px; }
-        .session-status.asistio { background-color: rgba(85, 88, 121, 0.18); color: var(--color-navy); }
-        .session-status.cancelada { background-color: rgba(222, 211, 196, 0.65); color: #8a775f; }
-        .session-status.falta { background-color: rgba(152, 161, 188, 0.25); color: var(--color-navy); }
+        .session-status { font-weight: 600; font-size: 0.9rem; padding: 4px 12px; border-radius: 999px; border: 1px solid transparent; }
+        .session-status.asistio { background-color: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .session-status.cancelada { background-color: rgba(3, 4, 94, 0.1); color: rgba(3, 4, 94, 0.72); border-color: rgba(3, 4, 94, 0.18); }
+        .session-status.falta { background-color: rgba(0, 180, 216, 0.18); color: var(--color-accent); border-color: rgba(0, 180, 216, 0.3); }
         .session-body p { margin: 6px 0; font-size: 0.92rem; color: var(--color-text); }
-        .session-body strong { color: var(--color-navy); }
-        .session-notes { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(152, 161, 188, 0.3); }
+        .session-body strong { color: var(--color-accent); }
+        .session-notes { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0, 180, 216, 0.3); }
         .session-actions { display: flex; justify-content: flex-end; gap: 10px; }
-        .empty-state { margin: 0; padding: 18px; border-radius: 10px; background-color: rgba(244, 235, 211, 0.85); color: var(--color-navy); text-align: center; font-weight: 600; }
+        .empty-state { margin: 0; padding: 18px; border-radius: 14px; background-color: rgba(144, 224, 239, 0.46); color: var(--color-navy); text-align: center; font-weight: 600; }
         .stats-panel { margin: 0 28px 28px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
-        .stat-item { background-color: rgba(244, 235, 211, 0.7); border: 1px solid rgba(222, 211, 196, 0.7); border-radius: 12px; padding: 14px 16px; box-shadow: 0 4px 10px var(--shadow-soft); }
-        .stat-value { display: block; font-size: 1.4rem; font-weight: 700; color: var(--color-navy); }
+        .stat-item { background-color: rgba(255, 255, 255, 0.9); border: 1px solid var(--color-border); border-radius: 16px; padding: 16px 18px; box-shadow: 0 12px 26px var(--shadow-soft); backdrop-filter: blur(4px); }
+        .stat-value { display: block; font-size: 1.4rem; font-weight: 700; color: var(--color-accent); }
         .stat-label { color: var(--color-navy-light); font-size: 0.9rem; margin-top: 4px; display: block; }
-        button { border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; background-color: var(--color-navy); color: #fff; transition: background-color 0.2s ease, transform 0.2s ease; }
-        button:hover { background-color: #404561; }
+        button { border: none; border-radius: 999px; padding: 10px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; background-color: var(--color-accent); color: #fff; transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 10px 22px rgba(0, 119, 182, 0.26); }
+        button:hover { background-color: var(--color-navy); box-shadow: 0 12px 28px rgba(3, 4, 94, 0.28); }
         button:active { transform: scale(0.98); }
-        button.button-secondary { background-color: var(--color-beige); color: var(--color-navy); }
-        button.button-secondary:hover { background-color: #cfc2b1; }
-        button.button-outline { background-color: transparent; color: var(--color-navy); border: 1px solid var(--color-navy); }
-        button.button-outline:hover { background-color: rgba(152, 161, 188, 0.2); }
-        button.button-danger { background-color: #dc2626; color: #fff; }
-        button.button-danger:hover { background-color: #b91c1c; }
-        #back-button { background-color: var(--color-beige); color: var(--color-navy); }
-        #back-button:hover { background-color: #cfc2b1; }
-        .button-muted { background-color: #e5e7eb !important; color: #9aa0b4 !important; border-color: #d1d5db !important; }
+        button.button-secondary { background-color: var(--color-beige); color: var(--color-navy); box-shadow: none; }
+        button.button-secondary:hover { background-color: var(--color-cream); }
+        button.button-outline { background-color: transparent; color: var(--color-accent); border: 1px solid var(--color-border); box-shadow: none; }
+        button.button-outline:hover { background-color: var(--color-accent-soft); }
+        button.button-danger { background-color: var(--color-danger); color: #fff; box-shadow: 0 10px 22px rgba(185, 28, 28, 0.22); }
+        button.button-danger:hover { background-color: #991b1b; box-shadow: 0 12px 26px rgba(153, 27, 27, 0.24); }
+        #back-button { background-color: var(--color-beige); color: var(--color-navy); box-shadow: none; }
+        #back-button:hover { background-color: var(--color-cream); }
+        .button-muted { background-color: #e5e7eb !important; color: #9aa0b4 !important; border-color: #d1d5db !important; box-shadow: none !important; }
         .button-muted:hover { background-color: #e5e7eb !important; }
         .card-footer { display: flex; justify-content: flex-end; padding: 0 28px 28px; }
         .footer-actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
         #context-info { margin: 0 28px 12px; color: var(--color-navy-light); font-size: 0.95rem; }
         input[type="text"], input[type="email"], input[type="number"], input[type="date"], select, textarea {
             width: 100%;
-            border: 1px solid rgba(152, 161, 188, 0.6);
-            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
             padding: 10px 12px;
             font-family: inherit;
             font-size: 0.95rem;
             color: var(--color-text);
-            background-color: #fff;
+            background-color: var(--color-cream);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
         }
-        input:focus, select:focus, textarea:focus { outline: 2px solid var(--color-navy); }
+        input:focus, select:focus, textarea:focus { outline: 2px solid var(--color-accent); outline-offset: 1px; background-color: #fff; }
         textarea { min-height: 96px; resize: vertical; }
         label.form-field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--color-text); font-size: 0.95rem; }
-        .modal-backdrop { position: fixed; inset: 0; background-color: rgba(85, 88, 121, 0.56); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
+        .modal-backdrop { position: fixed; inset: 0; background-color: rgba(3, 4, 94, 0.52); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; }
         .modal-backdrop[hidden] { display: none; }
-        .modal { background-color: #fff; border-radius: 12px; box-shadow: 0 18px 38px rgba(85, 88, 121, 0.24); max-width: 420px; width: 100%; padding: 20px 22px; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(152, 161, 188, 0.3); }
-        .modal h3 { margin: 0 0 12px; font-size: 1.2rem; }
+        .modal { background-color: var(--color-cream); border-radius: 16px; box-shadow: 0 20px 44px var(--shadow-strong); max-width: 420px; width: 100%; padding: 22px 24px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--color-border); }
+        .modal h3 { margin: 0 0 12px; font-size: 1.2rem; color: var(--color-text); }
         .modal form { display: grid; gap: 10px; }
         .modal input,
         .modal select,
-        .modal textarea { padding: 8px 10px; font-size: 0.92rem; border-radius: 6px; }
+        .modal textarea { padding: 10px 12px; font-size: 0.92rem; border-radius: 10px; border: 1px solid var(--color-border); background-color: var(--color-cream); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+        .modal input:focus,
+        .modal select:focus,
+        .modal textarea:focus { outline: 2px solid var(--color-accent); outline-offset: 1px; background-color: #fff; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 2px; }
+        .modal-actions button { border-radius: 999px; padding: 10px 18px; font-weight: 600; font-size: 0.95rem; }
         @media (max-width: 860px) {
-            .detail-grid { grid-template-columns: 1fr; }
-            .sessions-panel { grid-column: auto; }
+            .detail-grid { padding: 0 20px 24px; }
         }
         @media (max-width: 600px) {
             .card-header { flex-direction: column; align-items: flex-start; }
@@ -127,46 +149,6 @@
             <p id="context-info" hidden></p>
             <div id="status-banner" class="status-banner"></div>
             <div class="detail-grid">
-                <section class="panel" aria-labelledby="basic-title">
-                    <div class="panel-header">
-                        <h3 id="basic-title">Información básica</h3>
-                        
-                    </div>
-                    <dl class="detail-list">
-                        <div>
-                            <dt>Celular</dt>
-                            <dd id="detail-celular">--</dd>
-                        </div>
-                        <div>
-                            <dt>Email</dt>
-                            <dd id="detail-email">--</dd>
-                        </div>
-                        <div>
-                            <dt>Servicio</dt>
-                            <dd id="detail-servicio">--</dd>
-                        </div>
-                        <div>
-                            <dt>Terapeuta asignado</dt>
-                            <dd id="detail-terapeuta">--</dd>
-                        </div>
-                        <div>
-                            <dt>Fecha de registro</dt>
-                            <dd id="detail-fecha-registro">--</dd>
-                        </div>
-                        <div>
-                            <dt>Próxima sesión</dt>
-                            <dd id="detail-proxima-sesion">--</dd>
-                        </div>
-                        <div>
-                            <dt>Edad</dt>
-                            <dd id="detail-edad">--</dd>
-                        </div>
-                        <div>
-                            <dt>Sexo</dt>
-                            <dd id="detail-sexo">--</dd>
-                        </div>
-                    </dl>
-                </section>
                 <section class="panel sessions-panel" aria-labelledby="sessions-title">
                     <div class="panel-header">
                         <h3 id="sessions-title">Sesiones registradas</h3>
@@ -280,16 +262,6 @@
             const patientStatus = document.getElementById('patient-status');
             const contextInfo = document.getElementById('context-info');
             const statusBanner = document.getElementById('status-banner');
-            const detailFields = {
-                celular: document.getElementById('detail-celular'),
-                email: document.getElementById('detail-email'),
-                servicio: document.getElementById('detail-servicio'),
-                terapeuta: document.getElementById('detail-terapeuta'),
-                fechaRegistro: document.getElementById('detail-fecha-registro'),
-                proximaSesion: document.getElementById('detail-proxima-sesion'),
-                edad: document.getElementById('detail-edad'),
-                sexo: document.getElementById('detail-sexo')
-            };
             const sessionsList = document.getElementById('sessions-list');
             const sessionsEmpty = document.getElementById('sessions-empty');
             const statFields = {
@@ -337,13 +309,6 @@
                 { value: 'TERAPIA_GRUPAL', label: 'Terapia grupal' },
                 { value: 'EVALUACION_PSICOLOGICA', label: 'Psicodiagnóstico' },
                 { value: 'INTERVENCION_CRISIS', label: 'Intervención en crisis' }
-            ];
-
-            const SEX_OPTIONS = [
-                { value: 'FEMENINO', label: 'Femenino' },
-                { value: 'MASCULINO', label: 'Masculino' },
-                { value: 'NO_BINARIO', label: 'No binario' },
-                { value: 'PREFIERE_NO_DECIR', label: 'Prefiere no decir' }
             ];
 
             const SESSION_TYPE_OPTIONS = [
@@ -437,7 +402,7 @@
 
             const apiBaseUrl = sessionStorage.getItem(API_BASE_KEY) || DEFAULT_API_URL;
             if (contextInfo) {
-                contextInfo.textContent = isAdmin ? 'Vista de administrador. Solo disponible en modo lectura.' : '';
+                contextInfo.textContent = '';
                 contextInfo.hidden = !isAdmin;
             }
 
@@ -491,17 +456,6 @@
                 }
             };
 
-            const formatSexo = function (value) {
-                if (!value) return '--';
-                const mapping = {
-                    FEMENINO: 'Femenino',
-                    MASCULINO: 'Masculino',
-                    NO_BINARIO: 'No binario',
-                    PREFIERE_NO_DECIR: 'Prefiere no decir'
-                };
-                return mapping[value] || value;
-            };
-
             const createInfoRow = function (label, value, extraClass) {
                 const p = document.createElement('p');
                 if (extraClass) {
@@ -512,34 +466,6 @@
                 p.appendChild(strong);
                 p.appendChild(document.createTextNode(' ' + value));
                 return p;
-            };
-
-            const setDetailFieldText = function (key, value) {
-                if (!detailFields[key]) {
-                    return;
-                }
-                detailFields[key].textContent = value;
-            };
-
-            const updatePatientDetailView = function () {
-                if (!currentPatient) {
-                    return;
-                }
-                setDetailFieldText('celular', currentPatient.celular || '--');
-                setDetailFieldText('email', currentPatient.email || '--');
-                setDetailFieldText('servicio', formatService(currentPatient.tipoServicio));
-                if (currentPatient.terapeutaAsignado && currentPatient.terapeutaAsignado.nombre) {
-                    const terapeuta = currentPatient.terapeutaAsignado;
-                    const texto = terapeuta.nombre + (terapeuta.especialidad ? ' - ' + terapeuta.especialidad : '');
-                    setDetailFieldText('terapeuta', texto);
-                } else {
-                    setDetailFieldText('terapeuta', '--');
-                }
-                setDetailFieldText('fechaRegistro', formatDate(currentPatient.fechaRegistro));
-                setDetailFieldText('proximaSesion', formatDate(currentPatient.fechaProximaSesion));
-                const edadTexto = currentPatient.edad !== null && currentPatient.edad !== undefined ? currentPatient.edad + ' anos' : '--';
-                setDetailFieldText('edad', edadTexto);
-                setDetailFieldText('sexo', formatSexo(currentPatient.sexo));
             };
 
             
@@ -730,15 +656,6 @@
                     addSessionButton.disabled = archived;
                 }
 
-                if (patient.terapeutaAsignado && patient.terapeutaAsignado.nombre) {
-                    const terapeuta = patient.terapeutaAsignado;
-                    const texto = terapeuta.nombre + (terapeuta.especialidad ? ' - ' + terapeuta.especialidad : '');
-                    setDetailFieldText('terapeuta', texto);
-                } else {
-                    setDetailFieldText('terapeuta', '--');
-                }
-
-                updatePatientDetailView();
             };
 
             const renderSessions = function (sessions) {
@@ -972,7 +889,7 @@
                         window.location.href = 'terapeuta.html?terapeutaId=' + encodeURIComponent(therapistOriginId);
                         return;
                     }
-                    window.location.href = 'panel_admin.html';
+                    window.location.href = 'panel_admin.html?view=patients';
                     return;
                 }
                 window.location.href = 'pacientes.html';
