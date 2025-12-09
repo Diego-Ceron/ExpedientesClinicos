@@ -96,6 +96,13 @@ Foco: ampliaciones funcionales, pulido, exportación y documentación pública.
 | Mauricio  | 35%       | Configuración PostgreSQL, deploy, documentación API, refactor UI |
 | Diego     | 30%       | Datos prueba, reorganización repo, nuevas funcionalidades, refinamiento UI |
 
+### Promedio de contribución general del proyecto (3 etapas)
+| Persona   | % |
+|-----------|-----------|
+| Christian | 38%       |
+| Mauricio  | 38%       | 
+| Diego     | 24%       | 
+
 
 
 
